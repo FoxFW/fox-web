@@ -77,13 +77,13 @@ code{background:#111;border:1px solid #444;border-radius:3px;padding:1px 6px;fon
     <div class="badge">FAP COMPILER</div>
   </div>
   <div class="tb-status">
-    <div class="dot off" id="dot"></div>
+    <div class="dot on" id="dot"></div>
     <div class="conn-label" id="clabel">Ready</div>
   </div>
-  <a href="index.html">← User Guide</a>
+  <a href="index.html#fap-compiler-info">← User Guide</a>
 </header>
 <div class="subbar">
-  <div class="conn-sub" id="csub">Paste a GitHub repo URL below — no account or login needed</div>
+  <div class="conn-sub" id="csub">Paste a GitHub repo URL below</div>
 </div>
 
 <div class="wrap">
@@ -91,7 +91,6 @@ code{background:#111;border:1px solid #444;border-radius:3px;padding:1px 6px;fon
   <div class="fwcard">
     <div class="fwf"><div class="k">Firmware</div><div class="v">FoxFW v2.0</div></div>
     <div class="fwf"><div class="k">Builder</div><div class="v d">GitHub Actions · fbt</div></div>
-    <div class="fwf"><div class="k">Cost</div><div class="v d">Free — nothing to sign in to</div></div>
     <div class="fwf"><div class="k">Output</div><div class="v d">.fap for Flipper Zero</div></div>
   </div>
 
@@ -142,6 +141,13 @@ code{background:#111;border:1px solid #444;border-radius:3px;padding:1px 6px;fon
 const WORKER_URL = 'https://foxfw-fap-compiler.foxcustomfirmware.workers.dev';
 
 const $ = id => document.getElementById(id);
+
+function repoNameFromUrl(url) {
+  const clean = url.trim().replace(/\.git$/i, '').replace(/\/+$/, '');
+  const parts = clean.split('/');
+  const last = parts[parts.length - 1];
+  return last ? last + '.fap' : 'app.fap';
+}
 
 let fapBlob = null, fapName = null;
 let busy = false;
@@ -247,8 +253,8 @@ async function startCompile() {
     log('Build succeeded — fetching your .fap…', 'ok');
     const file = await api('/artifact?run_id=' + finished.id, { binary: true });
     fapBlob = new Blob([file.data], { type: 'application/octet-stream' });
-    fapName = file.name;
-    log('Got ' + fapName, 'ok');
+    fapName = repoNameFromUrl(repoUrl);
+    log('Got ' + file.name + ' — saving as ' + fapName, 'ok');
 
     pgStep(100, 'Done'); pgTotal(100);
     $('pgfill-step').classList.remove('pulse'); $('pgfill-total').classList.remove('pulse');
