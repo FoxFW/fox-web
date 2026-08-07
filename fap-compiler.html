@@ -36,6 +36,7 @@ label{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;
 label:first-of-type{margin-top:0}
 input[type=text]{width:100%;background:#111;border:1px solid var(--border);color:var(--light);padding:11px 13px;border-radius:6px;font-size:.92rem;font-family:'Consolas','Courier New',monospace;transition:border-color .15s,box-shadow .15s}
 input[type=text]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+#repoUrl{border-color:var(--orange)}
 .adv-toggle{margin-top:16px;font-size:.8rem;color:#999;cursor:pointer;user-select:none;display:inline-flex;align-items:center;gap:5px}
 .adv-toggle:hover{color:var(--accent)}
 .adv-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
@@ -59,7 +60,7 @@ input[type=text]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 
 .pgfill2.pulse{animation:pgp 1.3s ease-in-out infinite}
 @keyframes pgp{0%,100%{box-shadow:0 0 5px var(--glow)}50%{box-shadow:0 0 16px rgba(255,154,60,.5)}}
 .pgtext2{position:relative;z-index:1;height:100%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7);padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.log{background:#050505;border:1px solid #2a2a2a;border-radius:6px;padding:12px 15px;font-family:'Consolas','Courier New',monospace;font-size:.78rem;color:#aaa;max-height:280px;overflow-y:auto;line-height:1.7;display:none}
+.log{background:#050505;border:1px solid #2a2a2a;border-radius:6px;padding:12px 15px;font-family:'Consolas','Courier New',monospace;font-size:.78rem;color:#aaa;height:280px;overflow-y:auto;line-height:1.7;display:none}
 .log.show{display:block}
 .log .ok{color:#5cd47a}.log .er{color:#f06060}.log .in{color:#ffb060}.log .dm{color:#555}
 .sbox{display:none;background:#0a1a0d;border:1px solid var(--green);border-radius:7px;padding:22px;margin-bottom:18px;text-align:center}
@@ -222,12 +223,15 @@ async function startCompile() {
   busy = true;
   $('btnCompile').disabled = true;
   $('sbox').classList.remove('show');
-  $('log').innerHTML = ''; $('log').classList.remove('show');
+  $('log').innerHTML = ''; $('log').classList.add('show');
   $('pgwrap2').classList.add('show');
   $('pgfill-step').classList.add('pulse'); $('pgfill-total').classList.add('pulse');
   pgStep(0, 'Dispatching workflow…'); pgTotal(2);
   connUI('busy', 'Compiling…', 'Building on GitHub Actions');
   seenSteps = {};
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  });
 
   const refVal = $('refInput').value.trim();
   const subdirVal = $('subdirInput').value.trim();
