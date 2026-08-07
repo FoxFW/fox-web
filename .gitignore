@@ -1,0 +1,4 @@
+# Personal dev-machine scripts - hardcoded local paths, not usable by
+# anyone else, not part of the site itself
+/reorganize.bat
+/reorganize.ps1
