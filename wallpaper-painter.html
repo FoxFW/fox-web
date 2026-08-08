@@ -159,6 +159,16 @@
   .btn.accent:hover:not(:disabled){ color:var(--fox); }
   .btn.accent:disabled{ opacity:1; border-color:var(--fox-dim); color:#d8d9db; cursor:default; }
 
+  /* Save to SD Card is a danger button underneath, but while it's actually
+     usable (device connected) it should read as "ready to go" - lit up
+     orange like an active tool button - not the same bare-outline look it
+     has while disabled/no device. */
+  .btn.danger.accent:not(:disabled){
+    color:var(--fox); border-color:var(--fox-dim); background:#2a1b06;
+  }
+  .btn.danger.accent:hover:not(:disabled){ background:#3a2409; border-color:var(--fox); color:#fff; }
+  .btn.danger.accent:disabled{ background:transparent; }
+
   .divider{ height:1px; background:var(--line); margin:16px 0; }
 
   .switch-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
@@ -825,7 +835,18 @@
 
     async ensureProtoLoaded() {
       if (this.root) return;
-      this.root = await protobuf.load(PROTO_FILES);
+      // keepCase is essential here: protobuf.js camelCases .proto field
+      // names by default (command_id -> commandId), but every field name
+      // used throughout this file matches the .proto text exactly
+      // (command_id, has_next, gui_start_virtual_display_request, ...).
+      // Without keepCase, Type.create() silently accepts those snake_case
+      // keys as harmless extra properties (it doesn't validate against the
+      // schema) while the actual camelCased fields stay unset, so every
+      // message we "sent" encoded down to just a couple of empty bytes -
+      // which is why the Flipper never had anything to respond to and
+      // every RPC call just sat there until it timed out.
+      this.root = new protobuf.Root();
+      await this.root.load(PROTO_FILES, { keepCase: true });
       this.MainType = this.root.lookupType("PB.Main");
     },
 
