@@ -485,16 +485,16 @@
   <div class="chapter-label">Chapter 2c</div>
   <h2>Wallpaper Painter <span class="badge">New</span></h2>
   <p>
-    Draw a custom <code>wallpaper.xbm</code> straight in your browser — no MS Paint round-trip,
-    no separate converter tool. Pencil, eraser, line, and fill-bucket tools on a pixel-accurate
-    128×64 canvas, with the status bar and border pre-locked so you can't accidentally draw
-    somewhere that won't show up on the device.
+    Draw a custom wallpaper straight in your browser — no MS Paint round-trip, no separate
+    converter tool. Pencil, eraser, line, and fill-bucket tools on a pixel-accurate 128×64
+    canvas, with the status bar and border pre-locked so you can't accidentally draw somewhere
+    that won't show up on the device.
   </p>
 
   <div class="box tip">
-    Works fully offline — download <code>wallpaper.xbm</code> with no Flipper connected. Optionally
-    connect over USB to preview your drawing live on the device's screen, or save it straight to
-    the SD card without unplugging anything.
+    Works fully offline — download an <code>.xbm</code> file with no Flipper connected.
+    Optionally connect over USB to preview your drawing live on the device's screen, or save it
+    straight to the SD card — and activate it — without unplugging anything.
   </div>
 
   <div style="text-align:center;margin:28px 0;">
@@ -512,14 +512,17 @@
   <h3>How it works</h3>
   <ol style="color:#ccc;padding-left:22px;line-height:1.9;">
     <li>Draw in the open area of the canvas — the gray border and status bar strip are locked.</li>
-    <li>Click <strong>Download wallpaper.xbm</strong> and copy the file to the root of your SD card.</li>
+    <li>Give it a name, then click <strong>Download</strong> and copy the <code>.xbm</code> file
+      into the <code>wallpapers</code> folder on the root of your SD card.</li>
     <li>Optional: click <strong>Connect Flipper</strong> (Chrome/Edge only) to preview live on the
-      device's screen, or save directly to the SD card with <strong>Save to Flipper SD Card</strong>.</li>
+      device's screen, or save straight to the SD card with <strong>Save to Flipper SD Card</strong> —
+      this also activates it and switches the device to it automatically.</li>
   </ol>
 
-  <div class="box warn" style="margin-top:18px;">
-    <strong>Save to Flipper SD Card</strong> permanently overwrites the device's existing
-    <code>wallpaper.xbm</code> and can't be undone — the page warns you before it does this.
+  <div class="box tip" style="margin-top:18px;">
+    <strong>Save to Flipper SD Card</strong> never overwrites an existing wallpaper — if the name
+    is already taken on the device, a number is added automatically (e.g. <code>MyWallpaper(2).xbm</code>).
+    Pick which saved wallpaper is active any time under Fox Settings → Custom Wallpaper.
   </div>
 
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
@@ -531,9 +534,8 @@
   <div class="chapter-label">Chapter 2d</div>
   <h2>Wallpaper Showcase <span class="badge">New</span></h2>
   <p>
-    Browse community-made <code>wallpaper.xbm</code> files, download the ones you like, or —
-    with a Flipper connected over USB — install one straight to the SD card in one click,
-    no file transfer needed.
+    Browse community-made wallpapers, download the ones you like, or — with a Flipper connected
+    over USB — install one straight to the SD card in one click, no file transfer needed.
   </p>
 
   <div class="box tip">
@@ -554,17 +556,19 @@
 
   <h3>How it works</h3>
   <ol style="color:#ccc;padding-left:22px;line-height:1.9;">
-    <li>Browse the gallery — sort by name, newest, or oldest.</li>
+    <li>Browse the gallery — sort by name, newest, or oldest, and search or filter by name.</li>
     <li>Click <strong>Download</strong> on any wallpaper to save its <code>.zip</code>
-      (contains <code>wallpaper.xbm</code>), or</li>
+      (contains the <code>.xbm</code> file), or</li>
     <li>Click <strong>Connect Flipper</strong> (Chrome/Edge only), then click
       <strong>Install</strong> on a wallpaper to write it straight to the SD card.</li>
   </ol>
 
-  <div class="box warn" style="margin-top:18px;">
-    <strong>Install</strong> permanently overwrites the device's existing
-    <code>wallpaper.xbm</code> and can't be undone — the page warns you before it does this.
-    After installing, turn on <strong>Custom Wallpaper</strong> in Fox Settings to see it.
+  <div class="box tip" style="margin-top:18px;">
+    <strong>Install</strong> saves into the <code>wallpapers</code> folder on the SD card
+    (never overwriting an existing file — a number is added automatically if the name is taken)
+    and immediately sets it as the <strong>active</strong> Custom Wallpaper, turning Custom
+    Wallpaper on if it was off. If an app is open on the device, it exits to the desktop
+    automatically so you see the change right away.
   </div>
 
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
@@ -1025,33 +1029,34 @@
   <h3 id="wallpaper">Custom Wallpaper</h3>
   <p>
     Replaces the desktop background with a custom <strong>128 × 64 pixel</strong>
-    monochrome image stored in the <strong>ROOT of the SD Card</strong>
-    (path: <code>/ext/wallpaper.xbm</code>). If you connect your SD Card to
-    your computer and open it, you should already see a <code>wallpaper.xbm</code>
-    file in the base directory!
+    monochrome image. FoxFW can store any number of these at once in a
+    <strong><code>wallpapers</code> folder on the root of the SD Card</strong>
+    (path: <code>/ext/wallpapers/</code>) and lets you switch between them from
+    Fox Settings without reconnecting the device.
   </p>
   <p>
-    If the file is missing, FoxFW <strong>automatically generates a default
-    wallpaper</strong> from the firmware and writes it to that path. This means
-    a valid <code>wallpaper.xbm</code> is always present after the first boot.
+    If the folder is missing or empty, FoxFW <strong>automatically generates a default
+    wallpaper</strong> inside it on first boot. This means a valid wallpaper is
+    always available and selected by default.
   </p>
   <div class="box new">
     <strong>FoxFW Wallpaper Painter <span class="badge">New</span></strong><br><br>
-    The easiest way to make a <code>wallpaper.xbm</code> — draw it directly in your
-    browser, no separate converter or image editor needed. The border and status bar
-    are pre-locked so you can't draw somewhere it won't show up, and you can preview
-    your drawing live on the device or save it straight to the SD card over USB.
+    The easiest way to make a wallpaper — draw it directly in your browser, no
+    separate converter or image editor needed. The border and status bar are
+    pre-locked so you can't draw somewhere it won't show up, and you can preview
+    your drawing live on the device or save it straight to the SD card over USB
+    (which also activates it immediately).
     See <a href="#wallpaper-painter-info" style="color:#d4a8ff;">Wallpaper Painter</a>
     above for details.
   </div>
 
   <div class="box new" style="margin-top:12px;">
     <strong>FoxFW Wallpaper Converter</strong><br><br>
-    Prefer working offline in MS Paint? This older, standalone tool turns your
-    <code>wallpaper.xbm</code> into a <code>wallpaper.bmp</code> that you can edit in
+    Prefer working offline in MS Paint? This older, standalone tool turns a
+    <code>.xbm</code> wallpaper into a <code>.bmp</code> that you can edit in
     MS Paint (or any similar image editor), then converts it back to <code>.xbm</code>
     when you're ready to put it back on your SD card.<br><br>
-    To use it: copy your current <code>wallpaper.xbm</code> into the same folder
+    To use it: copy the wallpaper you want to edit into the same folder
     as the Wallpaper Converter and run it from there.<br><br>
     <a href="https://github.com/FoxFW/FoxFW-Wallpaper-Converter" style="color:#d4a8ff;font-weight:600;">
       github.com/FoxFW/FoxFW-Wallpaper-Converter →
@@ -1061,9 +1066,20 @@
   <div class="box new" style="margin-top:12px;">
     <strong>FoxFW Wallpaper Showcase <span class="badge">New</span></strong><br><br>
     Don't want to make your own? Browse community wallpapers and install one straight to your
-    SD card over USB, or just download the file and copy it over yourself.
+    SD card over USB (this activates it immediately too), or just download the file and
+    copy it over yourself.
     See <a href="#wallpaper-showcase-info" style="color:#d4a8ff;">Wallpaper Showcase</a>
     above for details.
+  </div>
+
+  <div class="setting">
+    <div class="name">Wallpaper Name</div>
+    <div class="desc">
+      Lists every valid 128×64 <code>.xbm</code> file found in
+      <code>/ext/wallpapers/</code>, alphabetically. Use <code>&lt;</code> and
+      <code>&gt;</code> to pick which one is active — the desktop updates as
+      soon as you select it.
+    </div>
   </div>
 
   <div class="setting">
@@ -1076,22 +1092,28 @@
     <div class="values">Options: <span>OFF · ON</span></div>
   </div>
 
+  <div class="box tip">
+    <strong>Live updates:</strong> if you overwrite a wallpaper file over USB (e.g. with
+    qFlipper) while it's the active one, the desktop picks up the change automatically —
+    no reboot or menu visit needed.
+  </div>
+
   <p><strong>Creating your own wallpaper:</strong></p>
   <ul>
     <li>Your image must be exactly <strong>128 × 64 px</strong>, monochrome (1-bit black and white), in XBM format.</li>
     <li>The status bar occupies roughly the top 13 pixels — keep important artwork below that.</li>
     <li>
-      <strong>GIMP:</strong> Image → Scale Image → 128×64 → Image → Mode → Indexed (1-bit) → File → Export As → <code>wallpaper.xbm</code>
+      <strong>GIMP:</strong> Image → Scale Image → 128×64 → Image → Mode → Indexed (1-bit) → File → Export As → <code>yourname.xbm</code>
     </li>
     <li>
-      <strong>ImageMagick:</strong> <code>convert input.png -resize 128x64! -monochrome wallpaper.xbm</code>
+      <strong>ImageMagick:</strong> <code>convert input.png -resize 128x64! -monochrome yourname.xbm</code>
     </li>
-    <li>Copy the file to the root of your SD card so it lives at <code>/ext/wallpaper.xbm</code>.</li>
-    <li>Toggle Custom Wallpaper ON in Fox Settings to activate it.</li>
+    <li>Copy the file into the <code>wallpapers</code> folder on the root of your SD card, so it lives at <code>/ext/wallpapers/yourname.xbm</code>.</li>
+    <li>Select it under <strong>Wallpaper Name</strong> in Fox Settings and toggle Custom Wallpaper ON.</li>
   </ul>
   <div class="box warn">
-    <strong>Validation:</strong> If Fox Settings reports "FOUND but invalid. Use 128×64 XBM format."
-    it means the file exists but the data is not a valid 128×64 XBM. Re-export using one
+    <strong>Validation:</strong> Only files that are valid 128×64 XBM images show up in the
+    Wallpaper Name list. If a file you copied over isn't appearing, re-export using one
     of the methods above and ensure the output dimensions are exactly 128×64 pixels.
   </div>
 

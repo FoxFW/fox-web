@@ -174,6 +174,13 @@
   .switch-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
   .switch-row .label{ font-size:13px; }
   .switch-row .hint{ font-size:11px; color:var(--text-dim); margin-top:2px; }
+  .field-row .label{ font-size:13px; color:var(--text); }
+  .text-input{
+    width:100%; box-sizing:border-box; background:var(--panel-2); border:1px solid var(--line);
+    color:var(--text); font-family:var(--mono); font-size:13px; padding:8px 10px; border-radius:6px;
+    outline:none;
+  }
+  .text-input:focus{ border-color:var(--fox); }
   .switch{ position:relative; width:44px; height:24px; flex-shrink:0; }
   .switch input{ opacity:0; width:0; height:0; }
   .slider{
@@ -230,7 +237,7 @@
 <div class="brand">
   <div class="fox">🦊</div>
   <h1>FoxFW Wallpaper Painter</h1>
-  <div class="sub">128 × 64 · wallpaper.xbm</div>
+  <div class="sub">128 × 64 · .xbm</div>
 </div>
 <div class="backlink"><a href="index.html#wallpaper">&larr; Custom Wallpaper help</a></div>
 
@@ -243,8 +250,8 @@
 
   <div class="box" id="serialUnsupportedBox" style="display:none;">
     This browser doesn't support Web Serial, so device features aren't available here.
-    Use Chrome or Edge on desktop — you can still download <code>wallpaper.xbm</code> below
-    and copy it to the SD card by hand.
+    Use Chrome or Edge on desktop — you can still download your wallpaper below
+    and copy it into the <code>wallpapers</code> folder on the SD card by hand.
   </div>
 
   <div class="toolbar-row">
@@ -268,10 +275,10 @@
     <div class="help-btn" id="lockHelpBtn" tabindex="0">
       ?
       <div class="help-pop">
-        The gray strip along the edges and the "SD / 2.0 / BATT" status bar area are
-        locked on every FoxFW wallpaper — the device draws its live status icons on top of
-        that area, so anything painted there is never visible on the actual screen. You can
-        only draw in the open white area, same as every FoxFW wallpaper ships with.
+        The gray strip along the edges is locked on every FoxFW wallpaper — the device draws
+        its live status icons over that area, so anything painted there is never visible on
+        the actual screen. You can only draw in the open white area, same as every FoxFW
+        wallpaper ships with.
       </div>
     </div>
   </div>
@@ -298,20 +305,27 @@
     <div class="help-btn" id="saveHelpBtn" tabindex="0">
       ?
       <div class="help-pop" style="right:-6px;">
-        <strong>Download wallpaper.xbm</strong><br>
-        Works with no Flipper connected — saves <code>wallpaper.xbm</code> to your computer.
-        Copy it to the root of your SD card to install it (path: <code>/ext/wallpaper.xbm</code>),
-        then enable it under Fox Settings &rarr; Custom Wallpaper on the device.
+        <strong>Download</strong><br>
+        Works with no Flipper connected — saves an <code>.xbm</code> file to your computer.
+        Copy it into the <code>wallpapers</code> folder on the root of your SD card
+        (path: <code>/ext/wallpapers/</code>), then pick it under Fox Settings &rarr;
+        Custom Wallpaper on the device.
         <br><br>
         <strong>Save to Flipper SD Card</strong><br>
-        This overwrites the only <code>wallpaper.xbm</code> on the connected Flipper's SD card
-        and cannot be undone. Requires a connected device.
+        Saves into the <code>wallpapers</code> folder on the connected Flipper's SD card and
+        sets it as the active Custom Wallpaper. Existing wallpapers are kept — if the name is
+        already taken, a number is added automatically. Requires a connected device.
       </div>
     </div>
   </h2>
 
+  <div class="field-row" style="margin-bottom:10px;">
+    <label class="label" for="wallpaperNameInput" style="display:block;margin-bottom:4px;">Wallpaper Name</label>
+    <input type="text" id="wallpaperNameInput" class="text-input" value="MyWallpaper" maxlength="40" autocomplete="off">
+  </div>
+
   <div class="row">
-    <button class="btn primary full" id="downloadBtn">&#8681; Download wallpaper.xbm</button>
+    <button class="btn primary full" id="downloadBtn">&#8681; Download</button>
     <button class="btn danger accent full" id="saveToSdBtn" disabled>&#9888; Save to Flipper SD Card</button>
   </div>
 </div>
@@ -343,15 +357,16 @@
 
 <div class="modal-backdrop" id="sdModalBackdrop">
   <div class="modal">
-    <h3>&#9888; Overwrite wallpaper.xbm?</h3>
+    <h3>&#9888; Save to Flipper SD Card?</h3>
     <p>
-      This will permanently overwrite the <strong>only</strong> <code>wallpaper.xbm</code>
-      file on this Flipper's SD card with your current drawing. There is no backup and
-      <strong>this cannot be undone</strong>.
+      This saves your current drawing into the <code>wallpapers</code> folder on this Flipper's
+      SD card and sets it as the <strong>active</strong> Custom Wallpaper, turning Custom
+      Wallpaper on if it's currently off. Existing wallpapers are kept — if the name is already
+      taken, a number is added automatically.
     </p>
     <div class="row">
       <button class="btn full" id="sdModalCancel">Cancel</button>
-      <button class="btn danger full" id="sdModalConfirm">Overwrite</button>
+      <button class="btn danger full" id="sdModalConfirm">Save</button>
     </div>
   </div>
 </div>
@@ -372,70 +387,70 @@
   // not by which of these bits happen to be black or white.
   const W = 128, H = 64, ROW_BYTES = 16, SIZE = 1024;
   const TEMPLATE_BITS = new Uint8Array([
-  255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
-  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,128,
-  253,255,255,1,0,0,0,0,0,0,0,0,254,255,255,191,
-  253,255,255,1,0,0,0,0,0,0,0,0,254,255,255,191,
-  253,16,254,1,0,0,0,0,0,0,0,0,134,131,65,184,
-  253,158,252,1,0,0,128,3,30,0,0,0,102,187,247,190,
-  253,158,253,1,0,0,192,6,51,0,0,0,102,187,247,190,
-  253,144,253,1,0,0,0,6,51,0,0,0,134,131,247,190,
-  253,147,252,1,0,0,192,3,51,0,0,0,102,131,247,190,
-  253,16,254,1,0,0,64,96,51,0,0,0,102,187,247,190,
-  253,255,255,1,0,0,192,103,30,0,0,0,134,187,247,190,
-  253,255,255,1,0,0,0,0,0,0,0,0,254,255,255,191,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
-  253,255,255,255,255,255,255,255,255,255,255,255,255,255,255,191,
-  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,128,
-  255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,96,204,199,220,7,12,60,248,240,128,25,207,143,15,0,
+  0,96,204,199,220,7,12,60,248,240,128,25,207,143,15,0,
+  0,96,236,207,220,15,12,126,252,252,129,25,207,159,15,0,
+  0,96,108,206,220,12,12,230,12,156,129,25,195,152,1,0,
+  0,96,108,206,220,12,12,230,12,156,129,25,195,152,1,0,
+  0,224,111,206,220,7,12,230,12,156,129,31,207,143,15,0,
+  0,192,103,206,220,15,12,230,204,156,129,31,207,159,15,0,
+  0,192,103,206,220,15,12,230,204,156,129,31,207,159,15,0,
+  0,128,99,206,220,12,12,230,204,156,129,25,195,152,1,0,
+  0,128,99,206,220,12,12,230,204,156,129,25,195,152,1,0,
+  0,128,227,207,223,12,124,126,252,252,129,25,207,152,15,0,
+  0,128,195,135,199,12,124,60,248,240,128,25,207,152,15,0,
+  0,128,195,135,199,12,124,60,248,240,128,25,207,152,15,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
   ]);
 
   // ── Pixel-layer helpers ──────────────────────────────────────────
@@ -519,13 +534,24 @@
     return out;
   }
 
+  // Strips characters that don't survive well as a FAT filesystem filename,
+  // same rule of thumb the Showcase's generated batch uses.
+  function sanitizeWallpaperName(raw) {
+    const cleaned = raw.trim().replace(/[\\/:*?"<>|]+/g, "").slice(0, 40);
+    return cleaned || "MyWallpaper";
+  }
+
+  function currentWallpaperName() {
+    return sanitizeWallpaperName($("wallpaperNameInput").value);
+  }
+
   function downloadXbm() {
     const text = toXbmText(finalBits());
     const blob = new Blob([text], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "wallpaper.xbm";
+    a.download = currentWallpaperName() + ".xbm";
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -994,6 +1020,27 @@
       return response;
     },
 
+    // Best-effort existence check via storage_stat_request - used to avoid
+    // clobbering an existing file when picking a save filename. Treats any
+    // error (including "not found") as "doesn't exist".
+    async fileExists(path) {
+      try {
+        const response = await this.sendMain({ storage_stat_request: { path: path } });
+        return response.command_status === 0;
+      } catch (e) {
+        return false;
+      }
+    },
+
+    // Best-effort: asks the Flipper to close whatever app is currently open
+    // so the newly-activated wallpaper is visible on the desktop right away.
+    // A no-op on the device if nothing is running - failures are ignored.
+    async requestReturnToDesktop() {
+      try {
+        await this.sendMain({ app_exit_request: {} }, { expectResponse: false });
+      } catch (e) { /* best effort */ }
+    },
+
     async startVirtualDisplay(frameBytes) {
       const response = await this.sendMain({
         gui_start_virtual_display_request: { first_frame: { data: frameBytes, orientation: 0 } },
@@ -1118,18 +1165,40 @@
     sdModalBackdrop.classList.add("show");
   });
   $("sdModalCancel").addEventListener("click", () => sdModalBackdrop.classList.remove("show"));
+  const WALLPAPERS_DIR = "/ext/wallpapers";
+
+  // Finds a free filename in /ext/wallpapers for this name, appending
+  // "(2)", "(3)", etc. if a file by that name already exists - never
+  // overwrites an existing wallpaper.
+  async function findAvailableWallpaperFilename(baseName) {
+    let candidate = `${baseName}.xbm`;
+    for (let n = 2; await FlipperRPC.fileExists(`${WALLPAPERS_DIR}/${candidate}`); n++) {
+      candidate = `${baseName}(${n}).xbm`;
+    }
+    return candidate;
+  }
+
   $("sdModalConfirm").addEventListener("click", async () => {
     sdModalBackdrop.classList.remove("show");
     const btn = $("saveToSdBtn");
     btn.disabled = true;
-    setDeviceStatus("busy", "Saving to SD card…");
+    setDeviceStatus("busy", "Checking filename…");
     try {
       const text = toXbmText(finalBits());
-      await FlipperRPC.writeFileChunked("/ext/wallpaper.xbm", text, (sent, total) => {
+      const filename = await findAvailableWallpaperFilename(currentWallpaperName());
+      const targetPath = `${WALLPAPERS_DIR}/${filename}`;
+
+      setDeviceStatus("busy", "Saving to SD card…");
+      await FlipperRPC.writeFileChunked(targetPath, text, (sent, total) => {
         setDeviceStatus("busy", `Saving… (${sent}/${total})`);
       });
+
+      setDeviceStatus("busy", "Activating…");
+      await FlipperRPC.writeFileChunked(`${WALLPAPERS_DIR}/.activate`, filename, () => {});
+      await FlipperRPC.requestReturnToDesktop();
+
       setDeviceStatus("connected", "Connected");
-      logLine("wallpaper.xbm saved to SD card.", "ok");
+      logLine(`Saved to wallpapers/${filename} and activated.`, "ok");
     } catch (e) {
       logLine("Save to SD card failed: " + e.message, "e");
       setDeviceStatus("connected", "Connected");

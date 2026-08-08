@@ -270,7 +270,8 @@
   <div class="box" id="serialUnsupportedBox" style="display:none;">
     This browser doesn't support Web Serial, so Install isn't available here.
     Use Chrome or Edge on desktop — you can still download any wallpaper's
-    <code>.zip</code> below and copy <code>wallpaper.xbm</code> to the SD card by hand.
+    <code>.zip</code> below and copy the <code>.xbm</code> file inside into the
+    <code>wallpapers</code> folder on the SD card by hand.
   </div>
 
   <div class="toolbar-row">
@@ -325,15 +326,16 @@
 
 <div class="modal-backdrop" id="confirmModalBackdrop">
   <div class="modal">
-    <h3>&#9888; Overwrite wallpaper.xbm?</h3>
+    <h3>&#9888; Install this wallpaper?</h3>
     <p>
-      Installing <strong id="confirmWpName">this wallpaper</strong> will permanently overwrite
-      the <strong>only</strong> <code>wallpaper.xbm</code> file on this Flipper's SD card.
-      There is no backup and <strong>this cannot be undone</strong>.
+      Installing <strong id="confirmWpName">this wallpaper</strong> will save it into the
+      <code>wallpapers</code> folder on this Flipper's SD card and set it as the
+      <strong>active</strong> Custom Wallpaper, turning Custom Wallpaper on if it's currently off.
+      Your other saved wallpapers are kept.
     </p>
     <div class="row">
       <button class="btn full" id="confirmModalCancel">Cancel</button>
-      <button class="btn danger full" id="confirmModalConfirm">Overwrite</button>
+      <button class="btn danger full" id="confirmModalConfirm">Install</button>
     </div>
   </div>
 </div>
@@ -342,9 +344,9 @@
   <div class="modal modal-ok">
     <h3>&#9989; Installed</h3>
     <p>
-      <code>wallpaper.xbm</code> has been copied to your SD card. To see it on the device,
-      make sure <strong>Custom Wallpaper</strong> is switched on under
-      <strong>Fox Settings</strong>.
+      Saved to <code id="successPath">wallpapers/wallpaper.xbm</code> and set as your active
+      Custom Wallpaper. If an app was open on the Flipper, exit to the desktop to see it -
+      the device will do this on its own within a couple of seconds.
     </p>
     <div class="row">
       <button class="btn primary full" id="successModalOk">OK</button>
@@ -357,9 +359,10 @@
     <h3>&#8681; Downloaded</h3>
     <p>
       <strong id="downloadWpName">This wallpaper</strong>'s <code>.zip</code> has been
-      downloaded. Unzip it, then copy the <code>wallpaper.xbm</code> file inside to the
-      <strong>root of your SD card</strong> — then switch <strong>Custom Wallpaper</strong>
-      on under <strong>Fox Settings</strong> to see it on the device.
+      downloaded. Unzip it, then copy the <code>.xbm</code> file inside into the
+      <strong><code>wallpapers</code> folder</strong> on the root of your SD card —
+      then select it under <strong>Wallpaper Name</strong> and switch
+      <strong>Custom Wallpaper</strong> on under <strong>Fox Settings</strong> to see it.
     </p>
     <div class="row">
       <button class="btn primary full" id="downloadModalOk">OK</button>
@@ -562,6 +565,27 @@
         throw new Error("Flipper reported an error (status " + response.command_status + ") writing " + path);
       }
       return response;
+    },
+
+    // Best-effort existence check via storage_stat_request - used to avoid
+    // clobbering an existing file when picking an install filename.
+    // Treats any error (including "not found") as "doesn't exist".
+    async fileExists(path) {
+      try {
+        const response = await this.sendMain({ storage_stat_request: { path: path } });
+        return response.command_status === 0;
+      } catch (e) {
+        return false;
+      }
+    },
+
+    // Best-effort: asks the Flipper to close whatever app is currently open
+    // so the newly-activated wallpaper is visible on the desktop right away.
+    // A no-op on the device if nothing is running - failures are ignored.
+    async requestReturnToDesktop() {
+      try {
+        await this.sendMain({ app_exit_request: {} }, { expectResponse: false });
+      } catch (e) { /* best effort */ }
     },
 
     async disconnect() {
@@ -858,6 +882,19 @@
     successModalBackdrop.classList.remove("show");
   });
 
+  const WALLPAPERS_DIR = "/ext/wallpapers";
+
+  // Finds a free filename in /ext/wallpapers for this wallpaper's name,
+  // appending "(2)", "(3)", etc. if a file by that name already exists -
+  // never overwrites an existing wallpaper.
+  async function findAvailableWallpaperFilename(baseName) {
+    let candidate = `${baseName}.xbm`;
+    for (let n = 2; await FlipperRPC.fileExists(`${WALLPAPERS_DIR}/${candidate}`); n++) {
+      candidate = `${baseName}(${n}).xbm`;
+    }
+    return candidate;
+  }
+
   $("confirmModalConfirm").addEventListener("click", async () => {
     const wp = pendingInstall;
     confirmModalBackdrop.classList.remove("show");
@@ -880,13 +917,22 @@
       if (!entry) throw new Error("No wallpaper.xbm found inside " + wp.zip);
       const xbmText = await entry.async("string");
 
+      setDeviceStatus("busy", "Checking filename…");
+      const filename = await findAvailableWallpaperFilename(wp.name);
+      const targetPath = `${WALLPAPERS_DIR}/${filename}`;
+
       setDeviceStatus("busy", "Saving to SD card…");
-      await FlipperRPC.writeFileChunked("/ext/wallpaper.xbm", xbmText, (sent, total) => {
+      await FlipperRPC.writeFileChunked(targetPath, xbmText, (sent, total) => {
         setDeviceStatus("busy", `Saving… (${sent}/${total})`);
       });
 
+      setDeviceStatus("busy", "Activating…");
+      await FlipperRPC.writeFileChunked(`${WALLPAPERS_DIR}/.activate`, filename, () => {});
+      await FlipperRPC.requestReturnToDesktop();
+
       setDeviceStatus("connected", "Connected");
-      logLine(`"${wp.name}" installed to /ext/wallpaper.xbm.`, "ok");
+      logLine(`"${wp.name}" installed to wallpapers/${filename} and activated.`, "ok");
+      $("successPath").textContent = `wallpapers/${filename}`;
       successModalBackdrop.classList.add("show");
     } catch (e) {
       logLine(`Install of "${wp.name}" failed: ` + e.message, "e");
