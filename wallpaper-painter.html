@@ -174,8 +174,8 @@
     content:""; position:absolute; width:16px; height:16px; left:3px; top:3px;
     background:var(--text-dim); border-radius:50%; transition:.15s;
   }
-  .switch input:checked + .slider{ background:#1f4a30; border-color:var(--ok); }
-  .switch input:checked + .slider:before{ background:var(--ok); transform:translateX(20px); }
+  .switch input:checked + .slider{ background:#2f8f57; border-color:var(--ok); }
+  .switch input:checked + .slider:before{ background:#eafff2; transform:translateX(20px); }
   .switch input:disabled + .slider{ opacity:.4; cursor:default; }
 
   .box{
@@ -842,11 +842,19 @@
         if (this.rxBuffer.length === 0) return;
         const reader = protobuf.Reader.create(this.rxBuffer);
         let msg;
-        const startPos = reader.pos;
         try {
           msg = this.MainType.decodeDelimited(reader);
         } catch (e) {
-          // Not enough bytes buffered yet for a full message — wait for more.
+          // Not enough bytes buffered yet for a full message — wait for
+          // more, unless the buffer has grown unreasonably large, which
+          // means it isn't "incomplete", it's corrupt (e.g. stray
+          // non-protobuf bytes got in front of it) and will never
+          // resolve on its own. Drop it so the session can recover
+          // instead of silently hanging on every command forever.
+          if (this.rxBuffer.length > 65536) {
+            logLine(`Dropping ${this.rxBuffer.length} unparseable byte(s) from the read buffer.`, "e");
+            this.rxBuffer = new Uint8Array(0);
+          }
           return;
         }
         this.rxBuffer = this.rxBuffer.slice(reader.pos);
@@ -877,7 +885,19 @@
       await this.writeRaw(new TextEncoder().encode("start_rpc_session\r"));
       // Give the CLI a moment to switch into RPC framing before we send
       // any protobuf-encoded bytes at it.
-      await new Promise((r) => setTimeout(r, 300));
+      await new Promise((r) => setTimeout(r, 400));
+      // The CLI echoes the typed command (and may still have a boot
+      // banner/prompt sitting in the stream from before we ran it) as
+      // plain text before it actually switches to binary protobuf
+      // framing. Any of that leading text corrupts the very first
+      // decodeDelimited() call and there's no recovering from it once
+      // the buffer has garbage at the front — so throw away whatever
+      // accumulated during the handshake and start reading protobuf
+      // fresh from here.
+      if (this.rxBuffer.length) {
+        logLine(`Discarding ${this.rxBuffer.length} non-protobuf byte(s) from the RPC handshake.`);
+        this.rxBuffer = new Uint8Array(0);
+      }
       logLine("Connected — RPC session started.", "ok");
     },
 
