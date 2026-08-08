@@ -160,13 +160,13 @@
   .btn.accent:disabled{ opacity:1; border-color:var(--fox-dim); color:#d8d9db; cursor:default; }
 
   /* Save to SD Card is a danger button underneath, but while it's actually
-     usable (device connected) it should read as "ready to go" - lit up
-     orange like an active tool button - not the same bare-outline look it
-     has while disabled/no device. */
+     usable (device connected) it should read as fully "ready to go" - the
+     same solid lit-orange fill as the primary Download button - not just
+     a dark tint. Disabled/no-device keeps the muted outline-only look. */
   .btn.danger.accent:not(:disabled){
-    color:var(--fox); border-color:var(--fox-dim); background:#2a1b06;
+    background:var(--fox); border-color:var(--fox); color:#1a0f00; font-weight:700;
   }
-  .btn.danger.accent:hover:not(:disabled){ background:#3a2409; border-color:var(--fox); color:#fff; }
+  .btn.danger.accent:hover:not(:disabled){ background:var(--fox-dim); border-color:var(--fox-dim); color:#fff; }
   .btn.danger.accent:disabled{ background:transparent; }
 
   .divider{ height:1px; background:var(--line); margin:16px 0; }
@@ -177,15 +177,15 @@
   .switch{ position:relative; width:44px; height:24px; flex-shrink:0; }
   .switch input{ opacity:0; width:0; height:0; }
   .slider{
-    position:absolute; inset:0; background:var(--panel-2); border:1px solid var(--line);
+    position:absolute; inset:0; background:var(--panel-2); border:1px solid var(--fox-dim);
     border-radius:24px; cursor:pointer; transition:.15s;
   }
   .slider:before{
     content:""; position:absolute; width:16px; height:16px; left:3px; top:3px;
     background:var(--text-dim); border-radius:50%; transition:.15s;
   }
-  .switch input:checked + .slider{ background:#2f8f57; border-color:var(--ok); }
-  .switch input:checked + .slider:before{ background:#eafff2; transform:translateX(20px); }
+  .switch input:checked + .slider{ background:var(--ok); border-color:var(--ok); box-shadow:0 0 6px var(--ok); }
+  .switch input:checked + .slider:before{ background:#f2fff6; transform:translateX(20px); }
   .switch input:disabled + .slider{ opacity:.4; cursor:default; }
 
   .box{
