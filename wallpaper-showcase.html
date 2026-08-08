@@ -79,6 +79,7 @@
     font-family:var(--mono); font-size:12.5px; letter-spacing:.02em;
     padding:10px 16px; border-radius:7px; border:1px solid var(--line);
     background:var(--panel-2); color:var(--text); cursor:pointer;
+    text-decoration:none; display:inline-block;
   }
   .btn:hover:not(:disabled){ border-color:var(--fox-dim); color:var(--fox); }
   .btn:disabled{ opacity:.4; cursor:default; }
@@ -97,6 +98,26 @@
   }
   .btn.danger.accent:hover:not(:disabled){ background:var(--fox-dim); border-color:var(--fox-dim); color:#fff; }
   .btn.danger.accent:disabled{ background:transparent; }
+
+  /* Install buttons stay clickable even with no device connected (so
+     clicking shows the "connect first" toast below) - .not-connected is
+     the same dimmed look as :disabled, applied via class instead so the
+     click handler still fires. Real :disabled is reserved for while an
+     install is actually in progress. */
+  .btn.danger.accent.not-connected{
+    background:transparent; border-color:var(--fox-dim); color:#d8d9db;
+  }
+  .btn.danger.accent.not-connected:hover{ color:var(--fox); }
+
+  .toast{
+    position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(12px);
+    background:var(--panel-2); border:1px solid var(--fox-dim); color:var(--text);
+    font-family:var(--mono); font-size:12.5px; padding:10px 18px; border-radius:8px;
+    box-shadow:0 8px 24px rgba(0,0,0,.5); z-index:60;
+    opacity:0; visibility:hidden; transition:opacity .18s, transform .18s, visibility .18s;
+    pointer-events:none;
+  }
+  .toast.show{ opacity:1; visibility:visible; transform:translateX(-50%) translateY(0); }
 
   .help-btn{
     position:relative; width:30px; height:30px; border-radius:50%;
@@ -138,7 +159,7 @@
   .search-box{
     background:var(--panel-2); border:2px solid var(--fox); color:var(--text);
     font-family:var(--mono); font-size:12px; padding:7px 12px; border-radius:6px;
-    outline:none; min-width:200px;
+    outline:none; min-width:400px;
   }
   .search-box::placeholder{ color:var(--text-dim); }
   .search-box:focus{ border-color:var(--fox); box-shadow:0 0 0 2px rgba(248,149,33,0.25); }
@@ -330,6 +351,23 @@
     </div>
   </div>
 </div>
+
+<div class="modal-backdrop" id="downloadModalBackdrop">
+  <div class="modal modal-ok">
+    <h3>&#8681; Downloaded</h3>
+    <p>
+      <strong id="downloadWpName">This wallpaper</strong>'s <code>.zip</code> has been
+      downloaded. Unzip it, then copy the <code>wallpaper.xbm</code> file inside to the
+      <strong>root of your SD card</strong> — then switch <strong>Custom Wallpaper</strong>
+      on under <strong>Fox Settings</strong> to see it on the device.
+    </p>
+    <div class="row">
+      <button class="btn primary full" id="downloadModalOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/protobufjs/7.4.0/protobuf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -556,14 +594,32 @@
     connectToggleBtn.disabled = true;
   }
 
-  function setInstallButtonsEnabled(enabled) {
-    document.querySelectorAll(".install-btn").forEach((btn) => { btn.disabled = !enabled; });
+  // Install buttons stay clickable regardless of connection state - a click
+  // while disconnected shows a toast instead of being silently swallowed by
+  // a disabled attribute. .not-connected is purely visual. setInstallButtonsBusy
+  // uses a real disabled attribute, for while an install is actively running.
+  function setInstallButtonsConnected(connected) {
+    document.querySelectorAll(".install-btn").forEach((btn) => {
+      btn.classList.toggle("not-connected", !connected);
+    });
+  }
+  function setInstallButtonsBusy(busy) {
+    document.querySelectorAll(".install-btn").forEach((btn) => { btn.disabled = busy; });
+  }
+
+  let toastTimer = null;
+  function showToast(msg) {
+    const toast = $("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
   }
 
   connectToggleBtn.addEventListener("click", async () => {
     if (FlipperRPC.connected) {
       connectToggleBtn.disabled = true;
-      setInstallButtonsEnabled(false);
+      setInstallButtonsConnected(false);
       await FlipperRPC.disconnect();
       setDeviceStatus(null, "No device connected");
       connectToggleBtn.textContent = "🔌 Connect Flipper";
@@ -577,7 +633,7 @@
       await FlipperRPC.connect();
       setDeviceStatus("connected", "Connected");
       connectToggleBtn.textContent = "Disconnect";
-      setInstallButtonsEnabled(true);
+      setInstallButtonsConnected(true);
     } catch (e) {
       logLine("Connect failed: " + e.message, "e");
       setDeviceStatus("error", "Connect failed");
@@ -696,13 +752,20 @@
     dl.href = urlFor(wp.zip);
     dl.download = "";
     dl.textContent = "Download";
+    dl.addEventListener("click", () => showDownloadModal(wp));
     actions.appendChild(dl);
 
     const install = document.createElement("button");
     install.className = "btn danger accent small full install-btn";
     install.textContent = "Install";
-    install.disabled = !FlipperRPC.connected;
-    install.addEventListener("click", () => openConfirmModal(wp));
+    install.classList.toggle("not-connected", !FlipperRPC.connected);
+    install.addEventListener("click", () => {
+      if (!FlipperRPC.connected) {
+        showToast("Connect your Flipper first");
+        return;
+      }
+      openConfirmModal(wp);
+    });
     actions.appendChild(install);
 
     card.appendChild(actions);
@@ -766,6 +829,16 @@
     renderGrid();
   }
 
+  // ── Download flow: browser downloads the zip, we just show the follow-up ──
+  const downloadModalBackdrop = $("downloadModalBackdrop");
+  function showDownloadModal(wp) {
+    $("downloadWpName").textContent = wp.name;
+    downloadModalBackdrop.classList.add("show");
+  }
+  $("downloadModalOk").addEventListener("click", () => {
+    downloadModalBackdrop.classList.remove("show");
+  });
+
   // ── Install flow: confirm -> unzip -> write to SD card -> success ──
   const confirmModalBackdrop = $("confirmModalBackdrop");
   const successModalBackdrop = $("successModalBackdrop");
@@ -791,7 +864,7 @@
     pendingInstall = null;
     if (!wp) return;
 
-    setInstallButtonsEnabled(false);
+    setInstallButtonsBusy(true);
     setDeviceStatus("busy", "Fetching " + wp.name + "…");
     try {
       const zipRes = await fetch(urlFor(wp.zip));
@@ -819,7 +892,8 @@
       logLine(`Install of "${wp.name}" failed: ` + e.message, "e");
       setDeviceStatus("connected", "Connected");
     } finally {
-      setInstallButtonsEnabled(FlipperRPC.connected);
+      setInstallButtonsBusy(false);
+      setInstallButtonsConnected(FlipperRPC.connected);
     }
   });
 
