@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoxFW Wallpaper Showcase</title>
+<style>
+  :root{
+    --bg:#0c0d10;
+    --panel:#151619;
+    --panel-2:#1c1e22;
+    --line:#2a2c31;
+    --fox:#f89521;
+    --fox-dim:#c97417;
+    --text:#eceef1;
+    --text-dim:#9a9ea6;
+    --ok:#3ecf6e;
+    --warn:#f2b705;
+    --err:#e5484d;
+    --mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+    --sans: "Inter", -apple-system, "Segoe UI", sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--sans);
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center;
+    padding:32px 16px 64px;
+  }
+  .brand{ text-align:center; margin-bottom:6px; }
+  .brand .fox{ font-size:34px; line-height:1; }
+  .brand h1{
+    font-family:var(--mono);
+    font-size:15px; letter-spacing:.14em; text-transform:uppercase;
+    margin:8px 0 2px; color:var(--text);
+  }
+  .brand .sub{
+    font-family:var(--mono); font-size:11px; letter-spacing:.12em;
+    color:var(--fox); text-transform:uppercase;
+  }
+  .backlink{ margin-top:10px; font-family:var(--mono); font-size:11.5px; }
+  .backlink a{ color:var(--text-dim); text-decoration:none; }
+  .backlink a:hover{ color:var(--fox); }
+
+  .status-pill{
+    display:inline-flex; align-items:center; gap:7px;
+    padding:5px 11px; border-radius:20px; background:var(--panel-2);
+    border:1px solid var(--line); color:var(--text-dim);
+    font-family:var(--mono); font-size:11.5px;
+  }
+  .status-pill .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-dim); }
+  .status-pill.connected .dot{ background:var(--ok); box-shadow:0 0 6px var(--ok); }
+  .status-pill.connected{ color:var(--ok); border-color:#1f4a30; }
+  .status-pill.error .dot{ background:var(--err); }
+  .status-pill.error{ color:var(--err); border-color:#4a1f21; }
+  .status-pill.busy .dot{ background:var(--warn); animation:pulse 1.2s ease-in-out infinite; }
+  .status-pill.busy{ color:var(--warn); border-color:#4a3a1f; }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+
+  .card{
+    width:100%; max-width:960px; background:var(--panel);
+    border:1px solid var(--line); border-radius:10px; padding:20px;
+    margin-top:14px;
+  }
+  .card h2{
+    font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-dim); margin:0 0 14px; font-family:var(--mono);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;
+  }
+  .card h2.editor-head{
+    display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px;
+  }
+  .card h2.editor-head > span:first-child{ justify-self:start; }
+  .card h2.editor-head > .btn{ justify-self:center; }
+  .card h2.editor-head > .status-pill{ justify-self:end; }
+
+  .btn{
+    font-family:var(--mono); font-size:12.5px; letter-spacing:.02em;
+    padding:10px 16px; border-radius:7px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--text); cursor:pointer;
+  }
+  .btn:hover:not(:disabled){ border-color:var(--fox-dim); color:var(--fox); }
+  .btn:disabled{ opacity:.4; cursor:default; }
+  .btn.primary{ background:var(--fox); border-color:var(--fox); color:#1a0f00; font-weight:700; }
+  .btn.primary:hover:not(:disabled){ background:var(--fox-dim); color:#fff; }
+  .btn.danger{ background:transparent; border-color:#4a1f21; color:var(--err); }
+  .btn.danger:hover:not(:disabled){ background:#2a1013; }
+  .btn.full{ flex:1; text-align:center; }
+  .btn.small{ padding:6px 10px; font-size:11px; text-transform:none; letter-spacing:0; }
+
+  .btn.accent{ border-color:var(--fox-dim); }
+  .btn.accent:hover:not(:disabled){ color:var(--fox); }
+  .btn.accent:disabled{ opacity:1; border-color:var(--fox-dim); color:#d8d9db; cursor:default; }
+  .btn.danger.accent:not(:disabled){
+    background:var(--fox); border-color:var(--fox); color:#1a0f00; font-weight:700;
+  }
+  .btn.danger.accent:hover:not(:disabled){ background:var(--fox-dim); border-color:var(--fox-dim); color:#fff; }
+  .btn.danger.accent:disabled{ background:transparent; }
+
+  .help-btn{
+    position:relative; width:30px; height:30px; border-radius:50%;
+    border:1px solid var(--fox-dim); background:var(--panel-2); color:var(--text-dim);
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+    font-family:var(--mono); cursor:pointer; flex-shrink:0;
+  }
+  .help-btn:hover{ color:var(--fox); }
+  .help-pop{
+    position:absolute; top:130%; right:0; width:260px; z-index:20;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px; font-size:11.5px; line-height:1.6; color:var(--text);
+    text-transform:none; letter-spacing:0; font-family:var(--sans);
+    opacity:0; visibility:hidden; transform:translateY(-4px);
+    transition:opacity .12s, transform .12s, visibility .12s;
+    box-shadow:0 8px 24px rgba(0,0,0,.4);
+  }
+  .help-btn:hover .help-pop, .help-btn.open .help-pop{
+    opacity:1; visibility:visible; transform:translateY(0);
+  }
+
+  .chevron-btn{
+    width:30px; height:30px; border-radius:50%;
+    border:1px solid var(--fox-dim); background:var(--panel-2); color:var(--text-dim);
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+    cursor:pointer; flex-shrink:0; transition:transform .15s;
+  }
+  .chevron-btn:hover{ color:var(--fox); }
+  .chevron-btn.open{ transform:rotate(180deg); }
+
+  .toolbar-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:4px; }
+  .sort-row{ display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11.5px; color:var(--text-dim); }
+  .sort-row select{
+    background:var(--panel-2); border:1px solid var(--line); color:var(--text);
+    font-family:var(--mono); font-size:11.5px; padding:6px 10px; border-radius:6px; cursor:pointer;
+  }
+  .sort-row select:hover, .sort-row select:focus{ border-color:var(--fox-dim); }
+
+  .search-box{
+    background:var(--panel-2); border:2px solid var(--fox); color:var(--text);
+    font-family:var(--mono); font-size:12px; padding:7px 12px; border-radius:6px;
+    outline:none; min-width:200px;
+  }
+  .search-box::placeholder{ color:var(--text-dim); }
+  .search-box:focus{ border-color:var(--fox); box-shadow:0 0 0 2px rgba(248,149,33,0.25); }
+
+  .hide-letters-row{
+    display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11.5px;
+    color:var(--text-dim); cursor:pointer; user-select:none;
+  }
+  .hide-letters-row input{ accent-color:var(--fox); width:14px; height:14px; cursor:pointer; }
+  .hide-letters-row:hover{ color:var(--text); }
+
+  .wp-grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
+    gap:14px; margin-top:14px;
+  }
+  .wp-card{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:8px;
+    padding:10px; display:flex; flex-direction:column; gap:8px;
+  }
+  .wp-thumb-wrap{
+    background:repeating-conic-gradient(#1a1b1f 0% 25%, #161719 0% 50%) 0 0/16px 16px;
+    border:1px solid var(--line); border-radius:6px; overflow:hidden;
+    aspect-ratio:2/1; display:flex; align-items:center; justify-content:center;
+  }
+  .wp-thumb-wrap img{
+    width:100%; height:100%; object-fit:contain;
+    image-rendering:pixelated; image-rendering:crisp-edges; display:block;
+  }
+  .wp-name{
+    font-size:12.5px; font-weight:600; color:var(--text);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .wp-actions{ display:flex; gap:6px; }
+
+  .empty-state{
+    text-align:center; padding:40px 20px; color:var(--text-dim);
+    font-size:13px; line-height:1.7;
+  }
+
+  .pagination{
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    margin-top:20px; flex-wrap:wrap; font-family:var(--mono); font-size:12px;
+  }
+  .page-btn{
+    min-width:30px; height:30px; padding:0 8px; border-radius:6px;
+    border:1px solid var(--line); background:var(--panel-2); color:var(--text-dim);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .page-btn:hover:not(:disabled){ border-color:var(--fox-dim); color:var(--fox); }
+  .page-btn:disabled{ opacity:.35; cursor:default; }
+  .page-btn.active{ background:var(--fox); border-color:var(--fox); color:#1a0f00; font-weight:700; }
+  .page-ellipsis{ color:var(--text-dim); padding:0 4px; }
+
+  .box{
+    border-radius:8px; padding:12px 14px; font-size:12.5px; line-height:1.6;
+    border:1px solid var(--line); background:var(--panel-2); margin-top:12px;
+  }
+  .box.warn{ border-color:#4a3a1f; background:#241c0c; color:#f2c96a; }
+
+  #consoleCard .console{
+    background:#000; border:1px solid var(--line); border-radius:6px;
+    padding:10px 12px; font-family:var(--mono); font-size:11.5px; line-height:1.6;
+    max-height:200px; overflow-y:auto; white-space:pre-wrap; word-break:break-word;
+  }
+  #consoleCard .console .e{ color:var(--err); }
+  #consoleCard .console .ok{ color:var(--ok); }
+  #consoleCard .console .w{ color:var(--warn); }
+
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,.6); display:none;
+    align-items:center; justify-content:center; z-index:50; padding:16px;
+  }
+  .modal-backdrop.show{ display:flex; }
+  .modal{
+    width:100%; max-width:420px; background:var(--panel); border:1px solid #4a1f21;
+    border-radius:10px; padding:22px;
+  }
+  .modal.modal-ok{ border-color:#1f4a30; }
+  .modal h3{ margin:0 0 10px; color:var(--err); font-size:15px; }
+  .modal.modal-ok h3{ color:var(--ok); }
+  .modal p{ font-size:13px; line-height:1.6; color:var(--text); }
+  .modal .row{ margin-top:18px; display:flex; gap:10px; }
+
+  .footer{
+    margin-top:26px; font-family:var(--mono); font-size:11px; color:var(--text-dim);
+    text-align:center; max-width:620px; line-height:1.8;
+  }
+  .footer a{ color:var(--fox-dim); text-decoration:none; }
+  .footer a:hover{ color:var(--fox); }
+</style>
+</head>
+<body>
+
+<div class="brand">
+  <div class="fox">🦊</div>
+  <h1>FoxFW Wallpaper Showcase</h1>
+  <div class="sub">Browse &amp; install community wallpapers</div>
+</div>
+<div class="backlink"><a href="index.html#wallpaper">&larr; Custom Wallpaper help</a></div>
+
+<div class="card">
+  <h2 class="editor-head">
+    <span>Showcase</span>
+    <button class="btn small accent" id="connectToggleBtn">&#128268; Connect Flipper</button>
+    <span class="status-pill" id="devicePill"><span class="dot"></span><span id="devicePillText">No device connected</span></span>
+  </h2>
+
+  <div class="box" id="serialUnsupportedBox" style="display:none;">
+    This browser doesn't support Web Serial, so Install isn't available here.
+    Use Chrome or Edge on desktop — you can still download any wallpaper's
+    <code>.zip</code> below and copy <code>wallpaper.xbm</code> to the SD card by hand.
+  </div>
+
+  <div class="toolbar-row">
+    <div class="sort-row">
+      <span>Sort:</span>
+      <select id="sortSelect">
+        <option value="name" selected>Name (A&ndash;Z)</option>
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+      </select>
+    </div>
+    <input type="text" class="search-box" id="searchBox" placeholder="Search wallpapers… (e.g. AB or A.B)" autocomplete="off">
+    <label class="hide-letters-row">
+      <input type="checkbox" id="hideLettersCheck">
+      Hide Letters
+    </label>
+  </div>
+
+  <div id="gridWrap">
+    <div class="wp-grid" id="wpGrid"></div>
+  </div>
+  <div id="emptyState" class="empty-state" style="display:none;">
+    No wallpapers published yet — check back soon!
+  </div>
+
+  <div class="pagination" id="pagination" style="display:none;"></div>
+</div>
+
+<div class="card" id="consoleCard">
+  <h2>
+    <span>Device Log</span>
+    <button class="chevron-btn" id="logToggleBtn" title="Show / hide log">&#9660;</button>
+  </h2>
+  <div class="console" id="consoleEl" style="display:none;"></div>
+</div>
+
+<div class="footer">
+  <div>
+    Made something you'd like to share? Add <code>NAME.png</code> (or <code>.bmp</code>) and
+    <code>NAME.zip</code> to the <code>#custom-wallpapers</code> channel of our
+    <a href="https://discord.gg/gZDqCwSGrQ" target="_blank" rel="noopener">Discord Server</a>!
+  </div>
+  <div style="margin-top:10px;">
+    Want to make your own? Try the
+    <a href="wallpaper-painter.html">FoxFW Wallpaper Painter</a>.
+  </div>
+  <div style="margin-top:10px;">
+    Questions or issues? <a href="mailto:foxcustomfirmware@gmail.com">foxcustomfirmware@gmail.com</a>
+    &nbsp;or&nbsp; <a href="https://discord.gg/gZDqCwSGrQ" target="_blank" rel="noopener">Discord</a>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="confirmModalBackdrop">
+  <div class="modal">
+    <h3>&#9888; Overwrite wallpaper.xbm?</h3>
+    <p>
+      Installing <strong id="confirmWpName">this wallpaper</strong> will permanently overwrite
+      the <strong>only</strong> <code>wallpaper.xbm</code> file on this Flipper's SD card.
+      There is no backup and <strong>this cannot be undone</strong>.
+    </p>
+    <div class="row">
+      <button class="btn full" id="confirmModalCancel">Cancel</button>
+      <button class="btn danger full" id="confirmModalConfirm">Overwrite</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="successModalBackdrop">
+  <div class="modal modal-ok">
+    <h3>&#9989; Installed</h3>
+    <p>
+      <code>wallpaper.xbm</code> has been copied to your SD card. To see it on the device,
+      make sure <strong>Custom Wallpaper</strong> is switched on under
+      <strong>Fox Settings</strong>.
+    </p>
+    <div class="row">
+      <button class="btn primary full" id="successModalOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/protobufjs/7.4.0/protobuf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  function $(id) { return document.getElementById(id); }
+
+  function urlFor(relPath) {
+    // Encode each path segment on its own so spaces/unicode in wallpaper
+    // names survive both <img src>/<a href> and fetch(), while the '/'
+    // separators between wallpapers/ and the filename stay intact.
+    return relPath.split("/").map(encodeURIComponent).join("/");
+  }
+
+  // ── Device Log ──────────────────────────────────────────────────
+  const consoleEl = $("consoleEl");
+  function logLine(msg, cls) {
+    const div = document.createElement("div");
+    if (cls) div.className = cls;
+    const ts = new Date().toLocaleTimeString();
+    div.textContent = `[${ts}] ${msg}`;
+    consoleEl.appendChild(div);
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+  }
+  const logToggleBtn = $("logToggleBtn");
+  logToggleBtn.addEventListener("click", () => {
+    const open = consoleEl.style.display !== "none";
+    consoleEl.style.display = open ? "none" : "block";
+    logToggleBtn.classList.toggle("open", !open);
+    if (!open) consoleEl.scrollTop = consoleEl.scrollHeight;
+  });
+
+  // ── Flipper RPC over Web Serial (same client as the Wallpaper Painter) ──
+  const PROTO_FILES = [
+    "assets/proto/flipper.proto",
+    "assets/proto/storage.proto",
+    "assets/proto/system.proto",
+    "assets/proto/application.proto",
+    "assets/proto/gui.proto",
+    "assets/proto/gpio.proto",
+    "assets/proto/property.proto",
+    "assets/proto/desktop.proto",
+  ];
+  const WRITE_CHUNK_SIZE = 512; // matches FoxFW2.0's rpc_storage.c MAX_DATA_SIZE
+
+  const FlipperRPC = {
+    root: null,
+    MainType: null,
+    port: null,
+    writer: null,
+    reader: null,
+    readLoopPromise: null,
+    connected: false,
+    nextCommandId: 1,
+    pending: new Map(), // command_id -> {resolve, reject, timer}
+    rxBuffer: new Uint8Array(0),
+
+    async ensureProtoLoaded() {
+      if (this.root) return;
+      // keepCase is essential: protobuf.js camelCases .proto field names by
+      // default (command_id -> commandId), but every field used here
+      // matches the .proto text exactly (command_id, has_next,
+      // storage_write_request, ...). Without keepCase, Type.create() just
+      // silently ignores those as unknown extra properties and the real
+      // (camelCased) fields stay unset, so messages encode down to
+      // essentially nothing.
+      this.root = new protobuf.Root();
+      await this.root.load(PROTO_FILES, { keepCase: true });
+      this.MainType = this.root.lookupType("PB.Main");
+    },
+
+    appendRx(bytes) {
+      const merged = new Uint8Array(this.rxBuffer.length + bytes.length);
+      merged.set(this.rxBuffer, 0);
+      merged.set(bytes, this.rxBuffer.length);
+      this.rxBuffer = merged;
+      this.drainMessages();
+    },
+
+    drainMessages() {
+      while (true) {
+        if (this.rxBuffer.length === 0) return;
+        const reader = protobuf.Reader.create(this.rxBuffer);
+        let msg;
+        try {
+          msg = this.MainType.decodeDelimited(reader);
+        } catch (e) {
+          if (this.rxBuffer.length > 65536) {
+            logLine(`Dropping ${this.rxBuffer.length} unparseable byte(s) from the read buffer.`, "e");
+            this.rxBuffer = new Uint8Array(0);
+          }
+          return;
+        }
+        this.rxBuffer = this.rxBuffer.slice(reader.pos);
+        this.handleMessage(msg);
+      }
+    },
+
+    handleMessage(msg) {
+      const id = msg.command_id;
+      const pending = this.pending.get(id);
+      if (pending) {
+        this.pending.delete(id);
+        clearTimeout(pending.timer);
+        pending.resolve(msg);
+      }
+    },
+
+    async connect() {
+      await this.ensureProtoLoaded();
+      const port = await navigator.serial.requestPort();
+      await port.open({ baudRate: 115200 });
+      this.port = port;
+      this.writer = port.writable.getWriter();
+      this.reader = port.readable.getReader();
+      this.connected = true;
+      this.readLoopPromise = this.readLoop();
+
+      await this.writeRaw(new TextEncoder().encode("start_rpc_session\r"));
+      await new Promise((r) => setTimeout(r, 400));
+      if (this.rxBuffer.length) {
+        logLine(`Discarding ${this.rxBuffer.length} non-protobuf byte(s) from the RPC handshake.`);
+        this.rxBuffer = new Uint8Array(0);
+      }
+      logLine("Connected — RPC session started.", "ok");
+    },
+
+    async readLoop() {
+      try {
+        while (this.connected) {
+          const { value, done } = await this.reader.read();
+          if (done) break;
+          if (value && value.length) this.appendRx(value);
+        }
+      } catch (e) {
+        if (this.connected) logLine("Serial read error: " + e.message, "e");
+      }
+    },
+
+    async writeRaw(bytes) {
+      await this.writer.write(bytes);
+    },
+
+    async sendMain(fields, { expectResponse = true, timeoutMs = 6000 } = {}) {
+      const id = fields.command_id !== undefined ? fields.command_id : this.nextCommandId++;
+      const message = this.MainType.create(Object.assign({ command_id: id, has_next: false }, fields));
+      const bytes = this.MainType.encodeDelimited(message).finish();
+      if (!expectResponse) {
+        await this.writeRaw(bytes);
+        return null;
+      }
+      const promise = new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          this.pending.delete(id);
+          reject(new Error("Timed out waiting for a response from the Flipper."));
+        }, timeoutMs);
+        this.pending.set(id, { resolve, reject, timer });
+      });
+      await this.writeRaw(bytes);
+      return promise;
+    },
+
+    async writeFileChunked(path, text, onProgress) {
+      const bytes = new TextEncoder().encode(text);
+      const id = this.nextCommandId++;
+      const total = Math.ceil(bytes.length / WRITE_CHUNK_SIZE) || 1;
+      let sent = 0;
+      const promise = new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          this.pending.delete(id);
+          reject(new Error("Timed out waiting for the Flipper to confirm the write."));
+        }, 15000);
+        this.pending.set(id, { resolve, reject, timer });
+      });
+      for (let offset = 0; offset < bytes.length || sent === 0; offset += WRITE_CHUNK_SIZE) {
+        const chunk = bytes.slice(offset, offset + WRITE_CHUNK_SIZE);
+        const hasNext = offset + WRITE_CHUNK_SIZE < bytes.length;
+        const message = this.MainType.create({
+          command_id: id,
+          has_next: hasNext,
+          storage_write_request: { path: path, file: { data: chunk } },
+        });
+        await this.writeRaw(this.MainType.encodeDelimited(message).finish());
+        sent++;
+        if (onProgress) onProgress(sent, total);
+        if (!hasNext) break;
+      }
+      const response = await promise;
+      if (response.command_status !== 0) {
+        throw new Error("Flipper reported an error (status " + response.command_status + ") writing " + path);
+      }
+      return response;
+    },
+
+    async disconnect() {
+      try {
+        await this.sendMain({ stop_session: {} }, { expectResponse: false });
+      } catch (e) { /* best effort */ }
+      this.connected = false;
+      try { await this.reader.cancel(); } catch (e) {}
+      try { this.reader.releaseLock(); } catch (e) {}
+      try { this.writer.releaseLock(); } catch (e) {}
+      try { await this.port.close(); } catch (e) {}
+      this.port = null;
+      this.rxBuffer = new Uint8Array(0);
+      logLine("Disconnected.");
+    },
+  };
+
+  // ── Connect / disconnect UI ────────────────────────────────────
+  const devicePill = $("devicePill");
+  const devicePillText = $("devicePillText");
+  function setDeviceStatus(state, text) {
+    devicePill.className = "status-pill" + (state ? " " + state : "");
+    devicePillText.textContent = text;
+  }
+
+  const connectToggleBtn = $("connectToggleBtn");
+
+  if (!("serial" in navigator)) {
+    $("serialUnsupportedBox").style.display = "block";
+    connectToggleBtn.disabled = true;
+  }
+
+  function setInstallButtonsEnabled(enabled) {
+    document.querySelectorAll(".install-btn").forEach((btn) => { btn.disabled = !enabled; });
+  }
+
+  connectToggleBtn.addEventListener("click", async () => {
+    if (FlipperRPC.connected) {
+      connectToggleBtn.disabled = true;
+      setInstallButtonsEnabled(false);
+      await FlipperRPC.disconnect();
+      setDeviceStatus(null, "No device connected");
+      connectToggleBtn.textContent = "🔌 Connect Flipper";
+      connectToggleBtn.disabled = false;
+      return;
+    }
+
+    connectToggleBtn.disabled = true;
+    setDeviceStatus("busy", "Connecting…");
+    try {
+      await FlipperRPC.connect();
+      setDeviceStatus("connected", "Connected");
+      connectToggleBtn.textContent = "Disconnect";
+      setInstallButtonsEnabled(true);
+    } catch (e) {
+      logLine("Connect failed: " + e.message, "e");
+      setDeviceStatus("error", "Connect failed");
+    } finally {
+      connectToggleBtn.disabled = false;
+    }
+  });
+
+  window.addEventListener("beforeunload", () => {
+    if (FlipperRPC.connected) FlipperRPC.disconnect();
+  });
+
+  // ── Gallery: load index.json, sort, paginate, render ─────────────
+  const ITEMS_PER_PAGE = 32;
+  let allWallpapers = [];
+  let currentPage = 1;
+
+  function sortedWallpapers() {
+    const mode = $("sortSelect").value;
+    const list = allWallpapers.slice();
+    if (mode === "newest") {
+      list.sort((a, b) => new Date(b.added) - new Date(a.added));
+    } else if (mode === "oldest") {
+      list.sort((a, b) => new Date(a.added) - new Date(b.added));
+    } else {
+      list.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+    }
+    return list;
+  }
+
+  // Strips everything but letters/digits and lowercases, so "aa", "AA",
+  // and "A.A" all normalize to the same "aa" - typing without the dot
+  // still finds two-letter initials, and search is never case-sensitive.
+  function normalizeSearch(s) {
+    return s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  }
+
+  // Matches single letters (A, B, ...) and two-letter initials (A.A, A.B,
+  // ..., Z.Z) - the auto-generated alphabet/initials batch - but not
+  // NumberOne or the emoji/symbol set, so "Hide Letters" only hides those.
+  function isLetterWallpaper(name) {
+    return /^[A-Za-z]$/.test(name) || /^[A-Za-z]\.[A-Za-z]$/.test(name);
+  }
+
+  function filteredWallpapers(list) {
+    let result = list;
+    if ($("hideLettersCheck").checked) {
+      result = result.filter((wp) => !isLetterWallpaper(wp.name));
+    }
+    const query = normalizeSearch($("searchBox").value);
+    if (query) {
+      result = result.filter((wp) => normalizeSearch(wp.name).includes(query));
+    }
+    return result;
+  }
+
+  function renderGrid() {
+    const grid = $("wpGrid");
+    const emptyState = $("emptyState");
+    const pagination = $("pagination");
+
+    if (allWallpapers.length === 0) {
+      grid.innerHTML = "";
+      emptyState.textContent = "No wallpapers published yet — check back soon!";
+      emptyState.style.display = "block";
+      pagination.style.display = "none";
+      return;
+    }
+
+    const list = filteredWallpapers(sortedWallpapers());
+
+    if (list.length === 0) {
+      grid.innerHTML = "";
+      emptyState.textContent = `No wallpapers match "${$("searchBox").value}".`;
+      emptyState.style.display = "block";
+      pagination.style.display = "none";
+      return;
+    }
+    emptyState.style.display = "none";
+
+    const totalPages = Math.max(1, Math.ceil(list.length / ITEMS_PER_PAGE));
+    currentPage = Math.min(Math.max(1, currentPage), totalPages);
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const pageItems = list.slice(start, start + ITEMS_PER_PAGE);
+
+    grid.innerHTML = "";
+    pageItems.forEach((wp) => grid.appendChild(buildCard(wp)));
+
+    renderPagination(totalPages);
+  }
+
+  function buildCard(wp) {
+    const card = document.createElement("div");
+    card.className = "wp-card";
+
+    const thumbWrap = document.createElement("div");
+    thumbWrap.className = "wp-thumb-wrap";
+    const img = document.createElement("img");
+    img.src = urlFor(wp.image);
+    img.alt = wp.name;
+    img.loading = "lazy";
+    thumbWrap.appendChild(img);
+    card.appendChild(thumbWrap);
+
+    const name = document.createElement("div");
+    name.className = "wp-name";
+    name.textContent = wp.name;
+    name.title = wp.name;
+    card.appendChild(name);
+
+    const actions = document.createElement("div");
+    actions.className = "wp-actions";
+
+    const dl = document.createElement("a");
+    dl.className = "btn primary small full";
+    dl.href = urlFor(wp.zip);
+    dl.download = "";
+    dl.textContent = "Download";
+    actions.appendChild(dl);
+
+    const install = document.createElement("button");
+    install.className = "btn danger accent small full install-btn";
+    install.textContent = "Install";
+    install.disabled = !FlipperRPC.connected;
+    install.addEventListener("click", () => openConfirmModal(wp));
+    actions.appendChild(install);
+
+    card.appendChild(actions);
+    return card;
+  }
+
+  function renderPagination(totalPages) {
+    const pagination = $("pagination");
+    if (totalPages <= 1) {
+      pagination.style.display = "none";
+      pagination.innerHTML = "";
+      return;
+    }
+    pagination.style.display = "flex";
+    pagination.innerHTML = "";
+
+    const addBtn = (label, page, opts = {}) => {
+      const btn = document.createElement("button");
+      btn.className = "page-btn" + (opts.active ? " active" : "");
+      btn.textContent = label;
+      btn.disabled = !!opts.disabled;
+      if (!opts.disabled && !opts.active) {
+        btn.addEventListener("click", () => { currentPage = page; renderGrid(); window.scrollTo({ top: 0, behavior: "smooth" }); });
+      }
+      pagination.appendChild(btn);
+    };
+    const addEllipsis = () => {
+      const span = document.createElement("span");
+      span.className = "page-ellipsis";
+      span.textContent = "…";
+      pagination.appendChild(span);
+    };
+
+    addBtn("‹", currentPage - 1, { disabled: currentPage === 1 });
+
+    const pages = new Set([1, totalPages, currentPage, currentPage - 1, currentPage + 1]);
+    let prev = 0;
+    Array.from(pages).filter((p) => p >= 1 && p <= totalPages).sort((a, b) => a - b).forEach((p) => {
+      if (prev && p - prev > 1) addEllipsis();
+      addBtn(String(p), p, { active: p === currentPage });
+      prev = p;
+    });
+
+    addBtn("›", currentPage + 1, { disabled: currentPage === totalPages });
+  }
+
+  $("sortSelect").addEventListener("change", () => { currentPage = 1; renderGrid(); });
+  $("searchBox").addEventListener("input", () => { currentPage = 1; renderGrid(); });
+  $("hideLettersCheck").addEventListener("change", () => { currentPage = 1; renderGrid(); });
+
+  async function loadIndex() {
+    try {
+      const res = await fetch("wallpapers/index.json", { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      allWallpapers = Array.isArray(data.wallpapers) ? data.wallpapers : [];
+    } catch (e) {
+      logLine("Couldn't load wallpapers/index.json: " + e.message, "e");
+      allWallpapers = [];
+    }
+    renderGrid();
+  }
+
+  // ── Install flow: confirm -> unzip -> write to SD card -> success ──
+  const confirmModalBackdrop = $("confirmModalBackdrop");
+  const successModalBackdrop = $("successModalBackdrop");
+  let pendingInstall = null;
+
+  function openConfirmModal(wp) {
+    if (!FlipperRPC.connected) return;
+    pendingInstall = wp;
+    $("confirmWpName").textContent = wp.name;
+    confirmModalBackdrop.classList.add("show");
+  }
+  $("confirmModalCancel").addEventListener("click", () => {
+    confirmModalBackdrop.classList.remove("show");
+    pendingInstall = null;
+  });
+  $("successModalOk").addEventListener("click", () => {
+    successModalBackdrop.classList.remove("show");
+  });
+
+  $("confirmModalConfirm").addEventListener("click", async () => {
+    const wp = pendingInstall;
+    confirmModalBackdrop.classList.remove("show");
+    pendingInstall = null;
+    if (!wp) return;
+
+    setInstallButtonsEnabled(false);
+    setDeviceStatus("busy", "Fetching " + wp.name + "…");
+    try {
+      const zipRes = await fetch(urlFor(wp.zip));
+      if (!zipRes.ok) throw new Error("Couldn't download " + wp.zip + " (HTTP " + zipRes.status + ")");
+      const zipBuffer = await zipRes.arrayBuffer();
+
+      const zip = await JSZip.loadAsync(zipBuffer);
+      let entry = zip.file("wallpaper.xbm");
+      if (!entry) {
+        const xbmMatch = Object.keys(zip.files).find((name) => /\.xbm$/i.test(name));
+        if (xbmMatch) entry = zip.file(xbmMatch);
+      }
+      if (!entry) throw new Error("No wallpaper.xbm found inside " + wp.zip);
+      const xbmText = await entry.async("string");
+
+      setDeviceStatus("busy", "Saving to SD card…");
+      await FlipperRPC.writeFileChunked("/ext/wallpaper.xbm", xbmText, (sent, total) => {
+        setDeviceStatus("busy", `Saving… (${sent}/${total})`);
+      });
+
+      setDeviceStatus("connected", "Connected");
+      logLine(`"${wp.name}" installed to /ext/wallpaper.xbm.`, "ok");
+      successModalBackdrop.classList.add("show");
+    } catch (e) {
+      logLine(`Install of "${wp.name}" failed: ` + e.message, "e");
+      setDeviceStatus("connected", "Connected");
+    } finally {
+      setInstallButtonsEnabled(FlipperRPC.connected);
+    }
+  });
+
+  // ── Init ──────────────────────────────────────────────────────
+  loadIndex();
+})();
+</script>
+</body>
+</html>

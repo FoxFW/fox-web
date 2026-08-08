@@ -1,0 +1,49 @@
+name: Publish Wallpaper Index
+
+# Regenerates wallpapers/index.json from whatever's actually sitting in
+# wallpapers/ - the Wallpaper Showcase page (wallpaper-showcase.html) fetches
+# this file on load instead of trying to list a directory over plain HTTP
+# (which GitHub Pages doesn't support). Add a NAME.png (or NAME.bmp) +
+# NAME.zip pair to wallpapers/, push, and this runs automatically - no other
+# step needed for it to show up on the Showcase page.
+#
+# A pair only makes it into the index if BOTH files are present; drop just
+# one and it's silently skipped. See scripts/publish_wallpaper_index.py for
+# the pairing + date logic.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "wallpapers/**"
+      - "!wallpapers/index.json"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  publish-index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate wallpapers/index.json
+        run: python3 scripts/publish_wallpaper_index.py
+
+      - name: Commit + push if changed
+        run: |
+          set -e
+          git config user.name "foxfw-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add wallpapers/index.json
+          if git diff --cached --quiet; then
+            echo "No changes to wallpapers/index.json"
+          else
+            git commit -m "Publish wallpaper index"
+            git push
+          fi
