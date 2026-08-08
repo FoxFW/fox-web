@@ -8,6 +8,7 @@
   Firmware to any supported board from the browser
 - FAP Compiler (fap-compiler.html) - build any third-party Flipper app's
   .fap against FoxFW v2.0 from a GitHub URL, no toolchain needed
+- Fox Wallpaper Painter (wallpaper-painter.html) - build and save custom backgrounds for your flipper zero (FoxFW2.0 required)
 - Fox ESP32 Firmware guide (FoxESP32_Help.html) - full command reference
   and app walkthroughs for the ESP32 companion suite
 - Screenshots gallery, overview video, and the firmware binaries the web
