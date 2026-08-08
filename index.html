@@ -291,6 +291,7 @@
       <li><a href="#about">About FoxFW</a></li>
       <li><a href="#web-flasher">Web Installer</a></li>
       <li><a href="#fap-compiler-info">FAP Compiler</a></li>
+      <li><a href="#wallpaper-painter-info">Wallpaper Painter</a></li>
       <li><a href="#first-boot">First Boot — Fox Setup Wizard</a>
         <ul class="sub">
           <li><a href="#wizard-name">Rename your Flipper</a></li>
@@ -470,6 +471,50 @@
   <div class="box info" style="margin-top:18px;">
     The target repo just needs an <code>application.fam</code> file — the same format used by
     every Flipper Zero app. Multi-app repos are supported via an advanced "subfolder" option.
+  </div>
+
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+<section class="section" id="wallpaper-painter-info">
+  <div class="chapter-label">Chapter 2c</div>
+  <h2>Wallpaper Painter <span class="badge">New</span></h2>
+  <p>
+    Draw a custom <code>wallpaper.xbm</code> straight in your browser — no MS Paint round-trip,
+    no separate converter tool. Pencil, eraser, line, and fill-bucket tools on a pixel-accurate
+    128×64 canvas, with the status bar and border pre-locked so you can't accidentally draw
+    somewhere that won't show up on the device.
+  </p>
+
+  <div class="box tip">
+    Works fully offline — download <code>wallpaper.xbm</code> with no Flipper connected. Optionally
+    connect over USB to preview your drawing live on the device's screen, or save it straight to
+    the SD card without unplugging anything.
+  </div>
+
+  <div style="text-align:center;margin:28px 0;">
+    <a href="https://foxfw.github.io/fox-web/wallpaper-painter.html"
+       style="display:inline-block;background:var(--orange);color:#fff;font-weight:700;
+              font-size:1.05rem;padding:16px 40px;border-radius:8px;text-decoration:none;
+              box-shadow:0 0 20px rgba(232,117,10,0.35);letter-spacing:0.3px;">
+      🎨 Open Wallpaper Painter →
+    </a>
+    <p style="margin-top:12px;font-size:0.82rem;color:#888;">
+      Opens at foxfw.github.io/fox-web/wallpaper-painter.html
+    </p>
+  </div>
+
+  <h3>How it works</h3>
+  <ol style="color:#ccc;padding-left:22px;line-height:1.9;">
+    <li>Draw in the open area of the canvas — the gray border and status bar strip are locked.</li>
+    <li>Click <strong>Download wallpaper.xbm</strong> and copy the file to the root of your SD card.</li>
+    <li>Optional: click <strong>Connect Flipper</strong> (Chrome/Edge only) to preview live on the
+      device's screen, or save directly to the SD card with <strong>Save to Flipper SD Card</strong>.</li>
+  </ol>
+
+  <div class="box warn" style="margin-top:18px;">
+    <strong>Save to Flipper SD Card</strong> permanently overwrites the device's existing
+    <code>wallpaper.xbm</code> and can't be undone — the page warns you before it does this.
   </div>
 
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
@@ -941,12 +986,21 @@
     a valid <code>wallpaper.xbm</code> is always present after the first boot.
   </p>
   <div class="box new">
-    <strong>FoxFW Wallpaper Converter <span class="badge">New</span></strong><br><br>
-    Editing a raw <code>.xbm</code> file by hand isn't fun, so we built a
-    dedicated converter tool. It turns your <code>wallpaper.xbm</code> into a
-    <code>wallpaper.bmp</code> that you can edit in MS Paint (or any similar image
-    editor), then converts it back to <code>.xbm</code> when you're ready to put
-    it back on your SD card.<br><br>
+    <strong>FoxFW Wallpaper Painter <span class="badge">New</span></strong><br><br>
+    The easiest way to make a <code>wallpaper.xbm</code> — draw it directly in your
+    browser, no separate converter or image editor needed. The border and status bar
+    are pre-locked so you can't draw somewhere it won't show up, and you can preview
+    your drawing live on the device or save it straight to the SD card over USB.
+    See <a href="#wallpaper-painter-info" style="color:#d4a8ff;">Wallpaper Painter</a>
+    above for details.
+  </div>
+
+  <div class="box new" style="margin-top:12px;">
+    <strong>FoxFW Wallpaper Converter</strong><br><br>
+    Prefer working offline in MS Paint? This older, standalone tool turns your
+    <code>wallpaper.xbm</code> into a <code>wallpaper.bmp</code> that you can edit in
+    MS Paint (or any similar image editor), then converts it back to <code>.xbm</code>
+    when you're ready to put it back on your SD card.<br><br>
     To use it: copy your current <code>wallpaper.xbm</code> into the same folder
     as the Wallpaper Converter and run it from there.<br><br>
     <a href="https://github.com/FoxFW/FoxFW-Wallpaper-Converter" style="color:#d4a8ff;font-weight:600;">

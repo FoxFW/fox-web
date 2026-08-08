@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoxFW Wallpaper Painter</title>
+<style>
+  :root{
+    --bg:#0c0d10;
+    --panel:#151619;
+    --panel-2:#1c1e22;
+    --line:#2a2c31;
+    --fox:#f89521;
+    --fox-dim:#c97417;
+    --text:#eceef1;
+    --text-dim:#9a9ea6;
+    --ok:#3ecf6e;
+    --warn:#f2b705;
+    --err:#e5484d;
+    --mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+    --sans: "Inter", -apple-system, "Segoe UI", sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--sans);
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center;
+    padding:32px 16px 64px;
+  }
+  .brand{ text-align:center; margin-bottom:6px; }
+  .brand .fox{ font-size:34px; line-height:1; }
+  .brand h1{
+    font-family:var(--mono);
+    font-size:15px; letter-spacing:.14em; text-transform:uppercase;
+    margin:8px 0 2px; color:var(--text);
+  }
+  .brand .sub{
+    font-family:var(--mono); font-size:11px; letter-spacing:.12em;
+    color:var(--fox); text-transform:uppercase;
+  }
+  .backlink{
+    margin-top:10px; font-family:var(--mono); font-size:11.5px;
+  }
+  .backlink a{ color:var(--text-dim); text-decoration:none; }
+  .backlink a:hover{ color:var(--fox); }
+  .status-pill{
+    display:inline-flex; align-items:center; gap:7px;
+    padding:5px 11px; border-radius:20px; background:var(--panel-2);
+    border:1px solid var(--line); color:var(--text-dim);
+    font-family:var(--mono); font-size:11.5px;
+  }
+  .status-pill .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-dim); }
+  .status-pill.connected .dot{ background:var(--ok); box-shadow:0 0 6px var(--ok); }
+  .status-pill.connected{ color:var(--ok); border-color:#1f4a30; }
+  .status-pill.error .dot{ background:var(--err); }
+  .status-pill.error{ color:var(--err); border-color:#4a1f21; }
+  .status-pill.busy .dot{ background:var(--warn); animation:pulse 1.2s ease-in-out infinite; }
+  .status-pill.busy{ color:var(--warn); border-color:#4a3a1f; }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+
+  .card{
+    width:100%; max-width:820px; background:var(--panel);
+    border:1px solid var(--line); border-radius:10px; padding:20px;
+    margin-top:14px;
+  }
+  .card h2{
+    font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-dim); margin:0 0 14px; font-family:var(--mono);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;
+  }
+  .card h2.editor-head{
+    display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px;
+  }
+  .card h2.editor-head > span:first-child{ justify-self:start; }
+  .card h2.editor-head > .btn{ justify-self:center; }
+  .card h2.editor-head > .status-pill{ justify-self:end; }
+  .btn.small{ padding:6px 14px; font-size:11.5px; text-transform:none; letter-spacing:0; }
+
+  .toolbar-row{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .toolbar{
+    flex:1; min-width:0;
+    display:flex; gap:6px; flex-wrap:wrap; align-items:center; justify-content:center;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:8px;
+    padding:8px;
+  }
+  .tool-btn{
+    width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+    background:transparent; border:1px solid transparent; border-radius:6px;
+    color:var(--text-dim); cursor:pointer; font-size:16px;
+  }
+  .tool-btn:hover{ color:var(--text); background:var(--panel); }
+  .tool-btn.active{ color:var(--fox); background:#2a1b06; border-color:var(--fox-dim); }
+  .tool-sep{ width:1px; align-self:stretch; background:var(--line); margin:0 4px; }
+  .tool-btn:disabled{ opacity:.35; cursor:default; }
+  .tool-btn:disabled:hover{ background:transparent; color:var(--text-dim); }
+
+  .canvas-wrap{
+    display:flex; justify-content:center; padding:14px;
+    background:repeating-conic-gradient(#1a1b1f 0% 25%, #161719 0% 50%) 0 0/16px 16px;
+    border:1px solid var(--line); border-radius:8px; overflow:hidden;
+  }
+  #paintCanvas{
+    image-rendering:pixelated; image-rendering:crisp-edges;
+    cursor:crosshair; touch-action:none;
+    box-shadow:0 0 0 1px #000, 0 0 24px rgba(0,0,0,.5);
+    max-width:100%; height:auto; display:block;
+  }
+
+  .help-btn{
+    position:relative; width:30px; height:30px; border-radius:50%;
+    border:1px solid var(--fox-dim); background:var(--panel-2); color:var(--text-dim);
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+    font-family:var(--mono); cursor:pointer; flex-shrink:0;
+  }
+  .help-btn:hover{ color:var(--fox); }
+  .help-pop{
+    position:absolute; top:130%; right:0; width:260px; z-index:20;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px; font-size:11.5px; line-height:1.6; color:var(--text);
+    text-transform:none; letter-spacing:0; font-family:var(--sans);
+    opacity:0; visibility:hidden; transform:translateY(-4px);
+    transition:opacity .12s, transform .12s, visibility .12s;
+    box-shadow:0 8px 24px rgba(0,0,0,.4);
+  }
+  .help-pop strong{ color:var(--fox); }
+  .help-btn:hover .help-pop, .help-btn.open .help-pop{
+    opacity:1; visibility:visible; transform:translateY(0);
+  }
+
+  .chevron-btn{
+    width:30px; height:30px; border-radius:50%;
+    border:1px solid var(--fox-dim); background:var(--panel-2); color:var(--text-dim);
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+    cursor:pointer; flex-shrink:0; transition:transform .15s;
+  }
+  .chevron-btn:hover{ color:var(--fox); }
+  .chevron-btn.open{ transform:rotate(180deg); }
+
+  .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .row + .row{ margin-top:12px; }
+  .btn{
+    font-family:var(--mono); font-size:12.5px; letter-spacing:.02em;
+    padding:10px 16px; border-radius:7px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--text); cursor:pointer;
+  }
+  .btn:hover:not(:disabled){ border-color:var(--fox-dim); color:var(--fox); }
+  .btn:disabled{ opacity:.4; cursor:default; }
+  .btn.primary{ background:var(--fox); border-color:var(--fox); color:#1a0f00; font-weight:700; }
+  .btn.primary:hover:not(:disabled){ background:var(--fox-dim); color:#fff; }
+  .btn.danger{ background:transparent; border-color:#4a1f21; color:var(--err); }
+  .btn.danger:hover:not(:disabled){ background:#2a1013; }
+  .btn.full{ flex:1; text-align:center; }
+
+  /* Always-visible orange border; the label itself only lights up orange
+     on hover. Disabled state keeps the border lit and brightens the text
+     instead of the usual uniform opacity dim, so it stays readable. */
+  .btn.accent{ border-color:var(--fox-dim); }
+  .btn.accent:hover:not(:disabled){ color:var(--fox); }
+  .btn.accent:disabled{ opacity:1; border-color:var(--fox-dim); color:#d8d9db; cursor:default; }
+
+  .divider{ height:1px; background:var(--line); margin:16px 0; }
+
+  .switch-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .switch-row .label{ font-size:13px; }
+  .switch-row .hint{ font-size:11px; color:var(--text-dim); margin-top:2px; }
+  .switch{ position:relative; width:44px; height:24px; flex-shrink:0; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .slider{
+    position:absolute; inset:0; background:var(--panel-2); border:1px solid var(--line);
+    border-radius:24px; cursor:pointer; transition:.15s;
+  }
+  .slider:before{
+    content:""; position:absolute; width:16px; height:16px; left:3px; top:3px;
+    background:var(--text-dim); border-radius:50%; transition:.15s;
+  }
+  .switch input:checked + .slider{ background:#1f4a30; border-color:var(--ok); }
+  .switch input:checked + .slider:before{ background:var(--ok); transform:translateX(20px); }
+  .switch input:disabled + .slider{ opacity:.4; cursor:default; }
+
+  .box{
+    border-radius:8px; padding:12px 14px; font-size:12.5px; line-height:1.6;
+    border:1px solid var(--line); background:var(--panel-2); margin-top:12px;
+  }
+  .box.warn{ border-color:#4a3a1f; background:#241c0c; color:#f2c96a; }
+  .box.info{ border-color:#1f3a4a; background:#0c1c24; color:#8fc7e0; }
+
+  #consoleCard .console{
+    background:#000; border:1px solid var(--line); border-radius:6px;
+    padding:10px 12px; font-family:var(--mono); font-size:11.5px; line-height:1.6;
+    max-height:200px; overflow-y:auto; white-space:pre-wrap; word-break:break-word;
+  }
+  #consoleCard .console .e{ color:var(--err); }
+  #consoleCard .console .ok{ color:var(--ok); }
+  #consoleCard .console .w{ color:var(--warn); }
+
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,.6); display:none;
+    align-items:center; justify-content:center; z-index:50; padding:16px;
+  }
+  .modal-backdrop.show{ display:flex; }
+  .modal{
+    width:100%; max-width:420px; background:var(--panel); border:1px solid #4a1f21;
+    border-radius:10px; padding:22px;
+  }
+  .modal h3{ margin:0 0 10px; color:var(--err); font-size:15px; }
+  .modal p{ font-size:13px; line-height:1.6; color:var(--text); }
+  .modal .row{ margin-top:18px; }
+
+  .footer{
+    margin-top:26px; font-family:var(--mono); font-size:11px; color:var(--text-dim);
+    text-align:center; max-width:620px; line-height:1.8;
+  }
+  .footer a{ color:var(--fox-dim); text-decoration:none; }
+  .footer a:hover{ color:var(--fox); }
+</style>
+</head>
+<body>
+
+<div class="brand">
+  <div class="fox">🦊</div>
+  <h1>FoxFW Wallpaper Painter</h1>
+  <div class="sub">128 × 64 · wallpaper.xbm</div>
+</div>
+<div class="backlink"><a href="index.html#wallpaper">&larr; Custom Wallpaper help</a></div>
+
+<div class="card">
+  <h2 class="editor-head">
+    <span>Editor</span>
+    <button class="btn small accent" id="connectToggleBtn">&#128268; Connect Flipper</button>
+    <span class="status-pill" id="devicePill"><span class="dot"></span><span id="devicePillText">No device connected</span></span>
+  </h2>
+
+  <div class="box" id="serialUnsupportedBox" style="display:none;">
+    This browser doesn't support Web Serial, so device features aren't available here.
+    Use Chrome or Edge on desktop — you can still download <code>wallpaper.xbm</code> below
+    and copy it to the SD card by hand.
+  </div>
+
+  <div class="toolbar-row">
+    <div class="toolbar">
+      <button class="tool-btn active" id="toolPencil" title="Pencil">&#9998;</button>
+      <button class="tool-btn" id="toolEraser" title="Eraser">&#9083;</button>
+      <button class="tool-btn" id="toolLine" title="Line">&#9585;</button>
+      <button class="tool-btn" id="toolFill" title="Fill bucket">&#128167;</button>
+      <div class="tool-sep"></div>
+      <button class="tool-btn" id="toolImport" title="Import image">&#128247;</button>
+      <div class="tool-sep"></div>
+      <button class="tool-btn" id="toolUndo" title="Undo" disabled>&#8630;</button>
+      <button class="tool-btn" id="toolRedo" title="Redo" disabled>&#8631;</button>
+      <div class="tool-sep"></div>
+      <button class="tool-btn" id="toolZoomOut" title="Zoom out">&minus;</button>
+      <button class="tool-btn" id="toolZoomIn" title="Zoom in">&plus;</button>
+      <div class="tool-sep"></div>
+      <button class="tool-btn" id="toolClear" title="Clear drawing">&#128465;</button>
+      <input type="file" id="importFileInput" accept="image/*" style="display:none;">
+    </div>
+    <div class="help-btn" id="lockHelpBtn" tabindex="0">
+      ?
+      <div class="help-pop">
+        The gray strip along the edges and the "SD / 2.0 / BATT" status bar area are
+        locked on every FoxFW wallpaper — the device draws its live status icons on top of
+        that area, so anything painted there is never visible on the actual screen. You can
+        only draw in the open white area, same as every FoxFW wallpaper ships with.
+      </div>
+    </div>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="paintCanvas" width="768" height="384"></canvas>
+  </div>
+
+  <div class="switch-row" style="margin-top:14px;">
+    <div>
+      <div class="label">Show Live on Device</div>
+      <div class="hint">Streams your drawing to the Flipper's screen in real time. Requires a connected device.</div>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="liveToggle" disabled>
+      <span class="slider"></span>
+    </label>
+  </div>
+</div>
+
+<div class="card">
+  <h2>
+    <span>Saving</span>
+    <div class="help-btn" id="saveHelpBtn" tabindex="0">
+      ?
+      <div class="help-pop" style="right:-6px;">
+        <strong>Download wallpaper.xbm</strong><br>
+        Works with no Flipper connected — saves <code>wallpaper.xbm</code> to your computer.
+        Copy it to the root of your SD card to install it (path: <code>/ext/wallpaper.xbm</code>),
+        then enable it under Fox Settings &rarr; Custom Wallpaper on the device.
+        <br><br>
+        <strong>Save to Flipper SD Card</strong><br>
+        This overwrites the only <code>wallpaper.xbm</code> on the connected Flipper's SD card
+        and cannot be undone. Requires a connected device.
+      </div>
+    </div>
+  </h2>
+
+  <div class="row">
+    <button class="btn primary full" id="downloadBtn">&#8681; Download wallpaper.xbm</button>
+    <button class="btn danger accent full" id="saveToSdBtn" disabled>&#9888; Save to Flipper SD Card</button>
+  </div>
+</div>
+
+<div class="card" id="consoleCard">
+  <h2>
+    <span>Device Log</span>
+    <button class="chevron-btn" id="logToggleBtn" title="Show / hide log">&#9660;</button>
+  </h2>
+  <div class="console" id="consoleEl" style="display:none;"></div>
+</div>
+
+<div class="footer">
+  <div>
+    Prefer working offline in MS Paint instead? The original
+    <a href="https://github.com/FoxFW/FoxFW-Wallpaper-Converter" target="_blank" rel="noopener">FoxFW Wallpaper Converter</a>
+    tool still works the same as always — this page is just a faster, in-browser alternative
+    with live device preview built in.
+  </div>
+  <div style="margin-top:10px;">
+    Questions or issues? <a href="mailto:foxcustomfirmware@gmail.com">foxcustomfirmware@gmail.com</a>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="sdModalBackdrop">
+  <div class="modal">
+    <h3>&#9888; Overwrite wallpaper.xbm?</h3>
+    <p>
+      This will permanently overwrite the <strong>only</strong> <code>wallpaper.xbm</code>
+      file on this Flipper's SD card with your current drawing. There is no backup and
+      <strong>this cannot be undone</strong>.
+    </p>
+    <div class="row">
+      <button class="btn full" id="sdModalCancel">Cancel</button>
+      <button class="btn danger full" id="sdModalConfirm">Overwrite</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/protobufjs/7.4.0/protobuf.min.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  // ── Template artwork (border + status bar chrome) ────────────────
+  // 128x64, 1bpp, row-major, standard XBM bit order (bit N of byte = pixel
+  // x = byteIndex*8+N within that row). bit=1 -> black, derived pixel-for-
+  // pixel from the FoxFW wallpaper template. Identical layout to what
+  // canvas_draw_xbm() in FoxFW2.0's desktop.c actually renders, and to the
+  // default wallpaper.xbm the firmware auto-creates on first boot. This is
+  // just the ARTWORK to render/bake into the locked band below — which
+  // pixels are actually off-limits to the user is decided by isLocked(),
+  // not by which of these bits happen to be black or white.
+  const W = 128, H = 64, ROW_BYTES = 16, SIZE = 1024;
+  const TEMPLATE_BITS = new Uint8Array([
+  255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,128,
+  253,255,255,1,0,0,0,0,0,0,0,0,254,255,255,191,
+  253,255,255,1,0,0,0,0,0,0,0,0,254,255,255,191,
+  253,16,254,1,0,0,0,0,0,0,0,0,134,131,65,184,
+  253,158,252,1,0,0,128,3,30,0,0,0,102,187,247,190,
+  253,158,253,1,0,0,192,6,51,0,0,0,102,187,247,190,
+  253,144,253,1,0,0,0,6,51,0,0,0,134,131,247,190,
+  253,147,252,1,0,0,192,3,51,0,0,0,102,131,247,190,
+  253,16,254,1,0,0,64,96,51,0,0,0,102,187,247,190,
+  253,255,255,1,0,0,192,103,30,0,0,0,134,187,247,190,
+  253,255,255,1,0,0,0,0,0,0,0,0,254,255,255,191,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,160,
+  253,255,255,255,255,255,255,255,255,255,255,255,255,255,255,191,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,128,
+  255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255
+  ]);
+
+  // ── Pixel-layer helpers ──────────────────────────────────────────
+  function getBit(arr, x, y) {
+    return (arr[y * ROW_BYTES + (x >> 3)] >> (x & 7)) & 1;
+  }
+  function setBit(arr, x, y, v) {
+    const idx = y * ROW_BYTES + (x >> 3);
+    const bit = 1 << (x & 7);
+    if (v) arr[idx] |= bit; else arr[idx] &= ~bit;
+  }
+
+  // ── Locked region (whole bands, not just the template's black pixels) ──
+  // The device's status bar overdraws the full top strip regardless of
+  // what's underneath it, and the border frame is a full-width/height
+  // band too — so the WHOLE band has to be off-limits, not just the exact
+  // pixels that happen to be black in the template artwork. Drawing in
+  // the gap between the double border lines, or in the blank space next
+  // to "2.0", used to slip through when this was matched to the template
+  // pixel-for-pixel; it doesn't anymore.
+  const TOP_BAND = 11;   // status bar, full width
+  const SIDE_BAND = 3;   // double border, left/right, full height
+  const BOTTOM_BAND = 3; // double border, bottom, full width
+  function isLocked(x, y) {
+    return y < TOP_BAND || y >= H - BOTTOM_BAND || x < SIDE_BAND || x >= W - SIDE_BAND;
+  }
+
+  let userLayer = new Uint8Array(SIZE);
+
+  function finalBits() {
+    const out = new Uint8Array(SIZE);
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const v = isLocked(x, y) ? getBit(TEMPLATE_BITS, x, y) : getBit(userLayer, x, y);
+        if (v) setBit(out, x, y, 1);
+      }
+    }
+    return out;
+  }
+
+  // ── Undo / redo ──────────────────────────────────────────────────
+  const undoStack = [];
+  const redoStack = [];
+  const MAX_UNDO = 50;
+  function pushUndo() {
+    undoStack.push(userLayer.slice());
+    if (undoStack.length > MAX_UNDO) undoStack.shift();
+    redoStack.length = 0;
+    updateUndoRedoButtons();
+  }
+  function undo() {
+    if (!undoStack.length) return;
+    redoStack.push(userLayer.slice());
+    userLayer = undoStack.pop();
+    updateUndoRedoButtons();
+    render();
+    pushLiveFrameIfActive();
+  }
+  function redo() {
+    if (!redoStack.length) return;
+    undoStack.push(userLayer.slice());
+    userLayer = redoStack.pop();
+    updateUndoRedoButtons();
+    render();
+    pushLiveFrameIfActive();
+  }
+  function updateUndoRedoButtons() {
+    $("toolUndo").disabled = undoStack.length === 0;
+    $("toolRedo").disabled = redoStack.length === 0;
+  }
+
+  // ── XBM text export (same textual format FoxFW2.0 ships/reads) ───
+  function toXbmText(bits) {
+    let out = "#define wallpaper_width 128\n#define wallpaper_height 64\nstatic unsigned char wallpaper_bits[] = {\n";
+    const lines = [];
+    for (let i = 0; i < bits.length; i += 12) {
+      const chunk = Array.from(bits.slice(i, i + 12)).map(b => "0x" + b.toString(16).padStart(2, "0"));
+      lines.push("   " + chunk.join(", ") + ",");
+    }
+    out += lines.join("\n") + "\n};\n";
+    return out;
+  }
+
+  function downloadXbm() {
+    const text = toXbmText(finalBits());
+    const blob = new Blob([text], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "wallpaper.xbm";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Canvas rendering ───────────────────────────────────────────
+  const canvas = document.getElementById("paintCanvas");
+  const ctx = canvas.getContext("2d");
+  let zoom = 6;
+  const ZOOM_LEVELS = [3, 4, 6, 8, 10, 12];
+
+  function applyZoom() {
+    canvas.width = W * zoom;
+    canvas.height = H * zoom;
+    render();
+  }
+
+  // Colors match how this actually looks on the Flipper's screen: white/
+  // light for an unset pixel, black/dark for a set one. The locked band
+  // uses muted grays in the same light/dark sense so it still reads as
+  // "paper" vs "ink" at a glance, just visibly grayed-out/non-editable.
+  const COLOR_OPEN_OFF = "#eceef1";
+  const COLOR_OPEN_ON = "#0c0d10";
+  const COLOR_LOCKED_INK = "#45484d";
+  const COLOR_LOCKED_PAPER = "#7d818a";
+
+  function render() {
+    ctx.imageSmoothingEnabled = false;
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        let color;
+        if (isLocked(x, y)) {
+          color = getBit(TEMPLATE_BITS, x, y) ? COLOR_LOCKED_INK : COLOR_LOCKED_PAPER;
+        } else if (getBit(userLayer, x, y)) {
+          color = COLOR_OPEN_ON;
+        } else {
+          color = COLOR_OPEN_OFF;
+        }
+        ctx.fillStyle = color;
+        ctx.fillRect(x * zoom, y * zoom, zoom, zoom);
+      }
+    }
+    if (linePreview) drawLinePreviewOverlay();
+  }
+
+  // ── Tools ──────────────────────────────────────────────────────
+  let currentTool = "pencil";
+  const toolButtons = {
+    pencil: $("toolPencil"),
+    eraser: $("toolEraser"),
+    line: $("toolLine"),
+    fill: $("toolFill"),
+  };
+  function setTool(name) {
+    currentTool = name;
+    Object.entries(toolButtons).forEach(([k, btn]) => btn.classList.toggle("active", k === name));
+  }
+  toolButtons.pencil.addEventListener("click", () => setTool("pencil"));
+  toolButtons.eraser.addEventListener("click", () => setTool("eraser"));
+  toolButtons.line.addEventListener("click", () => setTool("line"));
+  toolButtons.fill.addEventListener("click", () => setTool("fill"));
+
+  function $(id) { return document.getElementById(id); }
+
+  $("toolZoomIn").addEventListener("click", () => {
+    const i = ZOOM_LEVELS.indexOf(zoom);
+    if (i < ZOOM_LEVELS.length - 1) { zoom = ZOOM_LEVELS[i + 1]; applyZoom(); }
+  });
+  $("toolZoomOut").addEventListener("click", () => {
+    const i = ZOOM_LEVELS.indexOf(zoom);
+    if (i > 0) { zoom = ZOOM_LEVELS[i - 1]; applyZoom(); }
+  });
+  $("toolUndo").addEventListener("click", undo);
+  $("toolRedo").addEventListener("click", redo);
+  $("toolClear").addEventListener("click", () => {
+    if (userLayer.every(b => b === 0)) return;
+    if (!confirm("Clear the whole drawing? This only affects your undo history on this page, not any file yet.")) return;
+    pushUndo();
+    userLayer.fill(0);
+    render();
+    pushLiveFrameIfActive();
+  });
+
+  function pointerToPixel(evt) {
+    const rect = canvas.getBoundingClientRect();
+    const cx = (evt.clientX - rect.left) * (canvas.width / rect.width);
+    const cy = (evt.clientY - rect.top) * (canvas.height / rect.height);
+    return { x: Math.floor(cx / zoom), y: Math.floor(cy / zoom) };
+  }
+  function inBounds(x, y) { return x >= 0 && x < W && y >= 0 && y < H; }
+
+  function paintAt(x, y, val) {
+    if (!inBounds(x, y) || isLocked(x, y)) return false;
+    if (getBit(userLayer, x, y) === val) return false;
+    setBit(userLayer, x, y, val);
+    return true;
+  }
+
+  function drawLineBits(x0, y0, x1, y1, val) {
+    let changed = false;
+    let dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0);
+    let sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+    let err = dx + dy;
+    while (true) {
+      if (paintAt(x0, y0, val)) changed = true;
+      if (x0 === x1 && y0 === y1) break;
+      const e2 = 2 * err;
+      if (e2 >= dy) { err += dy; x0 += sx; }
+      if (e2 <= dx) { err += dx; y0 += sy; }
+    }
+    return changed;
+  }
+
+  function floodFill(sx, sy, val) {
+    if (!inBounds(sx, sy) || isLocked(sx, sy)) return false;
+    const start = getBit(userLayer, sx, sy);
+    if (start === val) return false;
+    const stack = [[sx, sy]];
+    let changed = false;
+    while (stack.length) {
+      const [x, y] = stack.pop();
+      if (!inBounds(x, y) || isLocked(x, y)) continue;
+      if (getBit(userLayer, x, y) !== start) continue;
+      setBit(userLayer, x, y, val);
+      changed = true;
+      stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+    }
+    return changed;
+  }
+
+  // ── Pointer interaction ──────────────────────────────────────────
+  let isDrawing = false;
+  let lastPixel = null;
+  let linePreview = null; // {x0,y0,x1,y1}
+  let strokeChanged = false;
+
+  function drawLinePreviewOverlay() {
+    ctx.strokeStyle = "rgba(248,149,33,0.9)";
+    ctx.lineWidth = Math.max(1, zoom / 6);
+    ctx.beginPath();
+    ctx.moveTo(linePreview.x0 * zoom + zoom / 2, linePreview.y0 * zoom + zoom / 2);
+    ctx.lineTo(linePreview.x1 * zoom + zoom / 2, linePreview.y1 * zoom + zoom / 2);
+    ctx.stroke();
+  }
+
+  canvas.addEventListener("pointerdown", (evt) => {
+    canvas.setPointerCapture(evt.pointerId);
+    const p = pointerToPixel(evt);
+    if (!inBounds(p.x, p.y)) return;
+    isDrawing = true;
+    strokeChanged = false;
+    if (currentTool === "pencil" || currentTool === "eraser") {
+      pushUndo();
+      const val = currentTool === "pencil" ? 1 : 0;
+      if (paintAt(p.x, p.y, val)) strokeChanged = true;
+      lastPixel = p;
+      render();
+    } else if (currentTool === "line") {
+      linePreview = { x0: p.x, y0: p.y, x1: p.x, y1: p.y };
+      render();
+    } else if (currentTool === "fill") {
+      pushUndo();
+      strokeChanged = floodFill(p.x, p.y, 1);
+      render();
+      isDrawing = false;
+      if (strokeChanged) {
+        pushLiveFrameIfActive();
+      } else {
+        undoStack.pop();
+        updateUndoRedoButtons();
+      }
+    }
+  });
+
+  canvas.addEventListener("pointermove", (evt) => {
+    if (!isDrawing) return;
+    const p = pointerToPixel(evt);
+    if (currentTool === "pencil" || currentTool === "eraser") {
+      if (!inBounds(p.x, p.y)) return;
+      const val = currentTool === "pencil" ? 1 : 0;
+      if (lastPixel) {
+        if (drawLineBits(lastPixel.x, lastPixel.y, p.x, p.y, val)) strokeChanged = true;
+      } else if (paintAt(p.x, p.y, val)) {
+        strokeChanged = true;
+      }
+      lastPixel = p;
+      render();
+    } else if (currentTool === "line" && linePreview) {
+      linePreview.x1 = Math.max(0, Math.min(W - 1, p.x));
+      linePreview.y1 = Math.max(0, Math.min(H - 1, p.y));
+      render();
+    }
+  });
+
+  function endStroke() {
+    if (!isDrawing) return;
+    isDrawing = false;
+    lastPixel = null;
+    if (currentTool === "line" && linePreview) {
+      pushUndo();
+      strokeChanged = drawLineBits(linePreview.x0, linePreview.y0, linePreview.x1, linePreview.y1, 1);
+      linePreview = null;
+      render();
+      if (!strokeChanged) { undoStack.pop(); updateUndoRedoButtons(); }
+    } else if ((currentTool === "pencil" || currentTool === "eraser") && !strokeChanged) {
+      undoStack.pop();
+      updateUndoRedoButtons();
+    }
+    if (strokeChanged) pushLiveFrameIfActive();
+  }
+  canvas.addEventListener("pointerup", endStroke);
+  canvas.addEventListener("pointercancel", endStroke);
+  canvas.addEventListener("pointerleave", () => { if (currentTool !== "line") endStroke(); });
+
+  // ── Import image ──────────────────────────────────────────────
+  $("toolImport").addEventListener("click", () => $("importFileInput").click());
+  $("importFileInput").addEventListener("change", (evt) => {
+    const file = evt.target.files[0];
+    if (!file) return;
+    const img = new Image();
+    img.onload = () => {
+      if (!confirm("Replace your current drawing with this image (scaled to fit, converted to black & white)?")) {
+        $("importFileInput").value = "";
+        return;
+      }
+      pushUndo();
+      const off = document.createElement("canvas");
+      off.width = W; off.height = H;
+      const octx = off.getContext("2d");
+      octx.fillStyle = "#fff";
+      octx.fillRect(0, 0, W, H);
+      const scale = Math.min(W / img.width, H / img.height);
+      const dw = img.width * scale, dh = img.height * scale;
+      octx.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
+      const data = octx.getImageData(0, 0, W, H).data;
+      userLayer.fill(0);
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          if (isLocked(x, y)) continue;
+          const idx = (y * W + x) * 4;
+          const lum = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+          if (lum < 128) setBit(userLayer, x, y, 1);
+        }
+      }
+      render();
+      pushLiveFrameIfActive();
+      $("importFileInput").value = "";
+    };
+    img.src = URL.createObjectURL(file);
+  });
+
+  $("downloadBtn").addEventListener("click", downloadXbm);
+
+  // ── Flipper RPC over Web Serial ──────────────────────────────────
+  const PROTO_FILES = [
+    "assets/proto/flipper.proto",
+    "assets/proto/storage.proto",
+    "assets/proto/system.proto",
+    "assets/proto/application.proto",
+    "assets/proto/gui.proto",
+    "assets/proto/gpio.proto",
+    "assets/proto/property.proto",
+    "assets/proto/desktop.proto",
+  ];
+  const WRITE_CHUNK_SIZE = 512; // matches FoxFW2.0's rpc_storage.c MAX_DATA_SIZE
+
+  const consoleEl = $("consoleEl");
+  function logLine(msg, cls) {
+    const div = document.createElement("div");
+    if (cls) div.className = cls;
+    const ts = new Date().toLocaleTimeString();
+    div.textContent = `[${ts}] ${msg}`;
+    consoleEl.appendChild(div);
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+  }
+
+  // ── Collapsible Device Log ───────────────────────────────────────
+  const logToggleBtn = $("logToggleBtn");
+  logToggleBtn.addEventListener("click", () => {
+    const open = consoleEl.style.display !== "none";
+    consoleEl.style.display = open ? "none" : "block";
+    logToggleBtn.classList.toggle("open", !open);
+    if (!open) consoleEl.scrollTop = consoleEl.scrollHeight;
+  });
+
+  // ── Help popovers (hover on desktop, click/tap anywhere else) ────
+  document.querySelectorAll(".help-btn").forEach((btn) => {
+    btn.addEventListener("click", (evt) => {
+      evt.stopPropagation();
+      const willOpen = !btn.classList.contains("open");
+      document.querySelectorAll(".help-btn.open").forEach((b) => b.classList.remove("open"));
+      if (willOpen) btn.classList.add("open");
+    });
+  });
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".help-btn.open").forEach((b) => b.classList.remove("open"));
+  });
+
+  const FlipperRPC = {
+    root: null,
+    MainType: null,
+    port: null,
+    writer: null,
+    reader: null,
+    readLoopPromise: null,
+    connected: false,
+    virtualDisplayActive: false,
+    nextCommandId: 1,
+    pending: new Map(), // command_id -> {resolve, reject, timer}
+    rxBuffer: new Uint8Array(0),
+
+    async ensureProtoLoaded() {
+      if (this.root) return;
+      this.root = await protobuf.load(PROTO_FILES);
+      this.MainType = this.root.lookupType("PB.Main");
+    },
+
+    appendRx(bytes) {
+      const merged = new Uint8Array(this.rxBuffer.length + bytes.length);
+      merged.set(this.rxBuffer, 0);
+      merged.set(bytes, this.rxBuffer.length);
+      this.rxBuffer = merged;
+      this.drainMessages();
+    },
+
+    drainMessages() {
+      while (true) {
+        if (this.rxBuffer.length === 0) return;
+        const reader = protobuf.Reader.create(this.rxBuffer);
+        let msg;
+        const startPos = reader.pos;
+        try {
+          msg = this.MainType.decodeDelimited(reader);
+        } catch (e) {
+          // Not enough bytes buffered yet for a full message — wait for more.
+          return;
+        }
+        this.rxBuffer = this.rxBuffer.slice(reader.pos);
+        this.handleMessage(msg);
+      }
+    },
+
+    handleMessage(msg) {
+      const id = msg.command_id;
+      const pending = this.pending.get(id);
+      if (pending) {
+        this.pending.delete(id);
+        clearTimeout(pending.timer);
+        pending.resolve(msg);
+      }
+    },
+
+    async connect() {
+      await this.ensureProtoLoaded();
+      const port = await navigator.serial.requestPort();
+      await port.open({ baudRate: 115200 });
+      this.port = port;
+      this.writer = port.writable.getWriter();
+      this.reader = port.readable.getReader();
+      this.connected = true;
+      this.readLoopPromise = this.readLoop();
+
+      await this.writeRaw(new TextEncoder().encode("start_rpc_session\r"));
+      // Give the CLI a moment to switch into RPC framing before we send
+      // any protobuf-encoded bytes at it.
+      await new Promise((r) => setTimeout(r, 300));
+      logLine("Connected — RPC session started.", "ok");
+    },
+
+    async readLoop() {
+      try {
+        while (this.connected) {
+          const { value, done } = await this.reader.read();
+          if (done) break;
+          if (value && value.length) this.appendRx(value);
+        }
+      } catch (e) {
+        if (this.connected) logLine("Serial read error: " + e.message, "e");
+      }
+    },
+
+    async writeRaw(bytes) {
+      await this.writer.write(bytes);
+    },
+
+    async sendMain(fields, { expectResponse = true, timeoutMs = 6000 } = {}) {
+      const id = fields.command_id !== undefined ? fields.command_id : this.nextCommandId++;
+      const message = this.MainType.create(Object.assign({ command_id: id, has_next: false }, fields));
+      const bytes = this.MainType.encodeDelimited(message).finish();
+      if (!expectResponse) {
+        await this.writeRaw(bytes);
+        return null;
+      }
+      const promise = new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          this.pending.delete(id);
+          reject(new Error("Timed out waiting for a response from the Flipper."));
+        }, timeoutMs);
+        this.pending.set(id, { resolve, reject, timer });
+      });
+      await this.writeRaw(bytes);
+      return promise;
+    },
+
+    async writeFileChunked(path, text, onProgress) {
+      const bytes = new TextEncoder().encode(text);
+      const id = this.nextCommandId++;
+      const total = Math.ceil(bytes.length / WRITE_CHUNK_SIZE) || 1;
+      let sent = 0;
+      const promise = new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          this.pending.delete(id);
+          reject(new Error("Timed out waiting for the Flipper to confirm the write."));
+        }, 15000);
+        this.pending.set(id, { resolve, reject, timer });
+      });
+      for (let offset = 0; offset < bytes.length || sent === 0; offset += WRITE_CHUNK_SIZE) {
+        const chunk = bytes.slice(offset, offset + WRITE_CHUNK_SIZE);
+        const hasNext = offset + WRITE_CHUNK_SIZE < bytes.length;
+        const message = this.MainType.create({
+          command_id: id,
+          has_next: hasNext,
+          storage_write_request: { path: path, file: { data: chunk } },
+        });
+        await this.writeRaw(this.MainType.encodeDelimited(message).finish());
+        sent++;
+        if (onProgress) onProgress(sent, total);
+        if (!hasNext) break;
+      }
+      const response = await promise;
+      if (response.command_status !== 0) {
+        throw new Error("Flipper reported an error (status " + response.command_status + ") writing " + path);
+      }
+      return response;
+    },
+
+    async startVirtualDisplay(frameBytes) {
+      const response = await this.sendMain({
+        gui_start_virtual_display_request: { first_frame: { data: frameBytes, orientation: 0 } },
+      });
+      if (response.command_status !== 0) {
+        throw new Error("Flipper rejected virtual display start (status " + response.command_status + ")");
+      }
+      this.virtualDisplayActive = true;
+    },
+
+    async sendFrame(frameBytes) {
+      if (!this.connected || !this.virtualDisplayActive) return;
+      await this.sendMain({ gui_screen_frame: { data: frameBytes, orientation: 0 } }, { expectResponse: false });
+    },
+
+    async stopVirtualDisplay() {
+      if (!this.virtualDisplayActive) return;
+      try {
+        await this.sendMain({ gui_stop_virtual_display_request: {} });
+      } catch (e) {
+        logLine("Stop virtual display: " + e.message, "w");
+      }
+      this.virtualDisplayActive = false;
+    },
+
+    async disconnect() {
+      await this.stopVirtualDisplay();
+      try {
+        await this.sendMain({ stop_session: {} }, { expectResponse: false });
+      } catch (e) { /* best effort */ }
+      this.connected = false;
+      try { await this.reader.cancel(); } catch (e) {}
+      try { this.reader.releaseLock(); } catch (e) {}
+      try { this.writer.releaseLock(); } catch (e) {}
+      try { await this.port.close(); } catch (e) {}
+      this.port = null;
+      this.rxBuffer = new Uint8Array(0);
+      logLine("Disconnected.");
+    },
+  };
+
+  // ── Device UI wiring ──────────────────────────────────────────
+  const devicePill = $("devicePill");
+  const devicePillText = $("devicePillText");
+  function setDeviceStatus(state, text) {
+    devicePill.className = "status-pill" + (state ? " " + state : "");
+    devicePillText.textContent = text;
+  }
+
+  const connectToggleBtn = $("connectToggleBtn");
+
+  if (!("serial" in navigator)) {
+    $("serialUnsupportedBox").style.display = "block";
+    connectToggleBtn.disabled = true;
+  }
+
+  connectToggleBtn.addEventListener("click", async () => {
+    if (FlipperRPC.connected) {
+      connectToggleBtn.disabled = true;
+      $("liveToggle").checked = false;
+      $("liveToggle").disabled = true;
+      $("saveToSdBtn").disabled = true;
+      await FlipperRPC.disconnect();
+      setDeviceStatus(null, "No device connected");
+      connectToggleBtn.textContent = "🔌 Connect Flipper";
+      connectToggleBtn.disabled = false;
+      return;
+    }
+
+    connectToggleBtn.disabled = true;
+    setDeviceStatus("busy", "Connecting…");
+    try {
+      await FlipperRPC.connect();
+      setDeviceStatus("connected", "Connected");
+      connectToggleBtn.textContent = "Disconnect";
+      $("liveToggle").disabled = false;
+      $("saveToSdBtn").disabled = false;
+    } catch (e) {
+      logLine("Connect failed: " + e.message, "e");
+      setDeviceStatus("error", "Connect failed");
+    } finally {
+      connectToggleBtn.disabled = false;
+    }
+  });
+
+  $("liveToggle").addEventListener("change", async (evt) => {
+    const on = evt.target.checked;
+    evt.target.disabled = true;
+    try {
+      if (on) {
+        setDeviceStatus("busy", "Starting live preview…");
+        await FlipperRPC.startVirtualDisplay(finalBits());
+        setDeviceStatus("connected", "Live on device");
+        logLine("Live preview started.", "ok");
+      } else {
+        setDeviceStatus("busy", "Stopping live preview…");
+        await FlipperRPC.stopVirtualDisplay();
+        setDeviceStatus("connected", "Connected");
+        logLine("Live preview stopped.");
+      }
+    } catch (e) {
+      logLine("Live preview error: " + e.message, "e");
+      evt.target.checked = false;
+      setDeviceStatus("connected", "Connected");
+    } finally {
+      evt.target.disabled = false;
+    }
+  });
+
+  let liveSendTimer = null;
+  function pushLiveFrameIfActive() {
+    if (!FlipperRPC.virtualDisplayActive) return;
+    if (liveSendTimer) clearTimeout(liveSendTimer);
+    liveSendTimer = setTimeout(() => {
+      FlipperRPC.sendFrame(finalBits()).catch((e) => logLine("Live frame send failed: " + e.message, "e"));
+    }, 60);
+  }
+
+  // ── Save to SD card (with confirmation) ─────────────────────────
+  const sdModalBackdrop = $("sdModalBackdrop");
+  $("saveToSdBtn").addEventListener("click", () => {
+    sdModalBackdrop.classList.add("show");
+  });
+  $("sdModalCancel").addEventListener("click", () => sdModalBackdrop.classList.remove("show"));
+  $("sdModalConfirm").addEventListener("click", async () => {
+    sdModalBackdrop.classList.remove("show");
+    const btn = $("saveToSdBtn");
+    btn.disabled = true;
+    setDeviceStatus("busy", "Saving to SD card…");
+    try {
+      const text = toXbmText(finalBits());
+      await FlipperRPC.writeFileChunked("/ext/wallpaper.xbm", text, (sent, total) => {
+        setDeviceStatus("busy", `Saving… (${sent}/${total})`);
+      });
+      setDeviceStatus("connected", "Connected");
+      logLine("wallpaper.xbm saved to SD card.", "ok");
+    } catch (e) {
+      logLine("Save to SD card failed: " + e.message, "e");
+      setDeviceStatus("connected", "Connected");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  window.addEventListener("beforeunload", () => {
+    if (FlipperRPC.connected) FlipperRPC.disconnect();
+  });
+
+  // ── Init ──────────────────────────────────────────────────────
+  updateUndoRedoButtons();
+  applyZoom();
+})();
+</script>
+</body>
+</html>
