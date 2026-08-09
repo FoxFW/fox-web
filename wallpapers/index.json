@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-08T07:06:19.778756+00:00",
+  "generated": "2026-08-09T09:03:02.478124+00:00",
   "wallpapers": [
     {
       "name": "A",
@@ -164,6 +164,18 @@
       "added": "2026-08-08T12:17:34+10:00"
     },
     {
+      "name": "Alien",
+      "image": "wallpapers/Alien.png",
+      "zip": "wallpapers/Alien.zip",
+      "added": "2026-08-09T09:03:02.477385+00:00"
+    },
+    {
+      "name": "Anchor",
+      "image": "wallpapers/Anchor.png",
+      "zip": "wallpapers/Anchor.zip",
+      "added": "2026-08-09T09:03:02.477414+00:00"
+    },
+    {
       "name": "B",
       "image": "wallpapers/B.png",
       "zip": "wallpapers/B.zip",
@@ -326,10 +338,22 @@
       "added": "2026-08-08T12:17:34+10:00"
     },
     {
+      "name": "Bird",
+      "image": "wallpapers/Bird.png",
+      "zip": "wallpapers/Bird.zip",
+      "added": "2026-08-09T09:03:02.477439+00:00"
+    },
+    {
       "name": "Bolt",
       "image": "wallpapers/Bolt.png",
       "zip": "wallpapers/Bolt.zip",
       "added": "2026-08-08T12:17:34+10:00"
+    },
+    {
+      "name": "Bunny",
+      "image": "wallpapers/Bunny.png",
+      "zip": "wallpapers/Bunny.zip",
+      "added": "2026-08-09T09:03:02.477442+00:00"
     },
     {
       "name": "C",
@@ -494,10 +518,46 @@
       "added": "2026-08-08T12:17:34+10:00"
     },
     {
+      "name": "Camera",
+      "image": "wallpapers/Camera.png",
+      "zip": "wallpapers/Camera.zip",
+      "added": "2026-08-09T09:03:02.477465+00:00"
+    },
+    {
+      "name": "Cat",
+      "image": "wallpapers/Cat.png",
+      "zip": "wallpapers/Cat.zip",
+      "added": "2026-08-09T09:03:02.477468+00:00"
+    },
+    {
       "name": "Check",
       "image": "wallpapers/Check.png",
       "zip": "wallpapers/Check.zip",
       "added": "2026-08-08T12:17:34+10:00"
+    },
+    {
+      "name": "Clock",
+      "image": "wallpapers/Clock.png",
+      "zip": "wallpapers/Clock.zip",
+      "added": "2026-08-09T09:03:02.477470+00:00"
+    },
+    {
+      "name": "Cloud",
+      "image": "wallpapers/Cloud.png",
+      "zip": "wallpapers/Cloud.zip",
+      "added": "2026-08-09T09:03:02.477472+00:00"
+    },
+    {
+      "name": "Coffee",
+      "image": "wallpapers/Coffee.png",
+      "zip": "wallpapers/Coffee.zip",
+      "added": "2026-08-09T09:03:02.477474+00:00"
+    },
+    {
+      "name": "Compass",
+      "image": "wallpapers/Compass.png",
+      "zip": "wallpapers/Compass.zip",
+      "added": "2026-08-09T09:03:02.477476+00:00"
     },
     {
       "name": "Cross",
@@ -668,6 +728,18 @@
       "added": "2026-08-08T12:17:34+10:00"
     },
     {
+      "name": "Diamond",
+      "image": "wallpapers/Diamond.png",
+      "zip": "wallpapers/Diamond.zip",
+      "added": "2026-08-09T09:03:02.477496+00:00"
+    },
+    {
+      "name": "Dino",
+      "image": "wallpapers/Dino.png",
+      "zip": "wallpapers/Dino.zip",
+      "added": "2026-08-09T09:03:02.477498+00:00"
+    },
+    {
       "name": "E",
       "image": "wallpapers/E.png",
       "zip": "wallpapers/E.zip",
@@ -828,6 +900,12 @@
       "image": "wallpapers/E.Z.png",
       "zip": "wallpapers/E.Z.zip",
       "added": "2026-08-08T12:17:34+10:00"
+    },
+    {
+      "name": "Envelope",
+      "image": "wallpapers/Envelope.png",
+      "zip": "wallpapers/Envelope.zip",
+      "added": "2026-08-09T09:03:02.477520+00:00"
     },
     {
       "name": "F",
@@ -992,6 +1070,18 @@
       "added": "2026-08-08T12:17:34+10:00"
     },
     {
+      "name": "Fish",
+      "image": "wallpapers/Fish.png",
+      "zip": "wallpapers/Fish.zip",
+      "added": "2026-08-09T09:03:02.477541+00:00"
+    },
+    {
+      "name": "Flag",
+      "image": "wallpapers/Flag.png",
+      "zip": "wallpapers/Flag.zip",
+      "added": "2026-08-09T09:03:02.477544+00:00"
+    },
+    {
       "name": "G",
       "image": "wallpapers/G.png",
       "zip": "wallpapers/G.zip",
@@ -1152,6 +1242,12 @@
       "image": "wallpapers/G.Z.png",
       "zip": "wallpapers/G.Z.zip",
       "added": "2026-08-08T12:17:34+10:00"
+    },
+    {
+      "name": "Ghost",
+      "image": "wallpapers/Ghost.png",
+      "zip": "wallpapers/Ghost.zip",
+      "added": "2026-08-09T09:03:02.477564+00:00"
     },
     {
       "name": "H",
@@ -1322,6 +1418,12 @@
       "added": "2026-08-08T12:17:34+10:00"
     },
     {
+      "name": "House",
+      "image": "wallpapers/House.png",
+      "zip": "wallpapers/House.zip",
+      "added": "2026-08-09T09:03:02.477586+00:00"
+    },
+    {
       "name": "I",
       "image": "wallpapers/I.png",
       "zip": "wallpapers/I.zip",
@@ -1482,6 +1584,12 @@
       "image": "wallpapers/I.Z.png",
       "zip": "wallpapers/I.Z.zip",
       "added": "2026-08-08T12:17:34+10:00"
+    },
+    {
+      "name": "Infinity",
+      "image": "wallpapers/Infinity.png",
+      "zip": "wallpapers/Infinity.zip",
+      "added": "2026-08-09T09:03:02.477606+00:00"
     },
     {
       "name": "J",
@@ -1808,6 +1916,12 @@
       "added": "2026-08-08T12:17:34+10:00"
     },
     {
+      "name": "Key",
+      "image": "wallpapers/Key.png",
+      "zip": "wallpapers/Key.zip",
+      "added": "2026-08-09T09:03:02.477692+00:00"
+    },
+    {
       "name": "L",
       "image": "wallpapers/L.png",
       "zip": "wallpapers/L.zip",
@@ -1968,6 +2082,12 @@
       "image": "wallpapers/L.Z.png",
       "zip": "wallpapers/L.Z.zip",
       "added": "2026-08-08T12:17:34+10:00"
+    },
+    {
+      "name": "Lightbulb",
+      "image": "wallpapers/Lightbulb.png",
+      "zip": "wallpapers/Lightbulb.zip",
+      "added": "2026-08-09T09:03:02.477712+00:00"
     },
     {
       "name": "M",
@@ -2468,6 +2588,12 @@
       "added": "2026-08-08T12:17:34+10:00"
     },
     {
+      "name": "Owl",
+      "image": "wallpapers/Owl.png",
+      "zip": "wallpapers/Owl.zip",
+      "added": "2026-08-09T09:03:02.477771+00:00"
+    },
+    {
       "name": "P",
       "image": "wallpapers/P.png",
       "zip": "wallpapers/P.zip",
@@ -2958,6 +3084,24 @@
       "image": "wallpapers/R.Z.png",
       "zip": "wallpapers/R.Z.zip",
       "added": "2026-08-08T12:17:34+10:00"
+    },
+    {
+      "name": "Recycle",
+      "image": "wallpapers/Recycle.png",
+      "zip": "wallpapers/Recycle.zip",
+      "added": "2026-08-09T09:03:02.477828+00:00"
+    },
+    {
+      "name": "Robot",
+      "image": "wallpapers/Robot.png",
+      "zip": "wallpapers/Robot.zip",
+      "added": "2026-08-09T09:03:02.477830+00:00"
+    },
+    {
+      "name": "Rocket",
+      "image": "wallpapers/Rocket.png",
+      "zip": "wallpapers/Rocket.zip",
+      "added": "2026-08-09T09:03:02.477832+00:00"
     },
     {
       "name": "S",
@@ -3468,6 +3612,18 @@
       "image": "wallpapers/U.Z.png",
       "zip": "wallpapers/U.Z.zip",
       "added": "2026-08-08T12:17:34+10:00"
+    },
+    {
+      "name": "Ufo",
+      "image": "wallpapers/Ufo.png",
+      "zip": "wallpapers/Ufo.zip",
+      "added": "2026-08-09T09:03:02.477915+00:00"
+    },
+    {
+      "name": "Umbrella",
+      "image": "wallpapers/Umbrella.png",
+      "zip": "wallpapers/Umbrella.zip",
+      "added": "2026-08-09T09:03:02.477921+00:00"
     },
     {
       "name": "V",
@@ -4116,6 +4272,12 @@
       "image": "wallpapers/Y.Z.png",
       "zip": "wallpapers/Y.Z.zip",
       "added": "2026-08-08T12:17:34+10:00"
+    },
+    {
+      "name": "YinYang",
+      "image": "wallpapers/YinYang.png",
+      "zip": "wallpapers/YinYang.zip",
+      "added": "2026-08-09T09:03:02.477996+00:00"
     },
     {
       "name": "Z",

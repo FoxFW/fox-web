@@ -274,6 +274,8 @@
     <code>wallpapers</code> folder on the SD card by hand.
   </div>
 
+  <div class="box warn" id="versionWarnBox" style="display:none;"></div>
+
   <div class="toolbar-row">
     <div class="sort-row">
       <span>Sort:</span>
@@ -474,11 +476,14 @@
     handleMessage(msg) {
       const id = msg.command_id;
       const pending = this.pending.get(id);
-      if (pending) {
-        this.pending.delete(id);
-        clearTimeout(pending.timer);
-        pending.resolve(msg);
+      if (!pending) return;
+      if (pending.collect) {
+        pending.collect(msg);
+        return;
       }
+      this.pending.delete(id);
+      clearTimeout(pending.timer);
+      pending.resolve(msg);
     },
 
     async connect() {
@@ -588,6 +593,40 @@
       } catch (e) { /* best effort */ }
     },
 
+    // system_device_info_request streams back one Main message per
+    // key/value pair (has_next true on all but the last), unlike every
+    // other call here which expects a single response - so this bypasses
+    // the normal sendMain() resolve-once path with its own collector.
+    async getDeviceInfo() {
+      const id = this.nextCommandId++;
+      const info = {};
+      const message = this.MainType.create({
+        command_id: id,
+        has_next: false,
+        system_device_info_request: {},
+      });
+      const promise = new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          this.pending.delete(id);
+          reject(new Error("Timed out waiting for device info."));
+        }, 6000);
+        this.pending.set(id, {
+          timer,
+          collect: (msg) => {
+            const kv = msg.system_device_info_response;
+            if (kv) info[kv.key] = kv.value;
+            if (!msg.has_next) {
+              clearTimeout(timer);
+              this.pending.delete(id);
+              resolve(info);
+            }
+          },
+        });
+      });
+      await this.writeRaw(this.MainType.encodeDelimited(message).finish());
+      return promise;
+    },
+
     async disconnect() {
       try {
         await this.sendMain({ stop_session: {} }, { expectResponse: false });
@@ -610,6 +649,29 @@
     devicePill.className = "status-pill" + (state ? " " + state : "");
     devicePillText.textContent = text;
   }
+
+  // /ext/wallpapers (and the multi-wallpaper .activate mechanism Install
+  // writes through) only exists from FoxFW v2.0.4 onward - older firmware
+  // used a single /ext/wallpaper.xbm path instead.
+  const MIN_WALLPAPERS_FIRMWARE = { major: 2, minor: 0, patch: 4 };
+  function parseFoxfwVersion(str) {
+    const m = /^foxfw-v(\d+)\.(\d+)\.(\d+)/.exec(str || "");
+    return m ? { major: +m[1], minor: +m[2], patch: +m[3] } : null;
+  }
+  function isVersionAtLeast(v, min) {
+    if (v.major !== min.major) return v.major > min.major;
+    if (v.minor !== min.minor) return v.minor > min.minor;
+    return v.patch >= min.patch;
+  }
+  const versionWarnBox = $("versionWarnBox");
+  function showVersionWarning(html) {
+    versionWarnBox.innerHTML = html;
+    versionWarnBox.style.display = "block";
+  }
+  function hideVersionWarning() {
+    versionWarnBox.style.display = "none";
+  }
+  let wallpapersFirmwareOk = false;
 
   const connectToggleBtn = $("connectToggleBtn");
 
@@ -644,6 +706,8 @@
     if (FlipperRPC.connected) {
       connectToggleBtn.disabled = true;
       setInstallButtonsConnected(false);
+      wallpapersFirmwareOk = false;
+      hideVersionWarning();
       await FlipperRPC.disconnect();
       setDeviceStatus(null, "No device connected");
       connectToggleBtn.textContent = "🔌 Connect Flipper";
@@ -652,11 +716,45 @@
     }
 
     connectToggleBtn.disabled = true;
+    hideVersionWarning();
     setDeviceStatus("busy", "Connecting…");
     try {
       await FlipperRPC.connect();
-      setDeviceStatus("connected", "Connected");
       connectToggleBtn.textContent = "Disconnect";
+
+      setDeviceStatus("busy", "Checking firmware version…");
+      try {
+        const info = await FlipperRPC.getDeviceInfo();
+        const v = parseFoxfwVersion(info["firmware_version"]);
+        if (v && isVersionAtLeast(v, MIN_WALLPAPERS_FIRMWARE)) {
+          wallpapersFirmwareOk = true;
+          logLine(`Firmware v${v.major}.${v.minor}.${v.patch} detected.`, "ok");
+        } else if (v) {
+          logLine(
+            `Firmware v${v.major}.${v.minor}.${v.patch} detected - Install needs v2.0.4+.`,
+            "e",
+          );
+          showVersionWarning(
+            `This Flipper is running FoxFW v${v.major}.${v.minor}.${v.patch}. Installing wallpapers ` +
+              `here requires <strong>v2.0.4 or later</strong> (it introduced the <code>/wallpapers</code> ` +
+              `folder this page installs into). Please update your firmware, then reconnect.`,
+          );
+        } else {
+          logLine("Could not determine firmware version.", "w");
+          showVersionWarning(
+            `Couldn't confirm this device is running FoxFW v2.0.4+, which is required to install into ` +
+              `the <code>/wallpapers</code> folder. Update your firmware if installing fails, then reconnect.`,
+          );
+        }
+      } catch (e) {
+        logLine("Firmware version check failed: " + e.message, "w");
+        showVersionWarning(
+          `Couldn't check the firmware version. Installing wallpapers requires FoxFW v2.0.4+ - update if ` +
+            `installing fails, then reconnect.`,
+        );
+      }
+
+      setDeviceStatus("connected", "Connected");
       setInstallButtonsConnected(true);
     } catch (e) {
       logLine("Connect failed: " + e.message, "e");
@@ -788,6 +886,10 @@
         showToast("Connect your Flipper first");
         return;
       }
+      if (!wallpapersFirmwareOk) {
+        showToast("Firmware update required (v2.0.4+)");
+        return;
+      }
       openConfirmModal(wp);
     });
     actions.appendChild(install);
@@ -869,7 +971,7 @@
   let pendingInstall = null;
 
   function openConfirmModal(wp) {
-    if (!FlipperRPC.connected) return;
+    if (!FlipperRPC.connected || !wallpapersFirmwareOk) return;
     pendingInstall = wp;
     $("confirmWpName").textContent = wp.name;
     confirmModalBackdrop.classList.add("show");

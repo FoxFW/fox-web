@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fox Apps Suite — Standalone .fap Downloads</title>
+<style>
+  :root {
+    --orange: #e8750a;
+    --dark:   #1a1a1a;
+    --mid:    #2d2d2d;
+    --light:  #f5f0eb;
+    --border: #3a3a3a;
+    --accent: #ff9a3c;
+    --new:    #c47aff;
+    --green:  #3dba6a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--dark);
+    color: var(--light);
+    line-height: 1.75;
+    padding: 0 0 80px;
+  }
+
+  /* ── Hero header ─────────────────────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, #b85500 0%, var(--orange) 60%, #ff9a3c 100%);
+    color: #fff;
+    padding: 56px 40px 48px;
+    border-bottom: 3px solid #a04800;
+  }
+  .hero-inner { max-width: 860px; margin: 0 auto; }
+  .hero h1 { font-size: 2.6rem; letter-spacing: 1px; margin-bottom: 10px; }
+  .hero p  { opacity: 0.92; font-size: 1.05rem; max-width: 620px; line-height: 1.6; }
+  .hero .version {
+    display: inline-block;
+    background: rgba(0,0,0,0.25);
+    border-radius: 20px;
+    padding: 3px 14px;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+  .hero .support-note {
+    margin-top: 18px;
+    background: rgba(0,0,0,0.22);
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 0.9rem;
+    max-width: 560px;
+  }
+  .hero .support-note a { color: #ffe0b0; }
+
+  /* ── Layout ──────────────────────────────────────────────────────────── */
+  .content { max-width: 860px; margin: 0 auto; padding: 48px 24px 0; }
+
+  /* ── Index / TOC ─────────────────────────────────────────────────────── */
+  .index {
+    background: var(--mid);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin-bottom: 52px;
+  }
+  .index h2 {
+    color: var(--accent);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 18px;
+  }
+  .index .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 32px;
+  }
+  @media (max-width: 600px) { .index .cols { grid-template-columns: 1fr; } }
+  .index ol { padding-left: 20px; }
+  .index li { margin: 6px 0; font-size: 0.95rem; }
+  .index a  { color: var(--accent); text-decoration: none; }
+  .index a:hover { text-decoration: underline; }
+
+  /* ── Chapter labels ──────────────────────────────────────────────────── */
+  .chapter-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+
+  /* ── Section ─────────────────────────────────────────────────────────── */
+  .section { margin-bottom: 64px; }
+  .section h2 {
+    font-size: 1.5rem;
+    color: var(--accent);
+    border-bottom: 2px solid var(--orange);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+  .section h3 {
+    font-size: 1.05rem;
+    color: #e0e0e0;
+    margin: 26px 0 10px;
+    padding-left: 10px;
+    border-left: 3px solid #555;
+  }
+  .section p  { margin-bottom: 13px; color: #ccc; }
+  .section ul { padding-left: 22px; color: #ccc; margin-bottom: 13px; }
+  .section ul li { margin: 5px 0; }
+  .section ol { padding-left: 22px; color: #ccc; margin-bottom: 13px; }
+  .section ol li { margin: 6px 0; }
+
+  /* ── Boxes ───────────────────────────────────────────────────────────── */
+  .box {
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 0.93rem;
+    line-height: 1.65;
+  }
+  .box.warn  { background: #3a1f00; border: 1px solid #a05000; color: #f0c080; }
+  .box.tip   { background: #0f2a1a; border: 1px solid #1a6030; color: #80c890; }
+  .box.info  { background: #131d2e; border: 1px solid #1a3a5a; color: #80aad0; }
+  .box.new   { background: #1e0f2e; border: 1px solid #7c3aed; color: #d4a8ff; }
+  .box strong { font-weight: 700; }
+
+  /* ── Badge ───────────────────────────────────────────────────────────── */
+  .badge {
+    display: inline-block;
+    background: var(--new);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+
+  /* ── Tables ──────────────────────────────────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.9rem; }
+  th { background: #333; color: var(--accent); padding: 9px 12px; text-align: left; }
+  td { padding: 8px 12px; border-bottom: 1px solid #333; color: #ccc; }
+  tr:last-child td { border-bottom: none; }
+  .dl-table td { text-align: center; }
+  .dl-table td:first-child, .dl-table td:nth-child(2) { text-align: left; }
+  .dl-cell a {
+    display: inline-block;
+    color: var(--green);
+    text-decoration: none;
+    font-weight: 700;
+    border: 1px solid #1a6030;
+    background: #0f2a1a;
+    border-radius: 5px;
+    padding: 3px 9px;
+    font-size: 0.82rem;
+  }
+  .dl-cell a:hover { background: #1a6030; color: #fff; }
+  .dl-cell .no { color: #666; }
+
+  /* ── Code ────────────────────────────────────────────────────────────── */
+  code {
+    background: #111;
+    border: 1px solid #444;
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 0.87rem;
+    color: #ffa040;
+  }
+
+  /* ── Back to top ─────────────────────────────────────────────────────── */
+  .back-top { text-align: right; margin-top: 32px; }
+  .back-top a {
+    color: var(--orange);
+    font-size: 0.85rem;
+    text-decoration: none;
+    border: 1px solid var(--orange);
+    border-radius: 20px;
+    padding: 4px 14px;
+  }
+  .back-top a:hover { background: var(--orange); color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ HERO ══════════════════ -->
+<header class="hero">
+  <div class="hero-inner" style="text-align:center;">
+    <div class="version" style="display:inline-block;">🦊 Fox Apps Suite</div>
+    <a href="https://github.com/FoxFW/Fox_Apps" target="_blank" rel="noopener"
+       class="version" style="display:inline-block;text-decoration:none;color:#fff;margin-left:8px;">
+      📦 View on GitHub
+    </a>
+    <h1>Standalone App Downloads</h1>
+    <p style="margin:0 auto;">
+      Every custom Fox app, built separately from the firmware itself, so each
+      one can be installed on its own SD card — on FoxFW or on Stock,
+      Unleashed, Momentum, and ARF — with no firmware flash required.
+    </p>
+    <div class="support-note" style="margin:18px auto 0;">
+      📥 <strong>Just want a file?</strong> Jump straight to
+      <a href="#app-list">App List &amp; Direct Downloads</a>.
+    </div>
+  </div>
+</header>
+
+<div class="content">
+
+<!-- ══════════════════ TABLE OF CONTENTS ══════════════════ -->
+<nav class="index" id="top">
+  <h2>Contents</h2>
+  <div class="cols">
+    <ol>
+      <li><a href="#about">About the Suite</a></li>
+      <li><a href="#different">What Makes FoxFW Different</a></li>
+      <li><a href="#ported">Ported Apps ("Fox Edition")</a></li>
+      <li><a href="#folder-contents">What's in This Repo</a></li>
+      <li><a href="#app-list">App List &amp; Direct Downloads</a></li>
+    </ol>
+    <ol start="6">
+      <li><a href="#esp32-suite">ESP32 Companion Suite</a></li>
+      <li><a href="#nfc-ir">NFC/IR</a></li>
+      <li><a href="#subghz-tools">Sub-GHz Tools</a></li>
+      <li><a href="#utility-apps">Utility Apps</a></li>
+      <li><a href="#sd-card">SD Card Resources by App</a></li>
+      <li><a href="#build-yourself">Building the .fap Files Yourself</a></li>
+    </ol>
+  </div>
+</nav>
+
+
+<!-- ══════════════════ ABOUT ══════════════════ -->
+<section class="section" id="about">
+  <div class="chapter-label">Chapter 1</div>
+  <h2>About the Suite</h2>
+  <p>
+    This is the full set of custom Fox apps built for FoxFW2.0, packaged
+    separately from the firmware itself so each app can be installed on its
+    own, built independently, or dropped straight onto an SD card without a
+    full firmware flash.
+  </p>
+  <p>
+    All of these apps live in the main FoxFW2.0 repository under
+    <code>applications/fox/</code>. The <a href="https://github.com/FoxFW/Fox_Apps" style="color:#80c890;">Fox_Apps</a>
+    repository is a standalone export of that same source, plus the compiled
+    <code>.fap</code> files and the SD card resources each app needs at runtime.
+  </p>
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+
+<!-- ══════════════════ WHAT MAKES FOXFW DIFFERENT ══════════════════ -->
+<section class="section" id="different">
+  <div class="chapter-label">Chapter 2</div>
+  <h2>What Makes FoxFW Different</h2>
+  <p>
+    Two things in this suite are exclusive to the Fox ecosystem and aren't
+    found in any other Flipper Zero firmware or app collection:
+  </p>
+  <ul>
+    <li><strong>Fox Update Downloader is the only on-device update downloader for Flipper Zero.</strong>
+      Every other firmware requires a PC, qFlipper, or a companion phone app to
+      install an update. Fox Update Downloader checks GitHub directly from the
+      Flipper itself, over WiFi via a wired ESP32, compares versions, downloads
+      the matching release for your board, and installs it — no computer
+      involved at any point. It covers both FoxFW2.0 itself and Fox ESP32
+      Firmware.</li>
+    <li><strong>Fox Chameleon is a Fox-exclusive app.</strong> No other custom
+      firmware or app suite ships a BLE bridge between the Flipper and a
+      Chameleon Ultra with a built-in key dictionary for known tag keys.</li>
+  </ul>
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+
+<!-- ══════════════════ PORTED APPS ══════════════════ -->
+<section class="section" id="ported">
+  <div class="chapter-label">Chapter 3</div>
+  <h2>Ported Apps ("Fox Edition")</h2>
+  <p>
+    CSIght and TagTinker aren't originally Fox apps — they're other developers'
+    open-source Flipper apps, forked and rewired to run over the same ESP32
+    wiring and Fox ESP32 Firmware as the rest of this suite instead of needing
+    separate hardware or their own flash. Both carry "(Fox Edition)" in the app
+    name so nobody mistakes them for the unmodified original.
+  </p>
+  <ul>
+    <li><strong>CSIght (Fox Edition)</strong> originally shipped its own
+      standalone ESP32 firmware plus a built-in USB flashing tool to put it on
+      a bare board. Fox Edition removes that flashing tool entirely and
+      rewrites the Flipper-side UART layer to speak Fox's own protocol
+      instead, so CSI motion/vitals/mesh sensing runs on the exact same ESP32
+      that's already flashed with Fox ESP32 Firmware for everything else in
+      this suite — no second board.</li>
+    <li><strong>TagTinker (Fox Edition)</strong> keeps the original's ESL
+      reading/writing and IR broadcast features untouched. What's new is a
+      WiFi Plugins menu, added by wiring TagTinker into Fox ESP32 Firmware's
+      WiFi bridge — plugins run server-side and stream a rendered image back
+      down to the tag. No ESP32 wired up just means that one menu is
+      unavailable; everything else in the app works the same as it always
+      did.</li>
+  </ul>
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+
+<!-- ══════════════════ WHAT'S IN THIS REPO ══════════════════ -->
+<section class="section" id="folder-contents">
+  <div class="chapter-label">Chapter 4</div>
+  <h2>What's in This Repo</h2>
+  <table>
+    <tr><th>Folder</th><th>Contents</th></tr>
+    <tr>
+      <td><code>applications_user</code></td>
+      <td>Full source for every Fox app — one subfolder per app, each buildable with <code>fbt</code> against a FoxFW2.0 (or compatible Flipper firmware) source tree.</td>
+    </tr>
+    <tr>
+      <td><code>FAP_FILES</code></td>
+      <td>Compiled <code>.fap</code> binaries, sorted into one subfolder per firmware (<code>FoxFW</code>, <code>ARF</code>, <code>Stock</code>, <code>Unleashed</code>, <code>Momentum</code>) since a <code>.fap</code> built against one firmware isn't guaranteed to load on another. Copy the <code>.fap</code> matching whatever firmware your Flipper is running straight to <code>/ext/apps/&lt;category&gt;/</code> on its SD card.</td>
+    </tr>
+    <tr>
+      <td><code>SD_CARD</code></td>
+      <td>The <code>apps_data</code> and <code>apps_assets</code> folders some apps need present on the SD card the first time they run — copy the contents of this folder onto your Flipper's SD card root.</td>
+    </tr>
+  </table>
+  <div class="box tip">
+    None of these apps need a full firmware update to install or run. Download
+    the <code>.fap</code> matching your firmware below, copy it to your SD
+    card's <code>apps</code> folder, copy the contents of <code>SD_CARD</code>
+    onto your SD card root if the app needs it (see
+    <a href="#sd-card" style="color:#80c890;">SD Card Resources</a>), and
+    launch the app from the Flipper's Apps menu.
+  </div>
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+
+<!-- ══════════════════ APP LIST & DIRECT DOWNLOADS ══════════════════ -->
+<section class="section" id="app-list">
+  <div class="chapter-label">Chapter 5</div>
+  <h2>App List &amp; Direct Downloads <span class="badge">New</span></h2>
+  <p>
+    Every app below is compiled separately per firmware, since a binary built
+    against one firmware's SDK isn't guaranteed to load on another. Click a
+    firmware's icon to download the matching <code>.fap</code> directly —
+    right-click / long-press → Save As on mobile, or a normal click will
+    download it on desktop.
+  </p>
+
+  <table>
+    <tr><th>App</th><th>App ID</th><th>Category</th><th>Description</th></tr>
+    <tr><td><strong>CSIght (Fox Edition)</strong></td><td><code>csight</code></td><td>ESP32 Suite</td><td>WiFi CSI radar — motion, vitals, and mesh-node sensing, ported to run over the ESP32 already wired up for the rest of the suite.</td></tr>
+    <tr><td><strong>Fox Chameleon</strong></td><td><code>fox_chameleon</code></td><td>ESP32 Suite</td><td>BLE bridge to a Chameleon Ultra via an ESP32 running Fox ESP32 Firmware — Fox exclusive.</td></tr>
+    <tr><td><strong>Fox Chat</strong></td><td><code>fox_chat</code></td><td>ESP32 Suite</td><td>Post to and read from a Discord channel through an ESP32's internet connection.</td></tr>
+    <tr><td><strong>Fox Chill</strong></td><td><code>fox_chill</code></td><td>Utility</td><td>Jokes, riddles, fun facts, random statistics, Yo Mama jokes, a scroll counter, a mindfulness timer, and a patience-testing wait screen.</td></tr>
+    <tr><td><strong>Fox ESP32 Commander</strong></td><td><code>fox_esp32_commander</code></td><td>ESP32 Suite</td><td>Main ESP32 control hub — WiFi recon/attacks, BLE scanning, HTTP/WebSocket bridge, scripting engine, raw terminal.</td></tr>
+    <tr><td><strong>Fox ESP32 Detector</strong></td><td><code>fox_esp32_detector</code></td><td>ESP32 Suite</td><td>Scans every GPIO pin pair and baud rate to find a connected ESP32 and confirm wiring.</td></tr>
+    <tr><td><strong>Fox ESP32 Terminal</strong></td><td><code>fox_esp32_terminal</code></td><td>ESP32 Suite</td><td>Streaming live terminal to the ESP32, quick command send, per-session SD card logs.</td></tr>
+    <tr><td><strong>Fox ESP32 Flasher</strong></td><td><code>fox_esp32_flasher</code></td><td>ESP32 Suite</td><td>Flashes Fox ESP32 Firmware onto a connected board directly from the Flipper.</td></tr>
+    <tr><td><strong>Fox File Browser</strong></td><td><code>ffb</code></td><td>Utility</td><td>SD card file browser, favorites, firmware install, app launcher.</td></tr>
+    <tr><td><strong>Fox File Downloader</strong></td><td><code>fox_file_downloader</code></td><td>ESP32 Suite</td><td>App Catalog browsing/installs, GitHub repo installs, and resumable URL/file downloads, all over the ESP32 bridge.</td></tr>
+    <tr><td><strong>Fox Portal</strong></td><td><code>fox_portal</code></td><td>ESP32 Suite</td><td>Consent-based WiFi captive portal with QR join and field logging, served through the ESP32.</td></tr>
+    <tr><td><strong>Fox RF Jammer</strong></td><td><code>fox_rf_jammer</code></td><td>Sub-GHz</td><td>Multi-mode RF jamming.</td></tr>
+    <tr><td><strong>Fox Update Downloader</strong></td><td><code>fox_update_downloader</code></td><td>ESP32 Suite</td><td>Checks GitHub for newer FoxFW/Fox ESP32 Firmware releases and installs them on-device over the ESP32 bridge — the only on-device update downloader for Flipper Zero.</td></tr>
+    <tr><td><strong>Frequency Analyzer</strong></td><td><code>subghz_frequency_analyzer</code></td><td>Sub-GHz</td><td>Scans a configured frequency list to identify an unknown remote's transmit frequency.</td></tr>
+    <tr><td><strong>Garage Door Remote</strong></td><td><code>garage_door_remote</code></td><td>Sub-GHz</td><td>Capture, save, and emulate garage and gate remote signals, with dual-receiver and rolling-code tooling.</td></tr>
+    <tr><td><strong>Modulation Analyzer</strong></td><td><code>subghz_modulation_analyzer</code></td><td>Sub-GHz</td><td>Scans modulation presets at a fixed frequency to identify an unknown signal's encoding.</td></tr>
+    <tr><td><strong>SubGHz RAW Edit</strong></td><td><code>subghz_raw_edit</code></td><td>Sub-GHz</td><td>Trim and edit Sub-GHz RAW captures (<code>.sub</code> files).</td></tr>
+    <tr><td><strong>TagTinker (Fox Edition)</strong></td><td><code>tagtinker</code></td><td>NFC/IR</td><td>ESL tag reader/writer and IR broadcast tool — Fox Edition adds a WiFi Plugins menu that streams server-rendered images to the tag over the ESP32.</td></tr>
+  </table>
+
+  <h3 id="downloads">Downloads by firmware</h3>
+  <table class="dl-table">
+    <tr><th>App</th><th>FoxFW</th><th>Stock</th><th>Unleashed</th><th>Momentum</th><th>ARF</th></tr>
+    <tr><td>CSIght (Fox Edition)</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/csight.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/csight.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/csight.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/csight.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/csight.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>Fox Chameleon</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/fox_chameleon.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/fox_chameleon.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/fox_chameleon.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/fox_chameleon.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/fox_chameleon.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>Fox Chat</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/fox_chat.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/fox_chat.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/fox_chat.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/fox_chat.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/fox_chat.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>Fox Chill</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/fox_chill.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/fox_chill.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/fox_chill.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/fox_chill.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/fox_chill.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>Fox ESP32 Commander</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/fox_esp32_commander.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/fox_esp32_commander.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/fox_esp32_commander.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/fox_esp32_commander.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/fox_esp32_commander.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>Fox ESP32 Detector</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/fox_esp32_detector.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/fox_esp32_detector.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/fox_esp32_detector.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/fox_esp32_detector.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/fox_esp32_detector.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>Fox ESP32 Terminal</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/fox_esp32_terminal.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/fox_esp32_terminal.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/fox_esp32_terminal.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/fox_esp32_terminal.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/fox_esp32_terminal.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>Fox ESP32 Flasher</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/fox_esp32_flasher.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/fox_esp32_flasher.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/fox_esp32_flasher.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/fox_esp32_flasher.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/fox_esp32_flasher.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>Fox File Browser</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/ffb.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/ffb.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/ffb.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/ffb.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/ffb.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>Fox File Downloader</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/fox_file_downloader.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/fox_file_downloader.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/fox_file_downloader.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/fox_file_downloader.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/fox_file_downloader.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>Fox Portal</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/fox_portal.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/fox_portal.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/fox_portal.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/fox_portal.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/fox_portal.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>Fox RF Jammer</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/fox_rf_jammer.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/fox_rf_jammer.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/fox_rf_jammer.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/fox_rf_jammer.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/fox_rf_jammer.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>Fox Update Downloader</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/fox_update_downloader.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/fox_update_downloader.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/fox_update_downloader.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/fox_update_downloader.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/fox_update_downloader.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>Frequency Analyzer</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/subghz_frequency_analyzer.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/subghz_frequency_analyzer.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/subghz_frequency_analyzer.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/subghz_frequency_analyzer.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/subghz_frequency_analyzer.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>Garage Door Remote</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/garage_door_remote.fap" download>⬇</a></td>
+      <td class="dl-cell"><span class="no">✗</span></td>
+      <td class="dl-cell"><span class="no">✗</span></td>
+      <td class="dl-cell"><span class="no">✗</span></td>
+      <td class="dl-cell"><span class="no">—</span></td>
+    </tr>
+    <tr><td>Modulation Analyzer</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/subghz_modulation_analyzer.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/subghz_modulation_analyzer.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/subghz_modulation_analyzer.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/subghz_modulation_analyzer.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/subghz_modulation_analyzer.fap" download>⬇</a></td>
+    </tr>
+    <tr><td>SubGHz RAW Edit</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/subghz_raw_edit.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/subghz_raw_edit.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/subghz_raw_edit.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/subghz_raw_edit.fap" download>⬇</a></td>
+      <td class="dl-cell"><span class="no">—</span></td>
+    </tr>
+    <tr><td>TagTinker (Fox Edition)</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/tagtinker.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/tagtinker.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/tagtinker.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/tagtinker.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/tagtinker.fap" download>⬇</a></td>
+    </tr>
+  </table>
+
+  <div class="box info">
+    <strong>Garage Door Remote</strong> is FoxFW-only — it depends on
+    additions FoxFW has made to its own copy of the Sub-GHz protocol library
+    that aren't present in Stock, Unleashed, or Momentum's Sub-GHz core
+    libraries, and ARF already ships an equivalent of its own.
+    <strong>SubGHz RAW Edit</strong> isn't listed for ARF for the same
+    reason — ARF already ships its own.
+  </div>
+  <div class="box tip">
+    <strong>Fox Chill</strong> and <strong>Fox ESP32 Flasher</strong> needed
+    small portability fixes to build outside FoxFW — a manifest field that
+    only FoxFW's own <code>fbt</code> allows on an external app had to be
+    removed. Those fixes live in <code>_COMPATIBLE</code>-suffixed source
+    folders; the <code>.fap</code> downloads above are unaffected either way.
+  </div>
+
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+
+<!-- ══════════════════ ESP32 COMPANION SUITE ══════════════════ -->
+<section class="section" id="esp32-suite">
+  <div class="chapter-label">Chapter 6</div>
+  <h2>ESP32 Companion Suite</h2>
+  <p>
+    Every app below talks to a separate ESP32 dev board wired to the
+    Flipper's GPIO header, running a companion firmware called
+    <strong>Fox ESP32 Firmware</strong>. None of them work standalone — they
+    need that board wired up and flashed first (Fox ESP32 Flasher can do the
+    flashing step from the Flipper itself).
+  </p>
+  <table>
+    <tr><th>App</th><th>Key capabilities</th></tr>
+    <tr><td><strong>Fox ESP32 Commander</strong></td><td>WiFi menu (network scan, saved credentials, recon/attack toggles), BLE menu (device scan, tag detection), HTTP menu (HTTP/WebSocket bridge), Scripts menu (FoxScript automation engine), Tags menu, a raw message/terminal view, and connection settings shared across the rest of the suite.</td></tr>
+    <tr><td><strong>Fox ESP32 Detector</strong></td><td>Single-purpose diagnostic — sweeps every GPIO pin pair and baud rate looking for an ESP-AT-compatible response, reports what it finds.</td></tr>
+    <tr><td><strong>Fox ESP32 Terminal</strong></td><td>Live streaming console view, quick single-line command send, session log list and viewer, logs written to <code>/ext/apps_data/fox_esp32_terminal</code> per session.</td></tr>
+    <tr><td><strong>Fox ESP32 Flasher</strong></td><td>Guided flow: connect, auto-detect chip (ESP32 / S2 / S3 / C3 / C5 / C6), pick firmware files, erase/prepare, flash with a progress view, result screen, plus a raw terminal view for manual commands. Needs the per-chip bootloader/firmware/partition binaries from <code>SD_CARD/apps_data/fox_esp32_flasher</code>.</td></tr>
+    <tr><td><strong>Fox File Downloader</strong></td><td>Four menus off a shared connection: File Download (URL) for direct HTTP/HTTPS downloads with byte-range resume, App Catalog for browsing and installing straight from catalog.flipperzero.one, My Apps for uninstalling anything already on the SD card, and GitHub Repos for pulling a <code>.fap</code> release straight off a repo. A <code>Download.txt</code> queue file lets you line up several URLs at once and let it work through them unattended.</td></tr>
+    <tr><td><strong>Fox Update Downloader</strong></td><td>Reads GitHub releases (version comparison, changelog), downloads the matching board's update package over the ESP32 bridge, verifies it, and hands off to the installer — covers both FoxFW itself and Fox ESP32 Firmware. Downloads are resumable, and a downloaded package is validated before install. A Download Settings screen lets you set the UART baud rate, retry attempts, per-chunk timeout, and whether to automatically step down to a lower baud rate on repeated failures.</td></tr>
+    <tr><td><strong>Fox Chat</strong></td><td>Connection settings, a scrollable message list, a detail view for a single message thread, and a compose/send view — all relayed through the ESP32 to a configured Discord channel.</td></tr>
+    <tr><td><strong>Fox Portal</strong></td><td>Configurable captive portal menu, QR code generation for quick join, and consent-based field logging. Serves <code>start.html</code> / <code>finish.html</code> from <code>/ext/apps_data/fox_portal</code>, self-seeding them from the repo copy if missing.</td></tr>
+    <tr><td><strong>Fox Chameleon</strong></td><td>Bridges BLE commands between the Flipper and a Chameleon Ultra over the ESP32's BLE stack, with a built-in key dictionary for known tag keys.</td></tr>
+    <tr><td><strong>CSIght (Fox Edition)</strong></td><td>WiFi CSI radar — motion detection, breathing/heart-rate vitals, and mesh node tracking across multiple ESP-NOW-linked boards, all fed through Fox ESP32 Firmware. Same connect/retry/settings gate as the rest of the suite on startup.</td></tr>
+  </table>
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+
+<!-- ══════════════════ NFC/IR ══════════════════ -->
+<section class="section" id="nfc-ir">
+  <div class="chapter-label">Chapter 7</div>
+  <h2>NFC/IR</h2>
+  <table>
+    <tr><th>App</th><th>Key capabilities</th></tr>
+    <tr><td><strong>TagTinker (Fox Edition)</strong></td><td>Reads and clones electronic shelf label (ESL) tags over NFC, edits and re-transmits them over IR, with barcode input, preset lists, and a synced-image library. Fox Edition adds a WiFi Plugins menu on top — connect the same ESP32 wired for the rest of the suite, pick a plugin, and it renders an image server-side and streams it straight to the tag. No ESP32 wired up just disables that one menu; the rest of the app works standalone.</td></tr>
+  </table>
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+
+<!-- ══════════════════ SUB-GHZ TOOLS ══════════════════ -->
+<section class="section" id="subghz-tools">
+  <div class="chapter-label">Chapter 8</div>
+  <h2>Sub-GHz Tools</h2>
+  <table>
+    <tr><th>App</th><th>Key capabilities</th></tr>
+    <tr><td><strong>Frequency Analyzer</strong></td><td>Scans your configured Sub-GHz frequency list and reports which one an unknown transmitter is actually using.</td></tr>
+    <tr><td><strong>Modulation Analyzer</strong></td><td>Holds a fixed frequency and cycles through modulation presets to identify how an unknown signal is encoded, then hands off to the Receiver pre-configured for it.</td></tr>
+    <tr><td><strong>Garage Door Remote</strong></td><td>Standard and dual-frequency receivers, a shield receiver mode, a timing tuner, saved-key management with encrypted keystore storage, RAW <code>.sub</code> decode, and an emulate scene for replaying saved keys. Ships with roughly sixty individual protocol decoders/encoders (Keeloq, Nice FLO/FloR-S, Came, Faac SLH, Somfy Telis/Keytis, Linear, Princeton, Security+ 1.0/2.0, and many more) split across an AM plugin, an FM plugin, and an emulate plugin. Keystore files live at <code>SD_CARD/apps_assets/garage_door_remote</code>.</td></tr>
+    <tr><td><strong>SubGHz RAW Edit</strong></td><td>Loads a <code>.sub</code> RAW capture and lets you trim it down before saving, without needing a PC.</td></tr>
+    <tr><td><strong>Fox RF Jammer</strong></td><td>Multi-mode RF jamming across the Sub-GHz band.</td></tr>
+  </table>
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+
+<!-- ══════════════════ UTILITY APPS ══════════════════ -->
+<section class="section" id="utility-apps">
+  <div class="chapter-label">Chapter 9</div>
+  <h2>Utility Apps</h2>
+  <table>
+    <tr><th>App</th><th>Key capabilities</th></tr>
+    <tr><td><strong>Fox Chill</strong></td><td>Random content screens for jokes, riddles (with an answer-reveal toggle), fun facts, and statistics, each pulling from a large text file on the SD card; a Yo Mama joke mode; an addictive tap-to-increment scroll counter with a saved high score; a guided Be Mindful breathing/flash sequence; an A Long Wait patience-test countdown; and a Usage screen totalling everything read and played. Needs <code>SD_CARD/apps_data/fox_chill</code> for its content lists.</td></tr>
+    <tr><td><strong>Fox File Browser</strong></td><td>Browses the SD card, supports Favorites, installs firmware update packages, and launches other apps — the FoxFW desktop's replacement for the stock Archive app.</td></tr>
+  </table>
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+
+<!-- ══════════════════ SD CARD RESOURCES ══════════════════ -->
+<section class="section" id="sd-card">
+  <div class="chapter-label">Chapter 10</div>
+  <h2>SD Card Resources by App</h2>
+  <p>
+    Most apps need nothing extra on the SD card — the app is entirely
+    self-contained in its <code>.fap</code>. The apps below read files from
+    specific SD card paths at runtime; copy the matching folder from
+    <code>SD_CARD/</code> in the repo onto your Flipper's SD card root before
+    running them.
+  </p>
+  <table>
+    <tr><th>App</th><th>SD card path</th><th>What's there</th></tr>
+    <tr><td>Fox Chill</td><td><code>/ext/apps_data/fox_chill/</code></td><td><code>jokes.txt</code>, <code>riddles.txt</code>, <code>fun_facts.txt</code>, <code>statistics.txt</code>, <code>yo_mama.txt</code> — the random content pools.</td></tr>
+    <tr><td>Fox ESP32 Flasher</td><td><code>/ext/apps_data/fox_esp32_flasher/&lt;chip&gt;/</code></td><td><code>bootloader.bin</code>, <code>boot_app0.bin</code>, <code>firmware.bin</code>, <code>partitions.bin</code> per supported chip (<code>esp32</code>, <code>esp32c3</code>, <code>esp32c5</code>, <code>esp32c6</code>, <code>esp32s2</code>, <code>esp32s3</code>).</td></tr>
+    <tr><td>Fox Portal</td><td><code>/ext/apps_data/fox_portal/</code></td><td><code>start.html</code>, <code>finish.html</code> — the portal's landing and confirmation pages. The app will self-seed these from the ESP32 if missing, but they load faster if already present.</td></tr>
+    <tr><td>Garage Door Remote</td><td><code>/ext/apps_assets/garage_door_remote/</code></td><td><code>encrypted</code>, <code>vag</code> — the keystore files used for rolling-code key derivation.</td></tr>
+  </table>
+  <p>
+    Everything else — CSIght, Fox Chameleon, Fox Chat, Fox ESP32 Commander,
+    Fox ESP32 Detector, Fox File Downloader, Fox RF Jammer, Fox Update
+    Downloader, Frequency Analyzer, Modulation Analyzer, SubGHz RAW Edit, and
+    TagTinker — runs with just the <code>.fap</code> copied over, no SD card
+    folder required.
+  </p>
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+
+<!-- ══════════════════ BUILDING YOURSELF ══════════════════ -->
+<section class="section" id="build-yourself">
+  <div class="chapter-label">Chapter 11</div>
+  <h2>Building the .fap Files Yourself</h2>
+  <p>
+    The <code>.fap</code> files linked above are prebuilt, but if you want to
+    build any of them yourself:
+  </p>
+  <ol>
+    <li>Copy the app folder(s) you want from <code>applications_user</code> in
+      the <a href="https://github.com/FoxFW/Fox_Apps" style="color:#80c890;">Fox_Apps</a>
+      repository into the <code>applications_user</code> folder in your
+      firmware's own root directory (e.g.
+      <code>&lt;your firmware root&gt;\applications_user\fox_chill</code>).
+      Fox Chill and Fox ESP32 Flasher have a <code>_COMPATIBLE</code>-suffixed
+      folder (<code>fox_chill_COMPATIBLE</code>,
+      <code>fox_esp32_flasher_COMPATIBLE</code>) — use that version if you're
+      building for anything other than Fox Firmware.</li>
+    <li>From your firmware's root, run
+      <code>fbt.cmd build APPSRC=&lt;app folder name&gt;</code> (or
+      <code>fbt.cmd launch APPSRC=&lt;app folder name&gt;</code> to build and
+      push it straight to a connected Flipper). The compiled <code>.fap</code>
+      is named after the app's app ID, which for a few apps doesn't match its
+      folder name: Fox File Browser's folder is <code>fox_file_browser</code>
+      but its app ID is <code>ffb</code>; Garage Door Remote's folder is
+      <code>subghz_gdr</code> but its app ID is <code>garage_door_remote</code>;
+      CSIght's folder is <code>CSIght-FoxEdition</code> but its app ID is
+      <code>csight</code>; TagTinker's folder is
+      <code>TagTinker_FoxEdition</code> but its app ID is
+      <code>tagtinker</code>.</li>
+  </ol>
+  <div class="box warn">
+    If you're running Fox Firmware, don't copy these apps into
+    <code>applications_user</code> — they're already built into the firmware
+    itself under <code>applications/fox</code>, and adding them to
+    <code>applications_user</code> as well will create duplicate app ID
+    declarations and break the build.
+  </div>
+  <div class="box tip">
+    Don't want to set up <code>fbt</code> locally at all? The
+    <a href="https://foxfw.github.io/fox-web/fap-compiler.html" style="color:#80c890;">FAP Compiler</a>
+    does this same build against FoxFW v2.0 for any app on GitHub — paste a
+    repo URL, no local toolchain needed.
+  </div>
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+</div><!-- /content -->
+
+<footer style="text-align:center;color:#555;font-size:0.85rem;padding:40px 24px 20px;">
+  FoxFW v2.0 &nbsp;·&nbsp; foxcustomfirmware@gmail.com &nbsp;·&nbsp;
+  <a href="https://discord.gg/gZDqCwSGrQ" target="_blank" rel="noopener" style="color:#888;">Discord</a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/FoxFW/Fox_Apps" target="_blank" rel="noopener" style="color:#888;">Fox Apps Suite on GitHub</a>
+  &nbsp;·&nbsp; Guide version 1.0
+</footer>
+
+</body>
+</html>

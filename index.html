@@ -247,27 +247,6 @@
 </head>
 <body>
 
-<!-- ══════════════════ VIDEO INTRO ══════════════════ -->
-<section style="background:#000;padding:40px 0 0;">
-  <div style="max-width:860px;margin:0 auto;padding:0 5px;">
-    <p style="text-align:center;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#888;margin-bottom:14px;">Welcome to</p>
-    <h2 style="text-align:center;color:#ff9a3c;font-size:2rem;letter-spacing:1px;margin-bottom:28px;font-family:'Segoe UI',system-ui,sans-serif;">FoxFW v2.0</h2>
-    <video
-      src="FoxFW2.0.mp4"
-      poster="FoxFW2.0.png"
-      width="100%" height="600"
-      controls
-      autoplay
-      muted
-      playsinline
-      style="display:block;width:100%;border-radius:6px 6px 0 0;">
-      <a href="FoxFW2.0.mp4" style="color:#ff9a3c;">▶ Watch the FoxFW 2.0 overview video</a>
-    </video>
-  </div>
-</section>
-
-<div style="background:#000;height:24px;"></div>
-
 <!-- ══════════════════ HERO ══════════════════ -->
 <header class="hero">
   <div class="hero-inner" style="text-align:center;">
@@ -330,6 +309,7 @@
         </ul>
       </li>
       <li><a href="#fox-esp32-apps">Fox ESP32 Apps</a></li>
+      <li><a href="#fox-apps-suite-info">Fox Apps Suite</a></li>
     </ol>
     <ol start="8">
       <li><a href="#subghz">Sub-GHz</a>
@@ -379,7 +359,7 @@
     <li><strong>System-wide bounce-scroll text</strong> — any label too long to fit bounces left and right automatically rather than wrapping or truncating.</li>
     <li>A <strong>Modulation Analyzer</strong> exclusive to FoxFW — find what modulation an unknown device uses, then open the Receiver pre-configured for it.</li>
     <li>An in-app <strong>RAW Waveform Editor</strong> for trimming Sub-GHz captures without leaving the device.</li>
-    <li>A live <strong>Waterfall Signal Display</strong> for spotting intermittent transmissions.</li>
+    <li>A live <strong>Bar / Line Signal Display</strong> for spotting intermittent transmissions.</li>
     <li>Per-protocol <strong>enable / disable toggles</strong> in the Protocol List.</li>
     <li>An extended <strong>Custom Wallpaper</strong> system with a factory-seeded template that generates automatically if missing.</li>
     <li>A built-in <strong>Garage Door Remote</strong> app accessible directly from the Sub-GHz main screen — no App Menu navigation needed.</li>
@@ -516,7 +496,7 @@
       into the <code>wallpapers</code> folder on the root of your SD card.</li>
     <li>Optional: click <strong>Connect Flipper</strong> (Chrome/Edge only) to preview live on the
       device's screen, or save straight to the SD card with <strong>Save to Flipper SD Card</strong> —
-      this also activates it and switches the device to it automatically.</li>
+      this also sets it as the active Custom Wallpaper and turns Custom Wallpaper on.</li>
   </ol>
 
   <div class="box tip" style="margin-top:18px;">
@@ -567,8 +547,7 @@
     <strong>Install</strong> saves into the <code>wallpapers</code> folder on the SD card
     (never overwriting an existing file — a number is added automatically if the name is taken)
     and immediately sets it as the <strong>active</strong> Custom Wallpaper, turning Custom
-    Wallpaper on if it was off. If an app is open on the device, it exits to the desktop
-    automatically so you see the change right away.
+    Wallpaper on if it was off.
   </div>
 
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
@@ -1301,6 +1280,59 @@
     <a href="FoxESP32_Help.html" style="color:#80c890;">Fox ESP32 Firmware guide</a>
     for full wiring diagrams, board-specific notes, and the complete command reference.
   </div>
+  <div class="box tip">
+    <strong>Not running FoxFW?</strong> Most of these apps are also built prebuilt
+    for ARF, Stock, Unleashed, and Momentum in the
+    <a href="fox-apps-suite.html" style="color:#80c890;">Fox Apps Suite</a>
+    — no firmware switch required.
+  </div>
+
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+
+<!-- ══════════════════ 5c · FOX APPS SUITE ══════════════════ -->
+<section class="section" id="fox-apps-suite-info">
+  <div class="chapter-label">Chapter 5c</div>
+  <h2>Fox Apps Suite <span class="badge">New</span></h2>
+  <p>
+    Not running FoxFW, or want to grab a single Fox app without a full
+    firmware flash? The Fox Apps Suite packages every Fox app separately,
+    prebuilt for FoxFW, ARF, Stock, Unleashed, and Momentum, with each
+    <code>.fap</code> available as a direct download.
+  </p>
+
+  <div class="box tip">
+    No account or firmware switch needed — download the <code>.fap</code>
+    matching your firmware and copy it to your SD card's <code>apps</code>
+    folder.
+  </div>
+
+  <div style="text-align:center;margin:28px 0;">
+    <a href="fox-apps-suite.html"
+       style="display:inline-block;background:var(--orange);color:#fff;font-weight:700;
+              font-size:1.05rem;padding:16px 40px;border-radius:8px;text-decoration:none;
+              box-shadow:0 0 20px rgba(232,117,10,0.35);letter-spacing:0.3px;">
+      🦊 Open Fox Apps Suite →
+    </a>
+    <p style="margin-top:12px;font-size:0.82rem;color:#888;">
+      Opens at foxfw.github.io/fox-web/fox-apps-suite.html
+    </p>
+  </div>
+
+  <h3>How it works</h3>
+  <ol style="color:#ccc;padding-left:22px;line-height:1.9;">
+    <li>Find your app in the App List &amp; Direct Downloads table, then click the icon under your firmware to download the <code>.fap</code>.</li>
+    <li>Copy the file to <code>/ext/apps/&lt;category&gt;/</code> on your Flipper's SD card.</li>
+    <li>Some apps also need SD card resource files — the page's SD Card Resources section lists which.</li>
+  </ol>
+
+  <div class="box info" style="margin-top:18px;">
+    Full source, all compiled <code>.fap</code> files, and the SD card
+    resources live in the
+    <a href="https://github.com/FoxFW/Fox_Apps" style="color:#80aad0;">Fox_Apps</a>
+    repository on GitHub.
+  </div>
 
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
@@ -1314,7 +1346,7 @@
     The Sub-GHz app lets your Flipper interact with radio-frequency devices
     between ~300 MHz and 928 MHz — garage doors, gate openers, weather
     stations, tyre-pressure sensors, key fobs, alarm remotes, and many more.
-    FoxFW adds a Waterfall display, an in-app RAW editor, a Modulation Analyzer,
+    FoxFW adds a Bar/Line signal display, an in-app RAW editor, a Modulation Analyzer,
     and per-protocol enable/disable toggles.
   </p>
   <div class="box warn">
@@ -1420,25 +1452,26 @@
   </div>
 
   <!-- VISUALIZER -->
-  <h3 id="visualizer">Signal Display — Classic &amp; Waterfall <span class="badge">NEW</span></h3>
+  <h3 id="visualizer">Signal Display — Bar &amp; Line <span class="badge">NEW</span></h3>
   <p>
     Change between display styles in <strong>Radio Settings → Visualizer</strong>.
-    The setting persists across reboots.
+    The setting persists across reboots. Both styles read the same live RSSI
+    window and share the dashed trigger-threshold line — only the rendering
+    differs.
   </p>
   <div class="setting">
-    <div class="name">Classic</div>
-    <div class="desc">Original RSSI bar / waveform display. Lightweight. Good for confirming the presence or absence of a carrier.</div>
+    <div class="name">Bar</div>
+    <div class="desc">Each column is drawn as a filled vertical bar (signal "strength" view). Lightweight. Good for confirming the presence or absence of a carrier.</div>
     <div class="values">Best for: <span>Quick detection, low-noise environments</span></div>
   </div>
   <div class="setting">
-    <div class="name">Waterfall</div>
+    <div class="name">Line</div>
     <div class="desc">
-      Scrolling history display. The live waveform is at the top; a rolling
-      30-frame history scrolls downward below it. Signal intensity is shown
-      as a monochrome dither — denser = stronger.<br><br>
-      Intensity levels: Empty = noise floor · Sparse = weak · Checkerboard = medium · Solid = strong
+      Columns are connected with line segments, giving a continuous trace
+      similar to a spectrum-analyzer envelope. A quiet/empty signal renders
+      as a flat baseline.
     </div>
-    <div class="values">Best for: <span>Spotting intermittent bursts, timing analysis, noisy RF environments</span></div>
+    <div class="values">Best for: <span>Reading fine RSSI shape and burst edges</span></div>
   </div>
 
   <!-- FREQUENCY ANALYZER -->
@@ -1691,8 +1724,8 @@
   <p>The top of the list shows the active protocol count:</p>
   <table>
     <tr><th>Situation</th><th>Display</th></tr>
-    <tr><td>All enabled</td><td><code>Active Protocols: 62</code></td></tr>
-    <tr><td>Some disabled</td><td><code>Active Protocols: 58/62</code></td></tr>
+    <tr><td>All enabled</td><td><code>Active Protocols: 63</code></td></tr>
+    <tr><td>Some disabled</td><td><code>Active Protocols: 58/63</code></td></tr>
   </table>
   <div class="keys">
     <div class="key-row"><span class="key-badge">↑ ↓</span><span class="key-desc">Scroll the list</span></div>
@@ -1743,10 +1776,13 @@
     <tr><td>PSA (Peugeot / Citroën / DS)</td><td>PSA GROUP</td><td>433 MHz</td><td>AM/FM</td><td>✓</td><td>✓</td><td>✓</td></tr>
     <tr><td>Ford</td><td>Ford V0</td><td>315 / 433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td></tr>
     <tr><td>Ford</td><td>Ford V1</td><td>315 / 433 MHz</td><td>FM</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Ford</td><td>Ford V2</td><td>433 MHz</td><td>FM</td><td>✓</td><td>✓</td><td>—</td></tr>
+    <tr><td>Ford</td><td>Ford V3</td><td>433 MHz</td><td>FM</td><td>✓</td><td>✓</td><td>✓</td></tr>
     <tr><td>Fiat</td><td>Fiat SpA</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td></tr>
     <tr><td>Fiat</td><td>Marelli / Delphi</td><td>433 MHz</td><td>AM</td><td>—</td><td>✓</td><td>✓</td></tr>
     <tr><td>Renault (older models)</td><td>Marelli</td><td>433 MHz</td><td>AM</td><td>—</td><td>✓</td><td>—</td></tr>
     <tr><td>Mazda</td><td>Siemens 5WK49365D</td><td>315 / 433 MHz</td><td>AM/FM</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Mazda</td><td>Mazda V0</td><td>433 MHz</td><td>FM</td><td>✓</td><td>✓</td><td>✓</td></tr>
     <tr><td>Kia / Hyundai</td><td>KIA/HYU V0</td><td>433 MHz</td><td>FM</td><td>✓</td><td>✓</td><td>✓</td></tr>
     <tr><td>Kia / Hyundai</td><td>KIA/HYU V1</td><td>315 / 433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td></tr>
     <tr><td>Kia / Hyundai</td><td>KIA/HYU V2</td><td>315 / 433 MHz</td><td>AM/FM</td><td>✓</td><td>✓</td><td>✓</td></tr>
@@ -1757,8 +1793,6 @@
     <tr><td>Subaru</td><td>Subaru</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
     <tr><td>Suzuki</td><td>Suzuki</td><td>433 MHz</td><td>FM</td><td>✓</td><td>✓</td><td>✓</td></tr>
     <tr><td>Mitsubishi</td><td>Mitsubishi V0</td><td>868 MHz</td><td>FM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Honda</td><td>Honda Type A / B</td><td>433 MHz</td><td>FM (custom)</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Honda</td><td>Honda Static</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
     <tr><td>Chrysler / Dodge / Jeep</td><td>FOBIK GQ43VT</td><td>315 / 433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
     <tr><td>Starline</td><td>Star Line</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
     <tr><td>Scher-Khan</td><td>Scher-Khan</td><td>433 MHz</td><td>FM</td><td>✓</td><td>✓</td><td>—</td></tr>
@@ -1787,6 +1821,7 @@
     <tr><td>Hormann HSM</td><td>433 / 868 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
     <tr><td>Marantec</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td></tr>
     <tr><td>Marantec24</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td>GangQi</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
   </table>
 
   <h3>General RF Protocols</h3>
@@ -1808,6 +1843,47 @@
     <tr><td>Hay21</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
     <tr><td>Revers RB2</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
     <tr><td>Roger</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
+    <tr><td>X10</td><td>310 MHz</td><td>AM</td><td>—</td><td>✓</td><td>—</td></tr>
+    <tr><td>RAW</td><td>315 / 433 / 868 MHz</td><td>AM/FM</td><td>✓</td><td>—</td><td>—</td></tr>
+    <tr><td>BinRAW</td><td>315 / 433 / 868 MHz</td><td>AM/FM</td><td>✓</td><td>✓</td><td>—</td></tr>
+  </table>
+  <div class="box tip" style="margin-top:12px;">
+    <strong>RAW / BinRAW</strong> aren't device-specific protocols — they're the
+    generic raw-signal capture/replay entries every other frequency and
+    modulation falls back to, which is why they cover all three bands. RAW
+    stores the raw pulse timing (record/replay only, no protocol-level
+    decode); BinRAW additionally decodes it into a bit stream.
+  </div>
+
+  <h3>Disabled / Experimental Protocols</h3>
+  <p>
+    These protocols are fully implemented in the FoxFW source tree but are
+    commented out of the active registry, so they do <strong>not</strong> count
+    toward the 63 active protocols above and won't appear in the Protocol List
+    on the device. Reason: <strong>Further testing/fixes required.</strong>
+  </p>
+  <table>
+    <tr><th>Protocol</th><th>Frequency</th><th>Mod</th><th>Status</th></tr>
+    <tr><td>Honda Static</td><td>315 / 433 MHz</td><td>FM</td><td>Disabled</td></tr>
+    <tr><td>BMW CAS4</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Nero Sketch</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Nero Radio</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>iDo 117/111</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Power Smart</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>BETT</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Honeywell (WDB)</td><td>315 / 433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Honeywell Sec</td><td>315 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Magellan</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Intertechno V3</td><td>315 / 433 / 868 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Clemsa</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Ansonic</td><td>315 / 433 MHz</td><td>FM</td><td>Disabled</td></tr>
+    <tr><td>Dooya</td><td>315 / 433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Legrand</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Hollarm</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Feron</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Elplast</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Treadmill37</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
+    <tr><td>Jarolift</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
   </table>
 
   <div class="box info">
@@ -1833,7 +1909,7 @@
   <div class="setting">
     <div class="name">Visualizer</div>
     <div class="desc">Live signal display style while the app is actively receiving.</div>
-    <div class="values">Options: <span>Classic (bar/waveform) · Waterfall (scrolling history)</span></div>
+    <div class="values">Options: <span>Bar (filled vertical bars) · Line (continuous trace)</span></div>
   </div>
   <div class="setting">
     <div class="name">TX Power</div>
@@ -2015,6 +2091,8 @@
 <footer style="text-align:center;color:#555;font-size:0.85rem;padding:40px 24px 20px;">
   FoxFW v2.0 &nbsp;·&nbsp; foxcustomfirmware@gmail.com &nbsp;·&nbsp;
   <a href="https://discord.gg/gZDqCwSGrQ" target="_blank" rel="noopener" style="color:#888;">Discord</a>
+  &nbsp;·&nbsp;
+  <a href="fox-apps-suite.html" style="color:#888;">Fox Apps Suite</a>
   &nbsp;·&nbsp; Guide version 1.0
 </footer>
 
