@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-10T01:49:54.289527+00:00",
+  "generated": "2026-08-10T13:31:27.598858+00:00",
   "wallpapers": [
     {
       "name": "A",
@@ -174,6 +174,12 @@
       "image": "wallpapers/Anchor.png",
       "zip": "wallpapers/Anchor.zip",
       "added": "2026-08-10T07:30:13+10:00"
+    },
+    {
+      "name": "autofmw_spec_keeloq-VYNKO",
+      "image": "wallpapers/autofmw_spec_keeloq-VYNKO.png",
+      "zip": "wallpapers/autofmw_spec_keeloq-VYNKO.zip",
+      "added": "2026-08-10T23:31:09+10:00"
     },
     {
       "name": "B",
