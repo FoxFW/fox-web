@@ -263,7 +263,7 @@
       <button class="tool-btn" id="toolLine" title="Line">&#9585;</button>
       <button class="tool-btn" id="toolFill" title="Fill bucket">&#128167;</button>
       <div class="tool-sep"></div>
-      <button class="tool-btn" id="toolImport" title="Import image">&#128247;</button>
+      <button class="tool-btn" id="toolImport" title="Import image or .xbm">&#128247;</button>
       <div class="tool-sep"></div>
       <button class="tool-btn" id="toolUndo" title="Undo" disabled>&#8630;</button>
       <button class="tool-btn" id="toolRedo" title="Redo" disabled>&#8631;</button>
@@ -272,7 +272,7 @@
       <button class="tool-btn" id="toolZoomIn" title="Zoom in">&plus;</button>
       <div class="tool-sep"></div>
       <button class="tool-btn" id="toolClear" title="Clear drawing">&#128465;</button>
-      <input type="file" id="importFileInput" accept="image/*" style="display:none;">
+      <input type="file" id="importFileInput" accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.xbm" style="display:none;">
     </div>
     <div class="help-btn" id="lockHelpBtn" tabindex="0">
       ?
@@ -536,6 +536,23 @@
     return out;
   }
 
+  // ── XBM text import (parses what toXbmText() above produces, plus the
+  // same format FoxFW2.0 and the standalone Wallpaper Converter both read)
+  function parseXbmText(text) {
+    const widthMatch = /#define\s+\S+_width\s+(\d+)/.exec(text);
+    const heightMatch = /#define\s+\S+_height\s+(\d+)/.exec(text);
+    if (!widthMatch || !heightMatch) throw new Error("missing width/height defines");
+    const width = parseInt(widthMatch[1], 10), height = parseInt(heightMatch[1], 10);
+    if (width !== W || height !== H) throw new Error(`expected ${W}x${H}, got ${width}x${height}`);
+    const bodyMatch = /\{([\s\S]*)\}/.exec(text);
+    if (!bodyMatch) throw new Error("missing byte data");
+    const byteStrs = bodyMatch[1].match(/0x[0-9a-fA-F]+/g);
+    if (!byteStrs || byteStrs.length < SIZE) throw new Error("not enough byte values found");
+    const bits = new Uint8Array(SIZE);
+    for (let i = 0; i < SIZE; i++) bits[i] = parseInt(byteStrs[i], 16) & 0xff;
+    return bits;
+  }
+
   // Strips characters that don't survive well as a FAT filesystem filename,
   // same rule of thumb the Showcase's generated batch uses.
   function sanitizeWallpaperName(raw) {
@@ -771,9 +788,48 @@
 
   // ── Import image ──────────────────────────────────────────────
   $("toolImport").addEventListener("click", () => $("importFileInput").click());
+
+  function importXbmFile(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      let bits;
+      try {
+        bits = parseXbmText(reader.result);
+      } catch (e) {
+        alert("Couldn't load that .xbm file (" + e.message + ").");
+        $("importFileInput").value = "";
+        return;
+      }
+      if (!confirm("Replace your current drawing with this .xbm file?")) {
+        $("importFileInput").value = "";
+        return;
+      }
+      pushUndo();
+      userLayer.fill(0);
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          if (isLocked(x, y)) continue;
+          if (getBit(bits, x, y)) setBit(userLayer, x, y, 1);
+        }
+      }
+      render();
+      pushLiveFrameIfActive();
+      $("importFileInput").value = "";
+    };
+    reader.onerror = () => {
+      alert("Couldn't read that file.");
+      $("importFileInput").value = "";
+    };
+    reader.readAsText(file);
+  }
+
   $("importFileInput").addEventListener("change", (evt) => {
     const file = evt.target.files[0];
     if (!file) return;
+    if (/\.xbm$/i.test(file.name)) {
+      importXbmFile(file);
+      return;
+    }
     const img = new Image();
     img.onload = () => {
       if (!confirm("Replace your current drawing with this image (scaled to fit, converted to black & white)?")) {
