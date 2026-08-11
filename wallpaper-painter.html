@@ -264,6 +264,7 @@
       <button class="tool-btn" id="toolFill" title="Fill bucket">&#128167;</button>
       <div class="tool-sep"></div>
       <button class="tool-btn" id="toolImport" title="Import image or .xbm">&#128247;</button>
+      <button class="tool-btn" id="toolImportCurrent" title="Import current wallpaper from connected Flipper (requires FoxFW v2.0.5+)" disabled>&#128229;</button>
       <div class="tool-sep"></div>
       <button class="tool-btn" id="toolUndo" title="Undo" disabled>&#8630;</button>
       <button class="tool-btn" id="toolRedo" title="Redo" disabled>&#8631;</button>
@@ -789,6 +790,22 @@
   // ── Import image ──────────────────────────────────────────────
   $("toolImport").addEventListener("click", () => $("importFileInput").click());
 
+  // Shared by both import paths (file picker .xbm and "Import Current
+  // Wallpaper" from a connected Flipper) - both end up with a parsed
+  // SIZE-byte bit array and need to apply it the same way.
+  function applyImportedBits(bits) {
+    pushUndo();
+    userLayer.fill(0);
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        if (isLocked(x, y)) continue;
+        if (getBit(bits, x, y)) setBit(userLayer, x, y, 1);
+      }
+    }
+    render();
+    pushLiveFrameIfActive();
+  }
+
   function importXbmFile(file) {
     const reader = new FileReader();
     reader.onload = () => {
@@ -804,16 +821,7 @@
         $("importFileInput").value = "";
         return;
       }
-      pushUndo();
-      userLayer.fill(0);
-      for (let y = 0; y < H; y++) {
-        for (let x = 0; x < W; x++) {
-          if (isLocked(x, y)) continue;
-          if (getBit(bits, x, y)) setBit(userLayer, x, y, 1);
-        }
-      }
-      render();
-      pushLiveFrameIfActive();
+      applyImportedBits(bits);
       $("importFileInput").value = "";
     };
     reader.onerror = () => {
@@ -1081,6 +1089,56 @@
       return response;
     },
 
+    // Reads a file off the Flipper's storage. The response can stream over
+    // several messages (has_next true on all but the last), same shape as
+    // getDeviceInfo(), so this uses the same collector pattern rather than
+    // the single-response path sendMain() expects.
+    async readFileChunked(path) {
+      const id = this.nextCommandId++;
+      const chunks = [];
+      const message = this.MainType.create({
+        command_id: id,
+        has_next: false,
+        storage_read_request: { path: path },
+      });
+      const promise = new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          this.pending.delete(id);
+          reject(new Error("Timed out waiting for the Flipper to send " + path));
+        }, 15000);
+        this.pending.set(id, {
+          timer,
+          collect: (msg) => {
+            if (msg.command_status !== 0) {
+              clearTimeout(timer);
+              this.pending.delete(id);
+              reject(new Error("Flipper reported an error (status " + msg.command_status + ") reading " + path));
+              return;
+            }
+            const file = msg.storage_read_response && msg.storage_read_response.file;
+            if (file && file.data && file.data.length) chunks.push(file.data);
+            if (!msg.has_next) {
+              clearTimeout(timer);
+              this.pending.delete(id);
+              let total = 0;
+              for (const c of chunks) total += c.length;
+              const out = new Uint8Array(total);
+              let offset = 0;
+              for (const c of chunks) { out.set(c, offset); offset += c.length; }
+              resolve(out);
+            }
+          },
+        });
+      });
+      await this.writeRaw(this.MainType.encodeDelimited(message).finish());
+      return promise;
+    },
+
+    async readFileText(path) {
+      const bytes = await this.readFileChunked(path);
+      return new TextDecoder().decode(bytes);
+    },
+
     // Best-effort existence check via storage_stat_request - used to avoid
     // clobbering an existing file when picking a save filename. Treats any
     // error (including "not found") as "doesn't exist".
@@ -1189,6 +1247,9 @@
   // saves through) only exists from FoxFW v2.0.4 onward - older firmware
   // used a single /ext/wallpaper.xbm path instead.
   const MIN_WALLPAPERS_FIRMWARE = { major: 2, minor: 0, patch: 4 };
+  // wallpapers/.current (the marker this button reads) is written by
+  // desktop.c only from v2.0.5 onward.
+  const MIN_CURRENT_WALLPAPER_FIRMWARE = { major: 2, minor: 0, patch: 5 };
   function parseFoxfwVersion(str) {
     const m = /^foxfw-v(\d+)\.(\d+)\.(\d+)/.exec(str || "");
     return m ? { major: +m[1], minor: +m[2], patch: +m[3] } : null;
@@ -1220,6 +1281,7 @@
       $("liveToggle").checked = false;
       $("liveToggle").disabled = true;
       $("saveToSdBtn").disabled = true;
+      $("toolImportCurrent").disabled = true;
       hideVersionWarning();
       await FlipperRPC.disconnect();
       setDeviceStatus(null, "No device connected");
@@ -1238,11 +1300,13 @@
 
       setDeviceStatus("busy", "Checking firmware version…");
       let canSaveToSd = false;
+      let canImportCurrent = false;
       try {
         const info = await FlipperRPC.getDeviceInfo();
         const v = parseFoxfwVersion(info["firmware_version"]);
         if (v && isVersionAtLeast(v, MIN_WALLPAPERS_FIRMWARE)) {
           canSaveToSd = true;
+          canImportCurrent = isVersionAtLeast(v, MIN_CURRENT_WALLPAPER_FIRMWARE);
           logLine(`Firmware v${v.major}.${v.minor}.${v.patch} detected.`, "ok");
         } else if (v) {
           logLine(
@@ -1270,12 +1334,38 @@
       }
 
       $("saveToSdBtn").disabled = !canSaveToSd;
+      $("toolImportCurrent").disabled = !canImportCurrent;
       setDeviceStatus("connected", "Connected");
     } catch (e) {
       logLine("Connect failed: " + e.message, "e");
       setDeviceStatus("error", "Connect failed");
     } finally {
       connectToggleBtn.disabled = false;
+    }
+  });
+
+  // ── Import Current Wallpaper (from a connected Flipper) ──────────
+  $("toolImportCurrent").addEventListener("click", async () => {
+    if (!FlipperRPC.connected) return;
+    const btn = $("toolImportCurrent");
+    btn.disabled = true;
+    setDeviceStatus("busy", "Reading current wallpaper…");
+    try {
+      const text = await FlipperRPC.readFileText("/ext/wallpapers/.current");
+      const bits = parseXbmText(text);
+      if (confirm("Replace your current drawing with the wallpaper currently active on the Flipper?")) {
+        applyImportedBits(bits);
+        logLine("Imported the current wallpaper from the Flipper.", "ok");
+      }
+    } catch (e) {
+      logLine("Import current wallpaper failed: " + e.message, "e");
+      alert(
+        "Couldn't import the current wallpaper. Either no custom wallpaper is active on this " +
+          "Flipper right now, or it isn't set as the Custom Wallpaper under Fox Settings.",
+      );
+    } finally {
+      btn.disabled = false;
+      setDeviceStatus("connected", "Connected");
     }
   });
 
