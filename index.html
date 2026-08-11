@@ -228,17 +228,25 @@
   /* ── Divider ─────────────────────────────────────────────────────────── */
   .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
 
-  /* ── Back to top ─────────────────────────────────────────────────────── */
-  .back-top { text-align: right; margin-top: 32px; }
-  .back-top a {
-    color: var(--orange);
-    font-size: 0.85rem;
-    text-decoration: none;
-    border: 1px solid var(--orange);
-    border-radius: 20px;
-    padding: 4px 14px;
+  /* ── Floating back-to-top button ─────────────────────────────────────── */
+  #backTop {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 52px;
+    height: 52px;
+    background: var(--orange);
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 1;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+    z-index: 1000;
+    transition: transform 0.15s ease, background 0.15s ease;
   }
-  .back-top a:hover { background: var(--orange); color: #fff; }
+  #backTop:hover { background: var(--accent); transform: translateY(-2px); }
 
   /* ── Shortcut table colours ──────────────────────────────────────────── */
   .fixed { color: #88ccff; font-style: italic; }
@@ -366,7 +374,6 @@
     <li>A <strong>Sub-GHz Bruteforcer</strong> app in the App Menu for brute-forcing fixed-code remotes across common protocols.</li>
     <li>A full <strong>Fox ESP32 companion suite</strong> — Commander, Chat, Portal, Detector, Flasher, and Chameleon — turning a wired ESP32 into a WiFi/BLE/HTTP extension of your Flipper. Powered by the separate <a href="https://github.com/FoxFW/Fox_ESP32_FW" style="color:#80c890;">Fox ESP32 Firmware</a>.</li>
   </ul>
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 
@@ -416,7 +423,6 @@
     to complete a Standard Install - this will ensure that the core FoxFW apps are all returned to the device.
   </div>
 
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 
@@ -458,7 +464,6 @@
     every Flipper Zero app. Multi-app repos are supported via an advanced "subfolder" option.
   </div>
 
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 <section class="section" id="wallpaper-painter-info">
@@ -505,7 +510,6 @@
     Pick which saved wallpaper is active any time under Fox Settings → Custom Wallpaper.
   </div>
 
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 
@@ -550,7 +554,6 @@
     Wallpaper on if it was off.
   </div>
 
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 
@@ -609,7 +612,6 @@
     <em>"Please join our Discord!"</em> and the device does not restart.
   </div>
 
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 
@@ -776,7 +778,6 @@
     out, email <a href="mailto:foxcustomfirmware@gmail.com">foxcustomfirmware@gmail.com</a>.
   </div>
 
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 
@@ -873,7 +874,6 @@
     </tr>
   </table>
 
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 
@@ -1188,7 +1188,6 @@
     restore its default behaviour.
   </div>
 
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 
@@ -1287,7 +1286,6 @@
     — no firmware switch required.
   </div>
 
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 
@@ -1334,7 +1332,6 @@
     repository on GitHub.
   </div>
 
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 
@@ -1921,7 +1918,6 @@
     <div class="desc">When ON, the Receiver cycles through multiple frequencies automatically instead of listening on one.</div>
   </div>
 
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 
@@ -1952,7 +1948,6 @@
     <li><strong>Selected row:</strong> The path hint (line 2) bounce-scrolls so you can read the full path of both files even if they share the same filename.</li>
     <li><strong>Unselected rows:</strong> Show <em>…suffix</em> — the most specific end of the path that fits, preceded by <code>...</code>, so you can always see which folder the file is in.</li>
   </ul>
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 
@@ -2037,7 +2032,6 @@
     it from the device itself — this bypasses the USB verification step entirely.
   </div>
 
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 
@@ -2083,7 +2077,6 @@
     out — this helps us give you the fastest and most accurate recovery path.
   </div>
 
-  <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
 </div><!-- /content -->
@@ -2095,6 +2088,14 @@
   <a href="fox-apps-suite.html" style="color:#888;">Fox Apps Suite</a>
   &nbsp;·&nbsp; Guide version 1.0
 </footer>
+
+<button id="backTop" aria-label="Back to top">↑</button>
+
+<script>
+  document.getElementById('backTop').addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
 
 </body>
 </html>
