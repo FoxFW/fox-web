@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-10T13:31:27.598858+00:00",
+  "generated": "2026-08-12T01:57:52.718849+00:00",
   "wallpapers": [
     {
       "name": "A",
@@ -176,10 +176,22 @@
       "added": "2026-08-10T07:30:13+10:00"
     },
     {
+      "name": "auto_fmw_mod_sel-VYNKO",
+      "image": "wallpapers/auto_fmw_mod_sel-VYNKO.png",
+      "zip": "wallpapers/auto_fmw_mod_sel-VYNKO.zip",
+      "added": "2026-08-12T11:56:15+10:00"
+    },
+    {
       "name": "autofmw_spec_keeloq-VYNKO",
       "image": "wallpapers/autofmw_spec_keeloq-VYNKO.png",
       "zip": "wallpapers/autofmw_spec_keeloq-VYNKO.zip",
       "added": "2026-08-10T23:31:09+10:00"
+    },
+    {
+      "name": "Automotive_plain-VYNKO",
+      "image": "wallpapers/Automotive_plain-VYNKO.png",
+      "zip": "wallpapers/Automotive_plain-VYNKO.zip",
+      "added": "2026-08-12T11:56:15+10:00"
     },
     {
       "name": "B",
