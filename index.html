@@ -302,9 +302,9 @@
           <li><a href="#security">Security &amp; Privacy</a></li>
           <li><a href="#wallpaper">Custom Wallpaper</a></li>
           <li><a href="#name">Change Flipper Name</a></li>
+          <li><a href="#menu-style">Menu Style</a></li>
           <li><a href="#battery">Battery View</a></li>
           <li><a href="#clock">Show Clock</a></li>
-          <li><a href="#menu-style">Menu Style</a></li>
           <li><a href="#fav-apps">Favorite Apps</a></li>
         </ul>
       </li>
@@ -725,8 +725,8 @@
     </tr>
     <tr>
       <td><strong>→ Right (hold)</strong></td>
-      <td class="cfg">Favorite App — default: Fox File Browser</td>
-      <td>Yes — Fox Settings → Favorite Right Long</td>
+      <td class="cfg">Cycles Custom Wallpaper — see <a href="#wallpaper" style="color:inherit;">Custom Wallpaper</a></td>
+      <td>No — hardcoded</td>
     </tr>
     <tr>
       <td><strong>OK (hold)</strong></td>
@@ -1077,6 +1077,15 @@
     no reboot or menu visit needed.
   </div>
 
+  <div class="box new" style="margin-top:12px;">
+    <strong>Quick switch: Hold Right on the desktop <span class="badge">New</span></strong><br><br>
+    A hardcoded shortcut for cycling wallpapers without opening Fox Settings.
+    Custom Wallpaper <strong>off</strong> → turns it on. <strong>On</strong> with
+    only one wallpaper file → turns it back off (default Fox background).
+    <strong>On</strong> with two or more files → advances to the next one
+    alphabetically, wrapping back to the first after the last.
+  </div>
+
   <p><strong>Creating your own wallpaper:</strong></p>
   <ul>
     <li>Your image must be exactly <strong>128 × 64 px</strong>, monochrome (1-bit black and white), in XBM format.</li>
@@ -1113,6 +1122,18 @@
     qFlipper and when nearby Flippers exchange information.
   </div>
 
+  <!-- ── MENU STYLE ── -->
+  <h3 id="menu-style">Menu Style</h3>
+  <div class="setting">
+    <div class="name">Menu Style</div>
+    <div class="desc">
+      Controls the visual theme of the main App Menu.<br><br>
+      <strong>Flipper</strong> — The standard Flipper grid menu.<br>
+      <strong>Fox</strong> — FoxFW's custom menu theme with the orange FoxFW aesthetic.
+    </div>
+    <div class="values">Options: <span>Flipper · Fox</span></div>
+  </div>
+
   <!-- ── BATTERY ── -->
   <h3 id="battery">Battery View</h3>
   <p>
@@ -1144,22 +1165,10 @@
     <div class="values">Options: <span>OFF · ON</span></div>
   </div>
 
-  <!-- ── MENU STYLE ── -->
-  <h3 id="menu-style">Menu Style</h3>
-  <div class="setting">
-    <div class="name">Menu Style</div>
-    <div class="desc">
-      Controls the visual theme of the main App Menu.<br><br>
-      <strong>Flipper</strong> — The standard Flipper grid menu.<br>
-      <strong>Fox</strong> — FoxFW's custom menu theme with the orange FoxFW aesthetic.
-    </div>
-    <div class="values">Options: <span>Flipper · Fox</span></div>
-  </div>
-
   <!-- ── FAVORITES ── -->
   <h3 id="fav-apps">Favorite Apps</h3>
   <p>
-    Assigns apps to the five configurable desktop button shortcuts. Each slot
+    Assigns apps to four configurable desktop button shortcuts. Each slot
     is triggered from the <strong>idle desktop screen</strong>.
   </p>
   <div class="setting">
@@ -1175,10 +1184,6 @@
     <div class="desc">Short press of Right on the desktop. Default: Fox File Browser.</div>
   </div>
   <div class="setting">
-    <div class="name">Favorite — Right Long</div>
-    <div class="desc">Hold Right on the desktop. Default: Fox File Browser.</div>
-  </div>
-  <div class="setting">
     <div class="name">Favorite — OK Long</div>
     <div class="desc">Hold OK (centre) on the desktop. Default: Fox File Browser.</div>
   </div>
@@ -1186,6 +1191,11 @@
     <strong>Tip:</strong> Any installed app (including external FAPs) can be
     assigned to a Favorite slot. Select <em>None</em> to clear a slot and
     restore its default behaviour.
+  </div>
+  <div class="box info">
+    <strong>Hold Right isn't a Favorite anymore:</strong> it's now a hardcoded
+    quick wallpaper switcher — see
+    <a href="#wallpaper" style="color:inherit;">Custom Wallpaper</a> below.
   </div>
 
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
