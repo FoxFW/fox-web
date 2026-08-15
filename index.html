@@ -285,6 +285,7 @@
       <li><a href="#fap-compiler-info">FAP Compiler</a></li>
       <li><a href="#wallpaper-painter-info">Wallpaper Painter</a></li>
       <li><a href="#wallpaper-showcase-info">Wallpaper Showcase</a></li>
+      <li><a href="#esp32-firmware-info">Fox ESP32 Firmware</a></li>
       <li><a href="#first-boot">First Boot — Fox Setup Wizard</a>
         <ul class="sub">
           <li><a href="#wizard-name">Rename your Flipper</a></li>
@@ -558,6 +559,46 @@
 </section>
 
 
+<!-- ══════════════════ 2e · FOX ESP32 FIRMWARE ══════════════════ -->
+<section class="section" id="esp32-firmware-info">
+  <div class="chapter-label">Chapter 2e</div>
+  <h2>Fox ESP32 Firmware</h2>
+  <p>
+    A companion firmware that runs on a separate ESP32 board wired to your Flipper over UART,
+    giving it WiFi and Bluetooth for the whole <a href="#fox-esp32-apps" style="color:#80c890;">Fox
+    ESP32 Apps</a> suite — Fox ESP32 Commander, Fox Chat, Fox AI Chat, Fox Portal, and more.
+    ESP32 Classic, S3, S2, C3, C5, and C6 boards are all supported.
+  </p>
+
+  <div style="text-align:center;margin:28px 0;">
+    <a href="https://foxfw.github.io/fox-web/fox-esp32-flasher.html"
+       style="display:inline-block;background:var(--orange);color:#fff;font-weight:700;
+              font-size:1.05rem;padding:16px 40px;border-radius:8px;text-decoration:none;
+              box-shadow:0 0 20px rgba(232,117,10,0.35);letter-spacing:0.3px;">
+      ⚡ Open ESP32 Web Flasher →
+    </a>
+    <p style="margin-top:12px;font-size:0.82rem;color:#888;">
+      Opens at foxfw.github.io/fox-web/fox-esp32-flasher.html — Chrome / Edge, USB cable, no
+      software install.
+    </p>
+  </div>
+
+  <div class="box tip">
+    Prefer not to use a PC? The on-device <strong>Fox ESP32 Flasher</strong> app (Apps → Fox) flashes
+    straight from the Flipper — no browser, no cable to a computer. Firmware for every supported
+    board is bundled into FoxFW itself.
+  </div>
+
+  <div class="box info" style="margin-top:12px;">
+    Full wiring diagrams, board-specific notes, and the complete command reference are in the
+    <a href="FoxESP32_Help.html" style="color:#80c890;">Fox ESP32 Firmware guide</a>. See the
+    <a href="#fox-esp32-apps" style="color:#80c890;">Fox ESP32 Apps</a> chapter below for what
+    each app actually does once it's flashed.
+  </div>
+
+</section>
+
+
 <!-- ══════════════════ 2 · FIRST BOOT ══════════════════ -->
 <section class="section" id="first-boot">
   <div class="chapter-label">Chapter 3</div>
@@ -708,7 +749,7 @@
     </tr>
     <tr>
       <td><strong>↓ Down (hold)</strong></td>
-      <td class="fixed">Fox Clock — a full-screen clock with an alarm clock built in (long-press Down again to exit)</td>
+      <td class="fixed">Fox Clock — a full-screen clock with an alarm clock built in (long-press Down or Back again to exit)</td>
       <td>No — always fixed, alarms configurable in Fox Settings → Alarm Clock</td>
     </tr>
     <tr>
@@ -750,8 +791,10 @@
     it up for the normal timeout, the same as pressing any other button. If
     it's on, Right restores the persistent stay-on behavior. Neither key
     changes the saved setting — it only affects the backlight for as long as
-    Fox Clock stays open. Long-press Down still exits back to the desktop,
-    and if an alarm is ringing, a short OK press (or holding Down) silences it.
+    Fox Clock stays open. Long-press Down or Back exits back to the desktop;
+    a short press of Back instead shows a "Press and Hold DOWN to Exit"
+    reminder for a couple of seconds. If an alarm is ringing, a short OK
+    press (or holding Down/Back) silences it.
   </div>
 
   <h3 id="lock-menu">Lock Menu (Up short)</h3>
@@ -1244,6 +1287,12 @@
       <td>Apps → Fox</td>
       <td style="text-align:center;">✓</td>
       <td>Post and read Discord channel messages directly from your Flipper using the ESP32's WiFi connection.</td>
+    </tr>
+    <tr>
+      <td><strong>Fox AI Chat</strong></td>
+      <td>Apps → Fox</td>
+      <td style="text-align:center;">✓</td>
+      <td>Chat with Google Gemini from your Flipper's screen over the ESP32's WiFi connection — no API key needed, conversation history saved permanently to the SD card.</td>
     </tr>
     <tr>
       <td><strong>Fox Portal</strong></td>
@@ -2109,6 +2158,12 @@
   &nbsp;·&nbsp;
   <a href="fox-apps-suite.html" style="color:#888;">Fox Apps Suite</a>
   &nbsp;·&nbsp; Guide version 1.0
+  <div style="margin-top:20px;">
+    <a href="https://buymeacoffee.com/foxfw" target="_blank" rel="noopener"><img src="assets/donate/buymeacoffee.png" alt="Buy Me a Coffee" height="40" style="margin:0 6px;vertical-align:middle;"></a>
+    <a href="https://ko-fi.com/foxfw" target="_blank" rel="noopener"><img src="assets/donate/kofi.png" alt="Ko-fi" height="40" style="margin:0 6px;vertical-align:middle;"></a>
+    <a href="https://boosty.to/foxfw" target="_blank" rel="noopener"><img src="assets/donate/boosty.png" alt="Boosty" height="40" style="margin:0 6px;vertical-align:middle;"></a>
+    <a href="https://patreon.com/FoxFW" target="_blank" rel="noopener"><img src="assets/donate/patreon.png" alt="Patreon" height="40" style="margin:0 6px;vertical-align:middle;"></a>
+  </div>
 </footer>
 
 <button id="backTop" aria-label="Back to top">↑</button>
