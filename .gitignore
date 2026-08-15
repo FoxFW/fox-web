@@ -2,3 +2,4 @@
 # anyone else, not part of the site itself
 /reorganize.bat
 /reorganize.ps1
+/clean_git_locks.bat
