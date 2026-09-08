@@ -38,13 +38,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
 
 .shell{flex:1;display:flex;min-height:0}
 
-.sidebar{width:64px;background:#0a0a0a;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px 0 54px;flex-shrink:0;overflow-y:auto;transition:width .18s ease}
+.sidebar{width:64px;background:#0a0a0a;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px 0 20px;flex-shrink:0;overflow-y:auto;transition:width .18s ease}
 .sidebar.expanded{width:196px;align-items:stretch}
 .dev-tabs{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);width:100%;align-items:center}
 .dev-tab{width:44px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:.04em;color:#666;cursor:pointer;border:1px solid transparent;background:transparent}
 .dev-tab:hover:not(.disabled){color:#aaa}
 .dev-tab.active{background:rgba(232,117,10,.15);border-color:var(--orange);color:var(--accent)}
 .dev-tab.disabled{opacity:.3;cursor:not-allowed}
+.sidebar.expanded .dev-tabs{flex-direction:row;align-items:stretch}
+.sidebar.expanded .dev-tab{flex:1;width:auto}
 .sec-icons{display:none;flex-direction:column;gap:4px;width:100%;align-items:center}
 .sec-icons.active{display:flex}
 .sec-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;gap:12px;border-radius:8px;font-size:1.2rem;cursor:pointer;color:#777;border:1px solid transparent;position:relative;background:transparent;flex-shrink:0}
@@ -54,7 +56,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
 .sidebar:not(.expanded) .sec-icon:hover .tip{opacity:1}
 .sidebar.expanded .sec-icon{width:100%;justify-content:flex-start;padding:0 15px}
 .sidebar.expanded .sec-icon .tip{position:static;transform:none;opacity:1;pointer-events:none;background:transparent;border:none;padding:0;color:inherit;font-size:.82rem;font-weight:inherit;overflow:hidden;text-overflow:ellipsis}
-.sidebar-toggle{margin-top:auto;width:44px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:9px;background:transparent;border:1px solid var(--border);border-radius:6px;color:#777;cursor:pointer;font-family:inherit;font-size:.78rem;overflow:hidden}
+.sidebar-toggle{position:sticky;top:0;z-index:5;margin-bottom:14px;width:44px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:9px;background:#0a0a0a;border:1px solid var(--border);border-radius:6px;color:#777;cursor:pointer;font-family:inherit;font-size:.78rem;overflow:hidden}
 .sidebar-toggle:hover{color:var(--accent);border-color:var(--accent)}
 .sidebar-toggle .chev{font-size:.85rem;line-height:1;flex-shrink:0;transition:transform .18s ease}
 .sidebar-toggle .stlabel{display:none;white-space:nowrap}
@@ -235,6 +237,10 @@ table.kv td:last-child{color:#eee;word-break:break-all}
 
 <div class="shell">
   <nav class="sidebar">
+    <button class="sidebar-toggle" id="sidebarToggle" type="button" title="Expand menu" aria-label="Expand menu" aria-expanded="false">
+      <span class="chev">»</span><span class="stlabel">Collapse</span>
+    </button>
+
     <div class="dev-tabs">
       <button class="dev-tab active" id="devtab-flipper" data-device="flipper">FLPR</button>
       <button class="dev-tab" id="devtab-esp32" data-device="esp32">ESP32</button>
@@ -267,9 +273,6 @@ table.kv td:last-child{color:#eee;word-break:break-all}
       <div class="sec-icon" data-section="settings">⚙️<span class="tip">Settings</span></div>
     </div>
 
-    <button class="sidebar-toggle" id="sidebarToggle" type="button" title="Expand menu" aria-label="Expand menu" aria-expanded="false">
-      <span class="chev">»</span><span class="stlabel">Collapse</span>
-    </button>
   </nav>
 
   <main class="main">
@@ -1329,8 +1332,9 @@ table.kv td:last-child{color:#eee;word-break:break-all}
     }
   }
 
-  // Flipper's screen is 128x64, 1bpp, packed row-major MSB-first (same
-  // framebuffer format u8g2/the firmware's Canvas uses) - 1024 bytes total.
+  // Flipper's screen is 128x64, 1bpp, packed as u8g2's tile buffer (see
+  // u8g2_ll_hvline_vertical_top_lsb): 8 horizontal "pages" of 8 rows each,
+  // one byte per pixel column within a page, LSB = the page's top row.
   function renderScreenFrame(data, orientation) {
     if (!screenCtx) return;
     if (!screenGotFirstFrame) {
@@ -1339,11 +1343,13 @@ table.kv td:last-child{color:#eee;word-break:break-all}
       if (status) status.style.display = "none";
     }
     const img = screenCtx.createImageData(128, 64);
-    const bytesPerRow = 128 / 8;
+    const width = 128;
     for (let y = 0; y < 64; y++) {
-      for (let x = 0; x < 128; x++) {
-        const byteIdx = y * bytesPerRow + (x >> 3);
-        const bit = data[byteIdx] !== undefined ? (data[byteIdx] >> (x & 7)) & 1 : 0;
+      const page = y >> 3;
+      const bitPos = y & 7;
+      for (let x = 0; x < width; x++) {
+        const byteIdx = page * width + x;
+        const bit = data[byteIdx] !== undefined ? (data[byteIdx] >> bitPos) & 1 : 0;
         const on = bit === 1;
         const idx = (y * 128 + x) * 4;
         const v = on ? 30 : 200;
