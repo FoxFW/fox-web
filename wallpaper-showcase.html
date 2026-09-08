@@ -2,9 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>if (window.self !== window.top) document.documentElement.classList.add("embedded-frame");</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FoxFW Wallpaper Showcase</title>
 <style>
+/* Scrollbars */
+*{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
+*::-webkit-scrollbar{width:9px;height:9px}
+*::-webkit-scrollbar-track{background-color:transparent}
+*::-webkit-scrollbar-thumb{background-color:#3a3a3a;border-radius:20px;border:2px solid transparent;background-clip:padding-box}
+*::-webkit-scrollbar-thumb:hover{background-color:var(--orange,var(--fox))}
+*::-webkit-scrollbar-corner{background-color:transparent}
+
+/* Floating back-to-top button - only shown when the page has a vertical scrollbar */
+#backTop{position:fixed;bottom:24px;right:24px;width:52px;height:52px;background:var(--orange,var(--fox));color:#fff;font-size:1.5rem;line-height:1;border:none;border-radius:50%;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;transition:transform .15s ease,filter .15s ease}
+#backTop.show{display:flex}
+#backTop:hover{filter:brightness(1.12);transform:translateY(-2px)}
+.embedded-frame #backTop{display:none!important}
+
   :root{
     --bg:#0c0d10;
     --panel:#151619;
@@ -42,6 +57,7 @@
   .backlink{ margin-top:10px; font-family:var(--mono); font-size:11.5px; }
   .backlink a{ color:var(--text-dim); text-decoration:none; }
   .backlink a:hover{ color:var(--fox); }
+  .embedded-frame .brand, .embedded-frame .backlink{ display:none; }
 
   .status-pill{
     display:inline-flex; align-items:center; gap:7px;
@@ -409,7 +425,15 @@
   });
 
   // ── Flipper RPC over Web Serial (shared client - assets/js/flipper-rpc.js) ──
-  const flipper = new FlipperRPC({
+  // When embedded in the Lab, reuse its already-open connection instead of
+  // constructing our own - see the sharedFlipper handling further below,
+  // which polls flipper.connected rather than owning its callbacks.
+  const embedded = window.self !== window.top;
+  let sharedFlipper = null;
+  if (embedded) {
+    try { sharedFlipper = window.parent.foxfwLabFlipper || null; } catch (e) { /* cross-origin, shouldn't happen same-site */ }
+  }
+  const flipper = sharedFlipper || new FlipperRPC({
     onLog: (msg, cls) => logLine(msg, cls),
     onConnectionLost: () => {
       setDeviceStatus("busy", "Reconnecting…");
@@ -482,12 +506,79 @@
     toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
   }
 
+  // Everything that needs to happen once the Flipper is actually connected -
+  // firmware check, enabling Install. Called from the Connect button handler
+  // below, and (when embedded with a shared connection) from the polling
+  // handler further down.
+  async function onFlipperReady() {
+    connectToggleBtn.textContent = "Disconnect";
+
+    setDeviceStatus("busy", "Checking firmware version…");
+    try {
+      const info = await flipper.getDeviceInfo();
+      const v = parseFoxfwVersion(info["firmware_version"]);
+      if (v && isVersionAtLeast(v, MIN_WALLPAPERS_FIRMWARE)) {
+        wallpapersFirmwareOk = true;
+        logLine(`Firmware v${v.major}.${v.minor}.${v.patch} detected.`, "ok");
+      } else if (v) {
+        logLine(
+          `Firmware v${v.major}.${v.minor}.${v.patch} detected - Install needs v2.0.4+.`,
+          "e",
+        );
+        showVersionWarning(
+          `This Flipper is running FoxFW v${v.major}.${v.minor}.${v.patch}. Installing wallpapers ` +
+            `here requires <strong>v2.0.4 or later</strong> (it introduced the <code>/wallpapers</code> ` +
+            `folder this page installs into). Please update your firmware, then reconnect.`,
+        );
+      } else {
+        logLine("Could not determine firmware version.", "w");
+        showVersionWarning(
+          `Couldn't confirm this device is running FoxFW v2.0.4+, which is required to install into ` +
+            `the <code>/wallpapers</code> folder. Update your firmware if installing fails, then reconnect.`,
+        );
+      }
+    } catch (e) {
+      logLine("Firmware version check failed: " + e.message, "w");
+      showVersionWarning(
+        `Couldn't check the firmware version. Installing wallpapers requires FoxFW v2.0.4+ - update if ` +
+          `installing fails, then reconnect.`,
+      );
+    }
+
+    setDeviceStatus("connected", "Connected");
+    setInstallButtonsConnected(true);
+  }
+
+  function resetFlipperDependentUi() {
+    setInstallButtonsConnected(false);
+    wallpapersFirmwareOk = false;
+    hideVersionWarning();
+  }
+
+  if (sharedFlipper) {
+    connectToggleBtn.style.display = "none";
+    setDeviceStatus(null, "Not connected — connect the Flipper from the Lab's Connect button above");
+    let wasConnected = false;
+    const pollSharedFlipper = async () => {
+      const isConnected = flipper.connected;
+      if (isConnected && !wasConnected) {
+        wasConnected = true;
+        await onFlipperReady();
+        setDeviceStatus("connected", "Connected (shared with Lab)");
+      } else if (!isConnected && wasConnected) {
+        wasConnected = false;
+        resetFlipperDependentUi();
+        setDeviceStatus(null, "Not connected — connect the Flipper from the Lab's Connect button above");
+      }
+    };
+    pollSharedFlipper();
+    setInterval(pollSharedFlipper, 700);
+  }
+
   connectToggleBtn.addEventListener("click", async () => {
     if (flipper.connected) {
       connectToggleBtn.disabled = true;
-      setInstallButtonsConnected(false);
-      wallpapersFirmwareOk = false;
-      hideVersionWarning();
+      resetFlipperDependentUi();
       await flipper.disconnect();
       setDeviceStatus(null, "No device connected");
       connectToggleBtn.textContent = "🔌 Connect Flipper";
@@ -500,42 +591,7 @@
     setDeviceStatus("busy", "Connecting…");
     try {
       await flipper.connect();
-      connectToggleBtn.textContent = "Disconnect";
-
-      setDeviceStatus("busy", "Checking firmware version…");
-      try {
-        const info = await flipper.getDeviceInfo();
-        const v = parseFoxfwVersion(info["firmware_version"]);
-        if (v && isVersionAtLeast(v, MIN_WALLPAPERS_FIRMWARE)) {
-          wallpapersFirmwareOk = true;
-          logLine(`Firmware v${v.major}.${v.minor}.${v.patch} detected.`, "ok");
-        } else if (v) {
-          logLine(
-            `Firmware v${v.major}.${v.minor}.${v.patch} detected - Install needs v2.0.4+.`,
-            "e",
-          );
-          showVersionWarning(
-            `This Flipper is running FoxFW v${v.major}.${v.minor}.${v.patch}. Installing wallpapers ` +
-              `here requires <strong>v2.0.4 or later</strong> (it introduced the <code>/wallpapers</code> ` +
-              `folder this page installs into). Please update your firmware, then reconnect.`,
-          );
-        } else {
-          logLine("Could not determine firmware version.", "w");
-          showVersionWarning(
-            `Couldn't confirm this device is running FoxFW v2.0.4+, which is required to install into ` +
-              `the <code>/wallpapers</code> folder. Update your firmware if installing fails, then reconnect.`,
-          );
-        }
-      } catch (e) {
-        logLine("Firmware version check failed: " + e.message, "w");
-        showVersionWarning(
-          `Couldn't check the firmware version. Installing wallpapers requires FoxFW v2.0.4+ - update if ` +
-            `installing fails, then reconnect.`,
-        );
-      }
-
-      setDeviceStatus("connected", "Connected");
-      setInstallButtonsConnected(true);
+      await onFlipperReady();
     } catch (e) {
       logLine("Connect failed: " + e.message, "e");
       setDeviceStatus("error", "Connect failed");
@@ -545,7 +601,7 @@
   });
 
   window.addEventListener("beforeunload", () => {
-    if (flipper.connected) flipper.disconnect();
+    if (!sharedFlipper && flipper.connected) flipper.disconnect();
   });
 
   // ── Gallery: load index.json, sort, paginate, render ─────────────
@@ -827,6 +883,25 @@
 
   // ── Init ──────────────────────────────────────────────────────
   loadIndex();
+})();
+</script>
+<button id="backTop" aria-label="Back to top">↑</button>
+
+<script>
+(function(){
+  var btn = document.getElementById('backTop');
+  if (!btn) return;
+  var raf = null;
+  function check(){
+    raf = null;
+    btn.classList.toggle('show', document.documentElement.scrollHeight > document.documentElement.clientHeight + 4);
+  }
+  function scheduleCheck(){ if (!raf) raf = requestAnimationFrame(check); }
+  scheduleCheck();
+  window.addEventListener('resize', scheduleCheck);
+  window.addEventListener('scroll', scheduleCheck, {passive:true});
+  new MutationObserver(scheduleCheck).observe(document.body, {childList:true, subtree:true});
+  btn.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
 })();
 </script>
 </body>

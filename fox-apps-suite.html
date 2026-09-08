@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fox Apps Suite — Standalone .fap Downloads</title>
 <style>
+/* Scrollbars */
+*{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
+*::-webkit-scrollbar{width:9px;height:9px}
+*::-webkit-scrollbar-track{background-color:transparent}
+*::-webkit-scrollbar-thumb{background-color:#3a3a3a;border-radius:20px;border:2px solid transparent;background-clip:padding-box}
+*::-webkit-scrollbar-thumb:hover{background-color:var(--orange,var(--fox))}
+*::-webkit-scrollbar-corner{background-color:transparent}
+
+/* Floating back-to-top button - only shown when the page has a vertical scrollbar */
+#backTop{position:fixed;bottom:24px;right:24px;width:52px;height:52px;background:var(--orange,var(--fox));color:#fff;font-size:1.5rem;line-height:1;border:none;border-radius:50%;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;transition:transform .15s ease,filter .15s ease}
+#backTop.show{display:flex}
+#backTop:hover{filter:brightness(1.12);transform:translateY(-2px)}
+
   :root {
     --orange: #e8750a;
     --dark:   #1a1a1a;
@@ -683,5 +696,24 @@
   &nbsp;·&nbsp; Guide version 1.0
 </footer>
 
+<button id="backTop" aria-label="Back to top">↑</button>
+
+<script>
+(function(){
+  var btn = document.getElementById('backTop');
+  if (!btn) return;
+  var raf = null;
+  function check(){
+    raf = null;
+    btn.classList.toggle('show', document.documentElement.scrollHeight > document.documentElement.clientHeight + 4);
+  }
+  function scheduleCheck(){ if (!raf) raf = requestAnimationFrame(check); }
+  scheduleCheck();
+  window.addEventListener('resize', scheduleCheck);
+  window.addEventListener('scroll', scheduleCheck, {passive:true});
+  new MutationObserver(scheduleCheck).observe(document.body, {childList:true, subtree:true});
+  btn.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+})();
+</script>
 </body>
 </html>

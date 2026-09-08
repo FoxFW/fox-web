@@ -2,9 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>if (window.self !== window.top) document.documentElement.classList.add("embedded-frame");</script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>FoxFW v2.0 — FAP Compiler</title>
 <style>
+/* Scrollbars */
+*{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
+*::-webkit-scrollbar{width:9px;height:9px}
+*::-webkit-scrollbar-track{background-color:transparent}
+*::-webkit-scrollbar-thumb{background-color:#3a3a3a;border-radius:20px;border:2px solid transparent;background-clip:padding-box}
+*::-webkit-scrollbar-thumb:hover{background-color:var(--orange,var(--fox))}
+*::-webkit-scrollbar-corner{background-color:transparent}
+
+/* Floating back-to-top button - only shown when the page has a vertical scrollbar */
+#backTop{position:fixed;bottom:24px;right:24px;width:52px;height:52px;background:var(--orange,var(--fox));color:#fff;font-size:1.5rem;line-height:1;border:none;border-radius:50%;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;transition:transform .15s ease,filter .15s ease}
+#backTop.show{display:flex}
+#backTop:hover{filter:brightness(1.12);transform:translateY(-2px)}
+.embedded-frame #backTop{display:none!important}
+
 :root{--orange:#e8750a;--dark:#0d0d0d;--mid:#161616;--card:#1e1e1e;--border:#2a2a2a;--light:#f0ebe5;--accent:#ff9a3c;--green:#3dba6a;--red:#e04040;--glow:rgba(232,117,10,.22)}
 *{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:var(--light);display:flex;flex-direction:column;min-height:100vh}
@@ -28,6 +43,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
 .bsm.pri:hover{background:var(--accent);border-color:var(--accent)}
 .bsm:disabled{opacity:.3;cursor:not-allowed;box-shadow:none}
 .subbar{background:#0a0a0a;border-bottom:1px solid var(--border);padding:8px 22px;display:flex;align-items:center;justify-content:center;gap:14px;flex-shrink:0;text-align:center}
+.embedded-frame .topbar,.embedded-frame .subbar{display:none}
 .wrap{flex:1;max-width:720px;width:100%;margin:0 auto;padding:24px 22px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:22px 24px;margin-bottom:18px}
 .card h2{font-size:1.02rem;color:var(--accent);margin-bottom:6px}
@@ -332,6 +348,25 @@ function downloadFap() {
   a.download = fapName;
   document.body.appendChild(a); a.click(); a.remove();
 }
+</script>
+<button id="backTop" aria-label="Back to top">↑</button>
+
+<script>
+(function(){
+  var btn = document.getElementById('backTop');
+  if (!btn) return;
+  var raf = null;
+  function check(){
+    raf = null;
+    btn.classList.toggle('show', document.documentElement.scrollHeight > document.documentElement.clientHeight + 4);
+  }
+  function scheduleCheck(){ if (!raf) raf = requestAnimationFrame(check); }
+  scheduleCheck();
+  window.addEventListener('resize', scheduleCheck);
+  window.addEventListener('scroll', scheduleCheck, {passive:true});
+  new MutationObserver(scheduleCheck).observe(document.body, {childList:true, subtree:true});
+  btn.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+})();
 </script>
 </body>
 </html>

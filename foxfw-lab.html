@@ -9,6 +9,14 @@
 *{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:var(--light);display:flex;flex-direction:column;min-height:100vh}
 
+/* Scrollbars */
+*{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
+*::-webkit-scrollbar{width:9px;height:9px}
+*::-webkit-scrollbar-track{background-color:transparent}
+*::-webkit-scrollbar-thumb{background-color:#3a3a3a;border-radius:20px;border:2px solid transparent;background-clip:padding-box}
+*::-webkit-scrollbar-thumb:hover{background-color:var(--orange)}
+*::-webkit-scrollbar-corner{background-color:transparent}
+
 .topbar{background:#080808;border-bottom:1px solid var(--border);padding:11px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px;flex-wrap:wrap}
 .tb-left{display:flex;align-items:center;gap:10px}
 .logo{font-size:1.05rem;font-weight:700;color:var(--accent)}.logo span{color:#fff}
@@ -30,7 +38,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
 
 .shell{flex:1;display:flex;min-height:0}
 
-.sidebar{width:64px;background:#0a0a0a;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px 0;flex-shrink:0;overflow-y:auto}
+.sidebar{width:64px;background:#0a0a0a;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px 0 54px;flex-shrink:0;overflow-y:auto;transition:width .18s ease}
+.sidebar.expanded{width:196px;align-items:stretch}
 .dev-tabs{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);width:100%;align-items:center}
 .dev-tab{width:44px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:.04em;color:#666;cursor:pointer;border:1px solid transparent;background:transparent}
 .dev-tab:hover:not(.disabled){color:#aaa}
@@ -38,11 +47,20 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
 .dev-tab.disabled{opacity:.3;cursor:not-allowed}
 .sec-icons{display:none;flex-direction:column;gap:4px;width:100%;align-items:center}
 .sec-icons.active{display:flex}
-.sec-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:1.2rem;cursor:pointer;color:#777;border:1px solid transparent;position:relative;background:transparent}
+.sec-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;gap:12px;border-radius:8px;font-size:1.2rem;cursor:pointer;color:#777;border:1px solid transparent;position:relative;background:transparent;flex-shrink:0}
 .sec-icon:hover{background:var(--card);color:#ccc}
 .sec-icon.active{background:rgba(232,117,10,.15);border-color:var(--orange);color:var(--accent)}
-.sec-icon .tip{position:absolute;left:54px;top:50%;transform:translateY(-50%);background:#000;border:1px solid var(--border);color:#ddd;font-size:.72rem;padding:4px 9px;border-radius:5px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s;z-index:30}
-.sec-icon:hover .tip{opacity:1}
+.sec-icon .tip{position:fixed;top:-999px;left:-999px;transform:translateY(-50%);background:#000;border:1px solid var(--border);color:#ddd;font-size:.72rem;padding:4px 9px;border-radius:5px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s;z-index:50}
+.sidebar:not(.expanded) .sec-icon:hover .tip{opacity:1}
+.sidebar.expanded .sec-icon{width:100%;justify-content:flex-start;padding:0 15px}
+.sidebar.expanded .sec-icon .tip{position:static;transform:none;opacity:1;pointer-events:none;background:transparent;border:none;padding:0;color:inherit;font-size:.82rem;font-weight:inherit;overflow:hidden;text-overflow:ellipsis}
+.sidebar-toggle{margin-top:auto;width:44px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:9px;background:transparent;border:1px solid var(--border);border-radius:6px;color:#777;cursor:pointer;font-family:inherit;font-size:.78rem;overflow:hidden}
+.sidebar-toggle:hover{color:var(--accent);border-color:var(--accent)}
+.sidebar-toggle .chev{font-size:.85rem;line-height:1;flex-shrink:0;transition:transform .18s ease}
+.sidebar-toggle .stlabel{display:none;white-space:nowrap}
+.sidebar.expanded .sidebar-toggle{align-self:stretch;width:auto;justify-content:flex-start;padding:0 15px}
+.sidebar.expanded .sidebar-toggle .chev{transform:rotate(180deg)}
+.sidebar.expanded .sidebar-toggle .stlabel{display:inline}
 
 .main{flex:1;overflow-y:auto;padding:26px 30px 90px}
 .device-panel{display:none}
@@ -50,7 +68,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
 .section-panel{display:none}
 .section-panel.active{display:block}
 
-.hero{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:22px 26px;display:flex;align-items:center;gap:18px;margin-bottom:20px}
+.hero-wrap{margin-bottom:20px}
+.hero{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:22px 26px;display:flex;align-items:center;gap:18px}
+.hero-wrap.detail-open .hero{border-radius:10px 10px 0 0}
 .hero .hi{font-size:2.4rem;flex-shrink:0}
 .hero .ht{flex:1;min-width:0}
 .hero .ht h2{font-size:1.2rem;color:#fff;margin-bottom:4px}
@@ -58,6 +78,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
 .hero .detail-btn{border:1px solid var(--border);background:transparent;color:#aaa;font-size:.78rem;padding:8px 16px;border-radius:6px;cursor:pointer;flex-shrink:0;font-family:inherit}
 .hero .detail-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
 .hero .detail-btn:disabled{opacity:.4;cursor:default}
+.hero-detail{max-height:0;overflow:hidden;transition:max-height .28s ease;background:var(--card);border:1px solid transparent;border-radius:0 0 10px 10px;margin-top:-1px}
+.hero-wrap.detail-open .hero-detail{max-height:640px;border-color:var(--border)}
+.hero-detail table.kv{margin:16px 22px;width:calc(100% - 44px)}
 
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px}
@@ -111,6 +134,24 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
 .progress-bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--orange),var(--accent));transition:width .1s}
 .progress-txt{font-size:.72rem;color:#888;margin-top:4px;font-family:var(--mono)}
 
+.dl-modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;align-items:center;justify-content:center;padding:20px}
+.dl-modal-backdrop.show{display:flex}
+.dl-modal{position:relative;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:30px 36px;min-width:320px;max-width:420px;width:100%;text-align:center}
+.dl-modal-close{position:absolute;top:8px;right:12px;background:none;border:none;color:#888;font-size:1.4rem;cursor:pointer;line-height:1;padding:4px}
+.dl-modal-close:hover{color:#fff}
+.dl-modal-icon{font-size:2.4rem;margin-bottom:10px}
+.dl-modal-title{font-size:.94rem;color:#eee;margin-bottom:16px;word-break:break-all}
+.dl-modal .progress-bar{height:9px}
+.dl-modal .progress-txt{margin-top:9px;font-size:.8rem;color:#999}
+
+/* Floating back-to-top button - only shown when the page has a vertical
+   scrollbar; sits above the collapsed Device Log bar and clears further
+   when it's expanded. */
+#backTop{position:fixed;bottom:60px;right:24px;width:52px;height:52px;background:var(--orange);color:#fff;font-size:1.5rem;line-height:1;border:none;border-radius:50%;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45);z-index:45;display:none;align-items:center;justify-content:center;transition:transform .15s ease,filter .15s ease,bottom .15s ease}
+#backTop.show{display:flex}
+#backTop:hover{filter:brightness(1.12);transform:translateY(-2px)}
+.logbar.open ~ #backTop{bottom:250px}
+
 /* Terminal */
 .term{background:#000;border:1px solid var(--border);border-radius:8px;height:360px;overflow-y:auto;padding:12px 14px;font-family:var(--mono);font-size:.8rem;white-space:pre-wrap;word-break:break-all;color:#c8e8c8;margin-bottom:10px}
 .term-input-row{display:flex;gap:8px}
@@ -119,7 +160,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
 
 /* Screen mirror */
 .screen-wrap{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
-#screenCanvas{background:#c8d6b8;border:3px solid #222;border-radius:4px;image-rendering:pixelated;width:384px;height:192px;flex-shrink:0}
+#screenCanvas{background:#c8d6b8;border:3px solid #222;border-radius:4px;image-rendering:pixelated;width:768px;height:384px;max-width:100%;flex-shrink:0}
+.screen-canvas-wrap{position:relative;flex-shrink:0}
+.screen-status{display:none;position:absolute;inset:3px;background:rgba(0,0,0,.55);align-items:center;justify-content:center;text-align:center;padding:20px;font-size:.8rem;color:#eee;font-family:var(--mono);pointer-events:none;border-radius:2px}
 .dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(3,52px);gap:4px}
 .dpad button{background:var(--card);border:1px solid var(--border);color:#ccc;font-size:1.1rem;border-radius:6px;cursor:pointer}
 .dpad button:hover{border-color:var(--accent);color:var(--accent)}
@@ -129,7 +172,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
 .dpad .dp-ok{grid-column:2;grid-row:2;background:rgba(232,117,10,.15);border-color:var(--orange);color:var(--accent);font-weight:700}
 .dpad .dp-right{grid-column:3;grid-row:2}
 .dpad .dp-down{grid-column:2;grid-row:3}
-.dpad .dp-back{grid-column:1;grid-row:1;font-size:.65rem}
+.dpad .dp-back{grid-column:3;grid-row:3;font-size:.65rem}
 
 /* Pulse plotter / SubGHz viewer */
 .plot-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
@@ -167,6 +210,7 @@ table.kv td:last-child{color:#eee;word-break:break-all}
 
 @media(max-width:640px){
   .sidebar{width:54px}
+  .sidebar.expanded{width:170px}
   .main{padding:18px 14px 90px}
   .tb-right a{display:none}
   .hero{flex-direction:column;text-align:center}
@@ -200,11 +244,12 @@ table.kv td:last-child{color:#eee;word-break:break-all}
       <div class="sec-icon active" data-section="dashboard">📊<span class="tip">Dashboard</span></div>
       <div class="sec-icon" data-section="files">📁<span class="tip">File Explorer</span></div>
       <div class="sec-icon" data-section="libraries">📚<span class="tip">Libraries</span></div>
-      <div class="sec-icon" data-section="screen">🖥️<span class="tip">Screen</span></div>
+      <div class="sec-icon" data-section="screen">🖥️<span class="tip">Screen mirror</span></div>
       <div class="sec-icon" data-section="terminal">⌨️<span class="tip">Terminal / CLI</span></div>
       <div class="sec-icon" data-section="nfc">💳<span class="tip">NFC Tools</span></div>
       <div class="sec-icon" data-section="paint">🎨<span class="tip">Paint</span></div>
       <div class="sec-icon" data-section="showcase">🖼️<span class="tip">Showcase</span></div>
+      <div class="sec-icon" data-section="fapcompiler">🛠️<span class="tip">FAP Compiler</span></div>
       <div class="sec-icon" data-section="pulseplotter">〰️<span class="tip">Pulse Plotter</span></div>
       <div class="sec-icon" data-section="subghz">📈<span class="tip">SubGHz Viewer/Trimmer</span></div>
       <div class="sec-icon" data-section="settings">⚙️<span class="tip">Settings</span></div>
@@ -221,6 +266,10 @@ table.kv td:last-child{color:#eee;word-break:break-all}
       <div class="sec-icon" data-section="ai">🤖<span class="tip">AI</span></div>
       <div class="sec-icon" data-section="settings">⚙️<span class="tip">Settings</span></div>
     </div>
+
+    <button class="sidebar-toggle" id="sidebarToggle" type="button" title="Expand menu" aria-label="Expand menu" aria-expanded="false">
+      <span class="chev">»</span><span class="stlabel">Collapse</span>
+    </button>
   </nav>
 
   <main class="main">
@@ -233,13 +282,16 @@ table.kv td:last-child{color:#eee;word-break:break-all}
         <div class="page-title">Dashboard</div>
         <div class="page-sub">Connected device overview.</div>
 
-        <div class="hero">
-          <div class="hi">🐬</div>
-          <div class="ht">
-            <h2 id="flipperName">No Flipper connected</h2>
-            <div class="sub" id="flipperSub">Click Connect above and select your Flipper from the browser's port list.</div>
+        <div class="hero-wrap" id="heroWrap">
+          <div class="hero">
+            <div class="hi">🐬</div>
+            <div class="ht">
+              <h2 id="flipperName">No Flipper connected</h2>
+              <div class="sub" id="flipperSub">Click Connect above and select your Flipper from the browser's port list.</div>
+            </div>
+            <button class="detail-btn" id="flipperDetailBtn" disabled>Detailed View</button>
           </div>
-          <button class="detail-btn" id="flipperDetailBtn" disabled>Detailed view</button>
+          <div class="hero-detail" id="heroDetail"><table class="kv" id="heroDetailTable"></table></div>
         </div>
 
         <div class="stat-grid">
@@ -292,15 +344,14 @@ table.kv td:last-child{color:#eee;word-break:break-all}
       </section>
 
       <section class="section-panel" data-section="screen">
-        <div class="page-title">Screen</div>
+        <div class="page-title">Screen mirror</div>
         <div class="page-sub">Live 128x64 mirror with D-pad input and screenshot export.</div>
         <div id="screenBody"><div class="empty"><span class="big">🖥️</span>Connect a Flipper to start the screen mirror.</div></div>
       </section>
 
       <section class="section-panel" data-section="terminal">
         <div class="page-title">Terminal</div>
-        <div class="page-sub">A raw CLI pane over the Flipper's serial console.</div>
-        <div class="notice info show">Only one thing can hold the Flipper's serial port at a time — close qFlipper first. Opening this panel briefly suspends the RPC session (Dashboard/Files/Screen) while it's open.</div>
+        <div class="page-sub">A raw CLI pane over the Flipper's serial console. Opening this panel briefly suspends the RPC session (Dashboard/Files/Screen mirror) while it's open.</div>
         <div id="terminalBody"><div class="empty"><span class="big">⌨️</span>Connect a Flipper to open a terminal.</div></div>
       </section>
 
@@ -313,21 +364,28 @@ table.kv td:last-child{color:#eee;word-break:break-all}
       <section class="section-panel" data-section="paint">
         <div class="page-title">Paint</div>
         <div class="page-sub">FoxFW's full wallpaper painter, embedded here.</div>
-        <div class="notice info show">This embed opens its own serial connection — click Connect inside it (it doesn't share the Lab's Connect above).</div>
         <div class="card" style="padding:0;overflow:hidden">
-          <iframe id="paintFrame" src="wallpaper-painter.html" style="width:100%;height:900px;border:0;display:block;background:#0c0d10"></iframe>
+          <iframe id="paintFrame" data-src="wallpaper-painter.html" style="width:100%;height:900px;border:0;display:block;background:#0c0d10"></iframe>
         </div>
-        <div class="page-sub" style="margin-top:10px"><a href="wallpaper-painter.html" target="_blank" style="color:var(--accent)">Open Paint in its own tab →</a></div>
+        <div class="page-sub" style="margin-top:10px"><a href="wallpaper-painter.html" target="_blank" style="color:var(--accent)">Press CTRL+Click to Open Paint in its own Tab</a></div>
       </section>
 
       <section class="section-panel" data-section="showcase">
         <div class="page-title">Showcase</div>
         <div class="page-sub">Community wallpaper gallery, embedded here.</div>
-        <div class="notice info show">This embed opens its own serial connection — click Connect inside it (it doesn't share the Lab's Connect above).</div>
         <div class="card" style="padding:0;overflow:hidden">
-          <iframe id="showcaseFrame" src="wallpaper-showcase.html" style="width:100%;height:900px;border:0;display:block;background:#0c0d10"></iframe>
+          <iframe id="showcaseFrame" data-src="wallpaper-showcase.html" style="width:100%;height:900px;border:0;display:block;background:#0c0d10"></iframe>
         </div>
-        <div class="page-sub" style="margin-top:10px"><a href="wallpaper-showcase.html" target="_blank" style="color:var(--accent)">Open Showcase in its own tab →</a></div>
+        <div class="page-sub" style="margin-top:10px"><a href="wallpaper-showcase.html" target="_blank" style="color:var(--accent)">Press CTRL+Click to Open Showcase in its own Tab</a></div>
+      </section>
+
+      <section class="section-panel" data-section="fapcompiler">
+        <div class="page-title">FAP Compiler</div>
+        <div class="page-sub">Build a FAP app from a GitHub repo, embedded here.</div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <iframe id="fapCompilerFrame" data-src="fap-compiler.html" style="width:100%;height:900px;border:0;display:block;background:#0c0d10"></iframe>
+        </div>
+        <div class="page-sub" style="margin-top:10px"><a href="fap-compiler.html" target="_blank" style="color:var(--accent)">Press CTRL+Click to Open Fap Compiler in its own Tab</a></div>
       </section>
 
       <section class="section-panel" data-section="pulseplotter">
@@ -429,6 +487,18 @@ table.kv td:last-child{color:#eee;word-break:break-all}
   <div class="logbar-body" id="logbarBody"></div>
 </div>
 
+<button id="backTop" aria-label="Back to top">↑</button>
+
+<div class="dl-modal-backdrop" id="dlModalBackdrop">
+  <div class="dl-modal">
+    <button class="dl-modal-close" id="dlModalClose" aria-label="Close">×</button>
+    <div class="dl-modal-icon" id="dlModalIcon">⬇️</div>
+    <div class="dl-modal-title" id="dlModalTitle">Downloading…</div>
+    <div class="progress-bar"><i id="dlModalBar"></i></div>
+    <div class="progress-txt" id="dlModalTxt"></div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/protobufjs/7.4.0/protobuf.min.js"></script>
 <script src="assets/js/flipper-rpc.js"></script>
 <script>
@@ -490,12 +560,47 @@ table.kv td:last-child{color:#eee;word-break:break-all}
       const device = icon.closest(".sec-icons").dataset.device;
       setSection(device, icon.dataset.section);
     });
+    // The tooltip is position:fixed (so a scrolling sidebar can't clip it
+    // or grow a phantom scrollbar around it) and so needs its screen
+    // position computed on hover rather than pinned via CSS.
+    const tip = icon.querySelector(".tip");
+    if (tip) {
+      icon.addEventListener("mouseenter", () => {
+        const r = icon.getBoundingClientRect();
+        tip.style.left = (r.right + 10) + "px";
+        tip.style.top = (r.top + r.height / 2) + "px";
+      });
+    }
   });
+
+  // ── Sidebar expand/collapse ─────────────────────────────────────────
+  // Collapsed (default): icon-only, hover shows a floating tooltip.
+  // Expanded: fixed width, the same label text renders inline instead
+  // (no tooltip needed since it's already visible).
+  const sidebarNav = document.querySelector(".sidebar");
+  const sidebarToggle = $("sidebarToggle");
+  function setSidebarExpanded(expanded) {
+    sidebarNav.classList.toggle("expanded", expanded);
+    sidebarToggle.title = expanded ? "Collapse menu" : "Expand menu";
+    sidebarToggle.setAttribute("aria-label", sidebarToggle.title);
+    sidebarToggle.setAttribute("aria-expanded", String(expanded));
+    try { localStorage.setItem("foxfwLabSidebarExpanded", expanded ? "1" : "0"); } catch (e) {}
+  }
+  sidebarToggle.addEventListener("click", () => setSidebarExpanded(!sidebarNav.classList.contains("expanded")));
+  try { setSidebarExpanded(localStorage.getItem("foxfwLabSidebarExpanded") === "1"); } catch (e) {}
 
   // Screen streaming and the Terminal's CLI mode are mutually exclusive
   // with everything else on the wire, so tear them down/back up as the
   // user leaves/enters those two sections rather than leaving them
   // running in the background.
+
+  // Paint/Showcase/FAP Compiler are embedded <iframe>s that lazy-load from
+  // data-src the first time their section is entered (see below) - this
+  // keeps their own scripts from ever running before window.foxfwLabFlipper
+  // is set, and avoids fetching pages the user may never visit.
+  const embedFrameIds = { paint: "paintFrame", showcase: "showcaseFrame", fapcompiler: "fapCompilerFrame" };
+  const embedFramesLoaded = {};
+
   async function onLeaveFlipperSection(section) {
     if (!flipper.connected) return;
     if (section === "screen" && flipper.screenStreamActive) {
@@ -507,6 +612,11 @@ table.kv td:last-child{color:#eee;word-break:break-all}
     }
   }
   async function onEnterFlipperSection(section) {
+    if (embedFrameIds[section] && !embedFramesLoaded[section]) {
+      embedFramesLoaded[section] = true;
+      const frame = $(embedFrameIds[section]);
+      if (frame) frame.src = frame.dataset.src;
+    }
     if (!flipper.connected) return;
     if (section === "screen") await startScreenMirror();
     if (section === "terminal") await enterTerminal();
@@ -529,6 +639,7 @@ table.kv td:last-child{color:#eee;word-break:break-all}
       updateConnectBtn();
     },
   });
+  window.foxfwLabFlipper = flipper;
 
   function updateConnectBtn() {
     const btn = $("connectBtn");
@@ -793,14 +904,20 @@ table.kv td:last-child{color:#eee;word-break:break-all}
 
   async function refreshPowerInfo() {
     try {
+      // Real key is "charge_level" (furi_hal_power_info_get in firmware) -
+      // the others are kept as a fallback in case that ever changes.
       const power = await flipper.getPowerInfo();
-      const pct = power["gauge_charge"] || power["charge"] || power["battery_charge"];
+      const pct = power["charge_level"] ?? power["gauge_charge"] ?? power["charge"] ?? power["battery_charge"];
       const pctNum = pct !== undefined ? Math.round(parseFloat(pct)) : null;
       if (pctNum !== null && !Number.isNaN(pctNum)) {
         $("statBattery").innerHTML = pctNum + "<small> %</small>";
         $("barBattery").style.width = Math.min(100, Math.max(0, pctNum)) + "%";
+      } else {
+        $("statBattery").innerHTML = "?<small> %</small>";
+        logLine("Power info: no charge_level field in the device's response.", "w");
       }
     } catch (e) {
+      $("statBattery").innerHTML = "?<small> %</small>";
       logLine("Power info: " + e.message, "w");
     }
   }
@@ -809,19 +926,31 @@ table.kv td:last-child{color:#eee;word-break:break-all}
     try {
       const ext = await flipper.getStorageInfo("/ext");
       if (ext) {
-        const usedPct = ext.total_space > 0 ? Math.round(((ext.total_space - ext.free_space) / ext.total_space) * 100) : 0;
+        const total = Number(ext.total_space), free = Number(ext.free_space);
+        const usedPct = total > 0 ? Math.round(((total - free) / total) * 100) : 0;
         $("statSd").innerHTML = usedPct + "<small> % used</small>";
         $("barSd").style.width = usedPct + "%";
+      } else {
+        $("statSd").innerHTML = "?<small> used</small>";
       }
-    } catch (e) { logLine("SD storage info: " + e.message, "w"); }
+    } catch (e) {
+      $("statSd").innerHTML = "?<small> used</small>";
+      logLine("SD storage info: " + e.message, "w");
+    }
     try {
       const int_ = await flipper.getStorageInfo("/int");
       if (int_) {
-        const usedPct = int_.total_space > 0 ? Math.round(((int_.total_space - int_.free_space) / int_.total_space) * 100) : 0;
+        const total = Number(int_.total_space), free = Number(int_.free_space);
+        const usedPct = total > 0 ? Math.round(((total - free) / total) * 100) : 0;
         $("statInt").innerHTML = usedPct + "<small> % used</small>";
         $("barInt").style.width = usedPct + "%";
+      } else {
+        $("statInt").innerHTML = "?<small> used</small>";
       }
-    } catch (e) { logLine("Internal storage info: " + e.message, "w"); }
+    } catch (e) {
+      $("statInt").innerHTML = "?<small> used</small>";
+      logLine("Internal storage info: " + e.message, "w");
+    }
   }
 
   async function refreshFirmwareUpdateCheck(v) {
@@ -854,10 +983,14 @@ table.kv td:last-child{color:#eee;word-break:break-all}
 
   $("flipperDetailBtn").addEventListener("click", () => {
     if (!lastDeviceInfo) return;
-    const rows = Object.keys(lastDeviceInfo).sort().map(k =>
+    const heroWrap = $("heroWrap");
+    if (heroWrap.classList.contains("detail-open")) {
+      heroWrap.classList.remove("detail-open");
+      return;
+    }
+    $("heroDetailTable").innerHTML = Object.keys(lastDeviceInfo).sort().map(k =>
       `<tr><td>${k}</td><td>${lastDeviceInfo[k]}</td></tr>`).join("");
-    $("updateCardBody").insertAdjacentHTML("afterend", "");
-    alert(Object.keys(lastDeviceInfo).map(k => k + ": " + lastDeviceInfo[k]).join("\n"));
+    heroWrap.classList.add("detail-open");
   });
 
   // ══════════════════════ FLIPPER: Libraries ══════════════════════════
@@ -932,13 +1065,18 @@ table.kv td:last-child{color:#eee;word-break:break-all}
         html += '<div class="empty">Nothing found.</div>';
       } else {
         html += '<div class="file-list">' + files.slice(0, 300).map(f =>
-          `<div class="file-row"><span class="fi">📄</span><span class="fn" title="${f.path}">${f.path}</span><span class="fs">${formatBytes(f.size)}</span></div>`
+          `<div class="file-row" data-path="${f.path}"><span class="fi">📄</span><span class="fn" title="Click to download ${f.path}">${f.path}</span><span class="fs">${formatBytes(f.size)}</span><span class="fa"><button data-act="dl">⬇</button></span></div>`
         ).join("") + "</div>";
         if (files.length > 300) html += `<div class="empty">…and ${files.length - 300} more.</div>`;
       }
       html += "</div>";
     }
     body.innerHTML = html;
+    body.querySelectorAll(".file-row").forEach(row => {
+      const path = row.dataset.path;
+      row.querySelector(".fn").addEventListener("click", () => downloadFile(path));
+      row.querySelector('[data-act="dl"]').addEventListener("click", (e) => { e.stopPropagation(); downloadFile(path); });
+    });
   }
 
   document.querySelectorAll(".lib-pill").forEach(pill => {
@@ -1029,20 +1167,51 @@ table.kv td:last-child{color:#eee;word-break:break-all}
     }
   }
 
+  // ── Download progress popup (file transfers over the serial link can
+  // take a while, so the user gets a big visible progress bar rather than
+  // wondering if anything is happening) ──────────────────────────────────
+  const dlModal = { backdrop: $("dlModalBackdrop"), icon: $("dlModalIcon"), title: $("dlModalTitle"), bar: $("dlModalBar"), txt: $("dlModalTxt") };
+  $("dlModalClose").addEventListener("click", () => dlModal.backdrop.classList.remove("show"));
+  function showDownloadModal(name) {
+    dlModal.icon.textContent = "⬇️";
+    dlModal.title.textContent = "Downloading " + name + "…";
+    dlModal.bar.style.width = "0%";
+    dlModal.txt.textContent = "";
+    dlModal.backdrop.classList.add("show");
+  }
+  function updateDownloadModal(received, total) {
+    const pct = total > 0 ? Math.min(100, Math.round((received / total) * 100)) : 0;
+    dlModal.bar.style.width = pct + "%";
+    dlModal.txt.textContent = total > 0
+      ? formatBytes(received) + " / " + formatBytes(total) + " (" + pct + "%)"
+      : formatBytes(received) + " downloaded…";
+  }
+
   async function downloadFile(path) {
+    const name = path.split("/").pop();
+    showDownloadModal(name);
     try {
       logLine("Downloading " + path + "…");
-      const bytes = await flipper.readFileChunked(path);
+      let total = 0;
+      try { const stat = await flipper.statFile(path); if (stat) total = stat.size; } catch (e) { /* progress is best-effort */ }
+      const bytes = await flipper.readFileChunked(path, (received) => updateDownloadModal(received, total));
+      updateDownloadModal(bytes.length, bytes.length || total);
       const blob = new Blob([bytes]);
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = path.split("/").pop();
+      a.download = name;
       document.body.appendChild(a);
       a.click();
       a.remove();
       logLine("Downloaded " + path, "ok");
+      dlModal.icon.textContent = "✅";
+      dlModal.title.textContent = "Downloaded " + name;
+      setTimeout(() => dlModal.backdrop.classList.remove("show"), 600);
     } catch (e) {
       logLine("Download failed: " + e.message, "e");
+      dlModal.icon.textContent = "⚠️";
+      dlModal.title.textContent = "Download failed";
+      dlModal.txt.textContent = e.message;
     }
   }
 
@@ -1109,12 +1278,17 @@ table.kv td:last-child{color:#eee;word-break:break-all}
 
   let screenCanvas = null, screenCtx = null;
 
+  let screenGotFirstFrame = false;
+
   function ensureScreenUi() {
     const body = $("screenBody");
     if ($("screenCanvas")) return;
     body.innerHTML = `
       <div class="screen-wrap">
-        <canvas id="screenCanvas" width="128" height="64"></canvas>
+        <div class="screen-canvas-wrap">
+          <canvas id="screenCanvas" width="128" height="64"></canvas>
+          <div class="screen-status" id="screenStatus"></div>
+        </div>
         <div>
           <div class="dpad">
             <button class="dp-back" data-key="5">BACK</button>
@@ -1129,7 +1303,6 @@ table.kv td:last-child{color:#eee;word-break:break-all}
       </div>`;
     screenCanvas = $("screenCanvas");
     screenCtx = screenCanvas.getContext("2d");
-    screenCanvas.querySelectorAll ? null : null;
     body.querySelectorAll(".dpad button").forEach(btn => {
       btn.addEventListener("click", () => flipper.tapInput(+btn.dataset.key).catch(e => logLine("Input failed: " + e.message, "e")));
     });
@@ -1143,11 +1316,16 @@ table.kv td:last-child{color:#eee;word-break:break-all}
 
   async function startScreenMirror() {
     ensureScreenUi();
+    screenGotFirstFrame = false;
+    const status = $("screenStatus");
+    status.textContent = "Waiting for the Flipper to send a frame… (press a button on the device, or wait a moment for its screen to redraw)";
+    status.style.display = "flex";
     try {
       await flipper.startScreenStream();
       logLine("Screen stream started.", "ok");
     } catch (e) {
       logLine("Screen stream failed: " + e.message, "e");
+      status.textContent = "Screen stream failed: " + e.message;
     }
   }
 
@@ -1155,6 +1333,11 @@ table.kv td:last-child{color:#eee;word-break:break-all}
   // framebuffer format u8g2/the firmware's Canvas uses) - 1024 bytes total.
   function renderScreenFrame(data, orientation) {
     if (!screenCtx) return;
+    if (!screenGotFirstFrame) {
+      screenGotFirstFrame = true;
+      const status = $("screenStatus");
+      if (status) status.style.display = "none";
+    }
     const img = screenCtx.createImageData(128, 64);
     const bytesPerRow = 128 / 8;
     for (let y = 0; y < 64; y++) {
@@ -1187,7 +1370,7 @@ table.kv td:last-child{color:#eee;word-break:break-all}
     const send = () => {
       const text = input.value;
       if (!text) return;
-      termEl.textContent += "> " + text + "\n";
+      appendTermText("> " + text + "\n");
       flipper.writeCliText(text + "\r").catch(e => logLine("CLI write failed: " + e.message, "e"));
       input.value = "";
     };
@@ -1195,15 +1378,23 @@ table.kv td:last-child{color:#eee;word-break:break-all}
     input.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
   }
 
+  // Keeps the terminal's scrollback bounded over a long session - each
+  // incoming serial chunk otherwise appends to the DOM text node forever.
+  function appendTermText(text) {
+    termEl.textContent += text;
+    if (termEl.textContent.length > 100000) termEl.textContent = termEl.textContent.slice(-80000);
+    termEl.scrollTop = termEl.scrollHeight;
+  }
+
   async function enterTerminal() {
     ensureTerminalUi();
     flipper.onCliLine = (fullText, newBytes) => {
-      termEl.textContent += new TextDecoder().decode(newBytes);
-      termEl.scrollTop = termEl.scrollHeight;
+      appendTermText(new TextDecoder().decode(newBytes));
     };
     try {
       await flipper.enterCliMode();
-      termEl.textContent += "[CLI mode - type '?' for a command list]\n";
+      appendTermText("[CLI mode - type '?' for a command list]\n");
+      $("termInput").focus();
     } catch (e) {
       logLine("Enter CLI mode failed: " + e.message, "e");
     }
@@ -1259,7 +1450,15 @@ table.kv td:last-child{color:#eee;word-break:break-all}
     try {
       const text = await flipper.readFileText(path);
       const kv = parseFlipperFormat(text);
-      table.innerHTML = Object.keys(kv).map(k => `<tr><td>${k}</td><td>${kv[k]}</td></tr>`).join("") || "<tr><td>No fields found.</td><td></td></tr>";
+      if (Object.keys(kv).length) {
+        table.innerHTML = Object.keys(kv).map(k => `<tr><td>${k}</td><td>${kv[k]}</td></tr>`).join("");
+      } else {
+        // Not every file under /ext/nfc is Key: Value formatted (e.g. a
+        // Mifare Classic dictionary is a flat list of hex keys) - show the
+        // raw contents instead of a dead-end "No fields found."
+        table.innerHTML = `<tr><td colspan="2">Not a Key: Value formatted file — showing raw contents:</td></tr>
+          <tr><td colspan="2"><pre style="white-space:pre-wrap;word-break:break-all;font-size:.76rem;max-height:300px;overflow-y:auto;margin:0">${text.slice(0, 20000)}</pre></td></tr>`;
+      }
     } catch (e) {
       table.innerHTML = `<tr><td>Error</td><td>${e.message}</td></tr>`;
     }
@@ -1806,6 +2005,24 @@ table.kv td:last-child{color:#eee;word-break:break-all}
       `<tr><td>${r.key}</td><td>${r.enabled === null ? "unknown" : (r.enabled ? "✅ enabled" : "— not compiled in")}</td></tr>`
     ).join("") + "</table>";
   }
+
+  // ── Back to top (visible only while the page actually has a scrollbar -
+  // section switches change page height without a resize/scroll event, so
+  // a MutationObserver catches those too) ────────────────────────────────
+  (function () {
+    const btn = $("backTop");
+    let raf = null;
+    function check() {
+      raf = null;
+      btn.classList.toggle("show", document.documentElement.scrollHeight > document.documentElement.clientHeight + 4);
+    }
+    function scheduleCheck() { if (!raf) raf = requestAnimationFrame(check); }
+    scheduleCheck();
+    window.addEventListener("resize", scheduleCheck);
+    window.addEventListener("scroll", scheduleCheck, { passive: true });
+    new MutationObserver(scheduleCheck).observe(document.body, { childList: true, subtree: true });
+    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  })();
 
   // ── Init ──────────────────────────────────────────────────────────
   if (!("serial" in navigator)) {

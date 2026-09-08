@@ -296,26 +296,42 @@ class FlipperRPC {
   // has_next true on all but the last" collector - used by anything that
   // returns a list/repeated set (device info, power info) instead of a
   // single response message.
-  async sendMainCollecting(fields, collectFn, { timeoutMs = 8000, timeoutMsg = "Timed out waiting for a response from the Flipper." } = {}) {
+  // timeoutMs is a per-chunk idle deadline, not a total-transfer deadline -
+  // it's reset every time a chunk actually arrives, so a slow-but-steady
+  // multi-chunk transfer (a big NFC dictionary, a large directory listing)
+  // doesn't get killed just for taking a while overall.
+  async sendMainCollecting(fields, collectFn, { timeoutMs = 8000, timeoutMsg = "Timed out waiting for a response from the Flipper.", onProgress } = {}) {
     const id = this.nextCommandId++;
     const message = this.MainType.create(Object.assign({ command_id: id, has_next: false }, fields));
     const result = { value: undefined };
     const promise = new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
-        this.pending.delete(id);
-        reject(new Error(timeoutMsg));
-      }, timeoutMs);
-      this.pending.set(id, {
-        timer,
-        collect: (msg) => {
+      const entry = { reject, timer: null, collect: null };
+      const arm = () => {
+        entry.timer = setTimeout(() => {
+          this.pending.delete(id);
+          reject(new Error(timeoutMsg));
+        }, timeoutMs);
+      };
+      entry.collect = (msg) => {
+        try {
           collectFn(msg, result);
-          if (!msg.has_next) {
-            clearTimeout(timer);
-            this.pending.delete(id);
-            resolve(result.value);
-          }
-        },
-      });
+        } catch (err) {
+          clearTimeout(entry.timer);
+          this.pending.delete(id);
+          reject(err);
+          return;
+        }
+        if (onProgress) onProgress(result, msg);
+        clearTimeout(entry.timer);
+        if (!msg.has_next) {
+          this.pending.delete(id);
+          resolve(result.value);
+        } else {
+          arm();
+        }
+      };
+      arm();
+      this.pending.set(id, entry);
     });
     await this.writeRaw(this.MainType.encodeDelimited(message).finish());
     return promise;
@@ -357,7 +373,9 @@ class FlipperRPC {
 
   // Reads a file off the Flipper's storage. The response can stream over
   // several messages (has_next true on all but the last).
-  async readFileChunked(path) {
+  // onProgress(bytesReceivedSoFar) fires after every chunk - callers that
+  // know the total size upfront (statFile) can turn that into a percentage.
+  async readFileChunked(path, onProgress) {
     return this.sendMainCollecting(
       { storage_read_request: { path: path } },
       (msg, result) => {
@@ -366,7 +384,10 @@ class FlipperRPC {
         }
         const file = msg.storage_read_response && msg.storage_read_response.file;
         if (!result.chunks) result.chunks = [];
-        if (file && file.data && file.data.length) result.chunks.push(file.data);
+        if (file && file.data && file.data.length) {
+          result.chunks.push(file.data);
+          result.received = (result.received || 0) + file.data.length;
+        }
         if (!msg.has_next) {
           let total = 0;
           for (const c of result.chunks) total += c.length;
@@ -376,7 +397,11 @@ class FlipperRPC {
           result.value = out;
         }
       },
-      { timeoutMs: 20000, timeoutMsg: "Timed out waiting for the Flipper to send " + path }
+      {
+        timeoutMs: 20000,
+        timeoutMsg: "Timed out waiting for the Flipper to send " + path,
+        onProgress: onProgress ? (result) => onProgress(result.received || 0) : undefined,
+      }
     );
   }
 
@@ -402,14 +427,24 @@ class FlipperRPC {
     return response.storage_stat_response ? response.storage_stat_response.file : null;
   }
 
+  // The firmware chunks large directories across several has_next messages
+  // (rpc_system_storage_list_process fills a fixed-size array per message
+  // and re-sends) - collect across all of them instead of only reading the
+  // first message's worth of entries.
   async listDir(path, { includeMd5 = false, filterMaxSize = 0 } = {}) {
-    const response = await this.sendMain({
-      storage_list_request: { path: path, include_md5: includeMd5, filter_max_size: filterMaxSize },
-    }, { timeoutMs: 15000 });
-    if (response.command_status !== 0) {
-      throw new Error("Flipper reported an error (status " + response.command_status + ") listing " + path);
-    }
-    return (response.storage_list_response && response.storage_list_response.file) || [];
+    return this.sendMainCollecting(
+      { storage_list_request: { path: path, include_md5: includeMd5, filter_max_size: filterMaxSize } },
+      (msg, result) => {
+        if (msg.command_status !== 0) {
+          throw new Error("Flipper reported an error (status " + msg.command_status + ") listing " + path);
+        }
+        if (!result.files) result.files = [];
+        const chunk = (msg.storage_list_response && msg.storage_list_response.file) || [];
+        for (const f of chunk) result.files.push(f);
+        if (!msg.has_next) result.value = result.files;
+      },
+      { timeoutMs: 15000, timeoutMsg: "Timed out waiting for a response from the Flipper." }
+    );
   }
 
   async mkdir(path) {
@@ -603,10 +638,12 @@ class FlipperRPC {
 
   appendCli(bytes) {
     this.cliLineBuffer += new TextDecoder().decode(bytes);
+    // Unbounded growth here would slow every future append down (and,
+    // over a long CLI session with a lot of output, could stall the tab) -
+    // cliLineBuffer is a convenience for callers that want the accumulated
+    // text, not a full scrollback, so it only needs to keep a tail.
+    if (this.cliLineBuffer.length > 8192) this.cliLineBuffer = this.cliLineBuffer.slice(-8192);
     if (this.onCliLine) this.onCliLine(this.cliLineBuffer, bytes);
-    // Terminal panel gets raw bytes as they arrive (it renders a live
-    // scrollback, not discrete lines) - cliLineBuffer is kept only so a
-    // caller that wants the accumulated text can read it, not consumed here.
   }
 
   // ── Lifecycle ────────────────────────────────────────────────────────
