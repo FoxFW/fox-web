@@ -331,12 +331,13 @@
           <li><a href="#freq-analyzer">Frequency Analyzer</a></li>
           <li><a href="#mod-analyzer">Modulation Analyzer</a></li>
           <li><a href="#protocol-list">Protocol List</a></li>
-          <li><a href="#gdr">Garage Door Remote</a></li>
+          <li><a href="#mode-picker">Sub-Ghz Mode Picker</a></li>
           <li><a href="#supported-systems">Supported Systems</a></li>
           <li><a href="#radio-settings">Radio Settings</a></li>
         </ul>
       </li>
       <li><a href="#ux">System UX — Bounce Scroll &amp; Fonts</a></li>
+      <li><a href="#screenshot">Screenshot Tool</a></li>
       <li><a href="#firmware-update">Installing Firmware Updates</a></li>
       <li><a href="#lockout">Lockout &amp; Recovery</a></li>
     </ol>
@@ -357,8 +358,10 @@
   <div class="box tip">
     <strong>📸 See it in action:</strong> Check out our
     <a href="https://foxfw.github.io/fox-web/screenshots/screenshots.html" style="color:#80c890;">collection of screenshots</a>
-    to get a feel for FoxFW before you dive in. Got some great shots of your own?
-    Send them our way — we may feature them here with a link to your own GitHub page!
+    to get a feel for FoxFW before you dive in. Got some great shots of your own? FoxFW has a
+    built-in <a href="#screenshot" style="color:#80c890;">Screenshot Tool</a> (hold Back+Up on
+    any screen) — send us what you capture and we may feature it here with a link to your own
+    GitHub page!
   </div>
   <p><strong>Key things that make FoxFW different from stock firmware:</strong></p>
   <ul>
@@ -372,9 +375,10 @@
     <li>A live <strong>Bar / Line Signal Display</strong> for spotting intermittent transmissions.</li>
     <li>Per-protocol <strong>enable / disable toggles</strong> in the Protocol List.</li>
     <li>An extended <strong>Custom Wallpaper</strong> system with a factory-seeded template that generates automatically if missing.</li>
-    <li>A built-in <strong>Garage Door Remote</strong> app accessible directly from the Sub-GHz main screen — no App Menu navigation needed.</li>
+    <li>A <strong>Sub-Ghz Mode</strong> picker on launch — choose Automotive or Garage/Gate/Other, each opening the same familiar Sub-GHz screen scoped to that protocol set, plus dedicated rows for RF Jammer, TPMS Read/Edit, and Radio Settings.</li>
     <li>A <strong>Sub-GHz Bruteforcer</strong> app in the App Menu for brute-forcing fixed-code remotes across common protocols.</li>
-    <li>A full <strong>Fox ESP32 companion suite</strong> — Commander, Chat, Portal, Detector, Flasher, and Chameleon — turning a wired ESP32 into a WiFi/BLE/HTTP extension of your Flipper. Powered by the separate <a href="https://github.com/FoxFW/Fox_ESP32_FW" style="color:#80c890;">Fox ESP32 Firmware</a>.</li>
+    <li>A built-in <strong>Screenshot Tool</strong> — hold Back+Up on any screen to save what's currently displayed as a standard <code>.xbm</code> file, no computer or qFlipper connection required.</li>
+    <li>A full <strong>Fox ESP32 companion suite</strong> — FoxHub, Chat, Portal, Detector, Flasher, and Chameleon — turning a wired ESP32 into a WiFi/BLE/HTTP extension of your Flipper. Powered by the separate <a href="https://github.com/FoxFW/Fox_ESP32_FW" style="color:#80c890;">Fox ESP32 Firmware</a>.</li>
   </ul>
 </section>
 
@@ -566,7 +570,7 @@
   <p>
     A companion firmware that runs on a separate ESP32 board wired to your Flipper over UART,
     giving it WiFi and Bluetooth for the whole <a href="#fox-esp32-apps" style="color:#80c890;">Fox
-    ESP32 Apps</a> suite — Fox ESP32 Commander, Fox Chat, Fox AI Chat, Fox Portal, and more.
+    ESP32 Apps</a> suite — FoxHub, Fox Chat, Fox AI Chat, Fox Portal, and more.
     ESP32 Classic, S3, S2, C3, C5, and C6 boards are all supported.
   </p>
 
@@ -699,7 +703,7 @@
 
   <p>
     The icon reflects whatever an ESP32 board wired to your Flipper's GPIO
-    header last reported through <strong>Fox ESP32 Commander</strong>'s WiFi
+    header last reported through <strong>FoxHub</strong>'s WiFi
     menu, and FoxFW also runs a quiet background check roughly once a
     minute so the icon can't get stuck showing "connected" forever if the
     board is reflashed, unplugged, or powered off while no companion app is
@@ -708,7 +712,7 @@
 
   <div class="box tip">
     <strong>Requires Fox ESP32 Firmware.</strong> This icon — and the full
-    suite of Fox ESP32 apps bundled with FoxFW (<strong>Commander</strong>,
+    suite of Fox ESP32 apps bundled with FoxFW (<strong>FoxHub</strong>,
     <strong>Chat</strong>, <strong>Portal</strong>, <strong>Detector</strong>,
     <strong>Flasher</strong>, and <strong>Chameleon</strong>) — need a
     companion ESP32 board wired to your Flipper's GPIO header and running
@@ -785,16 +789,21 @@
   </table>
 
   <div class="box tip">
-    <strong>Fox Clock has its own Left/Right shortcut once you're on it:</strong>
+    <strong>Fox Clock has its own Left/Right and Up/Down shortcuts once you're
+    on it:</strong>
     ← Left turns the backlight off immediately; → Right turns it back on. If
     "Keep Backlight On" (Fox Settings → Alarm Clock) is off, Right just lights
     it up for the normal timeout, the same as pressing any other button. If
     it's on, Right restores the persistent stay-on behavior. Neither key
     changes the saved setting — it only affects the backlight for as long as
-    Fox Clock stays open. Long-press Down or Back exits back to the desktop;
-    a short press of Back instead shows a "Press and Hold DOWN to Exit"
-    reminder for a couple of seconds. If an alarm is ringing, a short OK
-    press (or holding Down/Back) silences it.
+    Fox Clock stays open. ↑ Up / ↓ Down instead raise or lower the actual LCD
+    Backlight level (same setting as Settings → Notifications → LCD
+    Backlight, in 5% steps) and show a "Brightness NN%" readout for a couple
+    of seconds — this one does stick after you leave Fox Clock. Long-press
+    Down or Back exits back to the desktop; a short press of Back instead
+    shows a "Press and Hold DOWN to Exit" reminder for a couple of seconds.
+    If an alarm is ringing, a short OK press (or holding Down/Back) silences
+    it.
   </div>
 
   <h3 id="lock-menu">Lock Menu (Up short)</h3>
@@ -894,8 +903,8 @@
     <tr><th>Action</th><th>File type</th><th>What it does</th></tr>
     <tr>
       <td><strong>Run in app</strong></td>
-      <td>NFC, Sub-GHz, Infrared, iButton, and other supported types</td>
-      <td>Opens the matching app pre-loaded with the selected file.</td>
+      <td>NFC, Sub-GHz, Infrared, iButton, MP3, text, and other supported types</td>
+      <td>Opens the matching app pre-loaded with the selected file. If more than one app can open that file type, an <strong>Open With</strong> menu lists the candidates by app name — pick one to launch it.</td>
     </tr>
     <tr>
       <td><strong>Install</strong></td>
@@ -906,6 +915,16 @@
       <td><strong>Launch</strong></td>
       <td><code>.fap</code> external apps</td>
       <td>Runs the selected FAP application directly.</td>
+    </tr>
+    <tr>
+      <td><strong>View</strong></td>
+      <td><code>.xbm</code> screenshots</td>
+      <td>Opens the image fullscreen right inside FFB — no separate app. Left/Right cycles alphabetically through the other <code>.xbm</code> files in the same folder; Back returns to the list with whichever image was on screen selected.</td>
+    </tr>
+    <tr>
+      <td><strong>View</strong> / <strong>Open With</strong> <span class="badge">New</span></td>
+      <td><code>.bmp</code> (converted screenshots)</td>
+      <td>FFB can't display a <code>.bmp</code> directly — <strong>View</strong> shows a brief "Convert to XBM to view on Flipper Zero" reminder instead. If <a href="#screenshot" style="color:var(--accent);">Fox XBM Converter</a> is installed, OK instead opens an <strong>Open With</strong> menu offering View (same reminder) or Fox XBM Converter (converts it back to <code>.xbm</code>).</td>
     </tr>
     <tr>
       <td><strong>Add to Favorites</strong></td>
@@ -928,6 +947,23 @@
       <td>Permanently deletes the file. There is no undo.</td>
     </tr>
   </table>
+
+  <div class="box tip">
+    <strong>Run in app</strong> currently covers: <code>.sub</code>/<code>.rem</code> (Sub-GHz),
+    <code>.nfc</code> (NFC), <code>.ir</code> (Infrared), <code>.rfid</code>/<code>.lfrfid</code>
+    (125 kHz RFID), <code>.bad</code> (Bad USB), <code>.ibtn</code>/<code>.ibutton</code>
+    (iButton), <code>.u2f</code> (U2F), <code>.js</code>/<code>.jss</code> (JS Runner),
+    <code>.mp3</code> (MP3 Player), <code>.txt</code>/<code>.csv</code> (FlipNote — a full
+    on-device text editor), <code>.xbm</code> (View — opens FFB's own built-in image
+    viewer for the 128x64 screenshots the Back+Up shortcut saves, no separate app to
+    launch), and <code>.bmp</code> (a screenshot already converted by Fox XBM
+    Converter — View just shows a reminder, since FFB can't render it). If Fox
+    XBM Converter is installed, both <code>.xbm</code> and <code>.bmp</code> instead
+    offer it as a second Open With option alongside View. A file whose extension has
+    no matching app (e.g. a bare <code>.wav</code> — the bundled MP3 Player only
+    decodes MP3) doesn't get a Run entry at all, rather than offering an action
+    that does nothing.
+  </div>
 
 </section>
 
@@ -1182,11 +1218,34 @@
   <div class="setting">
     <div class="name">Menu Style</div>
     <div class="desc">
-      Controls the visual theme of the main App Menu.<br><br>
-      <strong>Flipper</strong> — The standard Flipper grid menu.<br>
-      <strong>Fox</strong> — FoxFW's custom menu theme with the orange FoxFW aesthetic.
+      Controls the layout of the main Menu only — the app list you get from
+      the Desktop's center button. Submenus and settings lists elsewhere in
+      the firmware keep the same rounded-box styling under all four
+      options; only Classic switches those back to plain, unboxed
+      lists.<br><br>
+      <strong>Classic</strong> — the original Flipper vertical list: one
+      icon centered on screen at a time, with the previous/next item faded
+      above/below and a scrollbar on the right. Up/Down/Left/Right all
+      step through the list.<br>
+      <strong>Fox Theme</strong> — a 3×2 grid of double-row button boxes,
+      six visible at once, orange FoxFW styling. All four directions move
+      between cells.<br>
+      <strong>Carousel</strong> — a horizontal row of icon tiles (the
+      current item, one before it, up to four after), with the selected
+      tile drawn larger and a "Start" banner + scrolling name underneath;
+      side tiles show icon only. Device name top-left, dotted scrollbar
+      along the bottom. Only Left/Right move through it; Up/Down do
+      nothing. Only this main Menu ever uses this style — no other app's
+      own internal menu is affected, and Carousel has no settings of its
+      own beyond this picker.<br>
+      <strong>Slider <span class="badge">New</span></strong> — a horizontal
+      row of icon tiles that wraps around in both directions (two items
+      before the current one, two after), with the selected tile shown
+      larger in a bold frame with a notched top edge and a scrolling name
+      underneath. Dotted scrollbar along the bottom. Only Left/Right move
+      through it; Up/Down do nothing, same as Carousel.
     </div>
-    <div class="values">Options: <span>Flipper · Fox</span></div>
+    <div class="values">Options: <span>Classic · Fox Theme · Carousel · Slider</span></div>
   </div>
 
   <!-- ── BATTERY ── -->
@@ -1277,8 +1336,8 @@
   <table>
     <tr><th>App</th><th>Location</th><th>ESP32?</th><th>What it does</th></tr>
     <tr>
-      <td><strong>Fox ESP32 Commander</strong></td>
-      <td>Apps → Fox</td>
+      <td><strong>FoxHub</strong></td>
+      <td>Main Menu (last item) / Apps → Fox</td>
       <td style="text-align:center;">✓</td>
       <td>The main control hub — WiFi recon, BLE scanning and attacks, HTTP/WebSocket bridge, FoxScript engine, Discord messaging, and more. Start here after flashing.</td>
     </tr>
@@ -1346,7 +1405,13 @@
       <td><strong>Fox RF Jammer</strong></td>
       <td>Apps → Fox</td>
       <td style="text-align:center;">—</td>
-      <td>Multi-mode Sub-GHz RF jammer. Runs entirely on the Flipper's built-in CC1101 radio — no ESP32 needed.</td>
+      <td>Multi-mode Sub-GHz RF jammer. Runs entirely on the Flipper's built-in CC1101 radio — no ESP32 needed. Also reachable via the <strong>RF Jammer</strong> button on Sub-GHz's Mode Picker screen.</td>
+    </tr>
+    <tr>
+      <td><strong>Fox TPMS</strong></td>
+      <td>Apps → Fox</td>
+      <td style="text-align:center;">—</td>
+      <td>Tire-pressure sensor reader — decodes, edits, and (for Schrader) re-transmits TPMS signals. Also reachable via the <strong>TPMS Read/Edit</strong> button on Sub-GHz's Mode Picker screen. See <a href="#supported-systems">Tire Pressure Monitoring</a> below.</td>
     </tr>
   </table>
 
@@ -1426,25 +1491,50 @@
   <div class="box warn">
     <strong>Legal notice:</strong> Only transmit signals you are authorised to
     send. Replaying remotes you own is generally fine; transmitting on licensed
-    frequencies without authorisation is not. Know your local regulations.
+    frequencies without authorization is not. Know your local regulations.
   </div>
 
   <!-- READ -->
-  <h3 id="read">Read</h3>
+  <h3 id="read">Read <span class="badge">Enhanced</span></h3>
   <p>
-    Listens on the configured frequency and tries to decode every received
-    signal against all enabled protocols. When a known signal is identified
-    it is displayed and can be saved.
+    Opens on a Start screen — press OK to begin listening for an incoming
+    signal. Unlike the original Read screen (which decodes every protocol
+    continuously in real time), Garage/Gate/Other's Read now records the
+    incoming signal raw first and only runs it through the protocol
+    decoders once the transmission has actually finished — the listening
+    screen looks and behaves like Read RAW's own recording screen. A
+    signal has to clear the RSSI Threshold set in Receiver Config before
+    Read starts treating it as an actual transmission, so ambient RF noise
+    alone won't trigger a capture. If the signal decodes successfully
+    you're taken straight to its info screen to save or discard it; if
+    nothing matches, a "No Match" screen offers Back (return to the Start
+    screen) or Save (keep the raw capture and load it into the RAW
+    editor). Nothing is written to SD card unless you choose to save.
   </p>
   <div class="keys">
-    <div class="key-row"><span class="key-badge">OK</span><span class="key-desc">Save the displayed signal to SD card</span></div>
-    <div class="key-row"><span class="key-badge">↑ ↓</span><span class="key-desc">Scroll through recently received signals</span></div>
-    <div class="key-row"><span class="key-badge">← (hold)</span><span class="key-desc">Open Radio Settings</span></div>
+    <div class="key-row"><span class="key-badge">OK</span><span class="key-desc">Start listening (from the Start screen)</span></div>
+    <div class="key-row"><span class="key-badge">←</span><span class="key-desc">Open Receiver Config (frequency, modulation, hopping, RSSI threshold, and more) — from the Start screen or while listening</span></div>
     <div class="key-row"><span class="key-badge">Back</span><span class="key-desc">Stop and return to menu</span></div>
   </div>
-  <div class="box tip">
-    <strong>Tip:</strong> Open the Protocol List and disable all protocols you
-    don't need — the decoder runs faster and false positives are reduced.
+  <div class="box info">
+    <strong>Garage/Gate/Other mode</strong> shows a reduced Receiver Config —
+    Frequency, Modulation, Hopping, Bin RAW, and Sound only.
+    Automotive mode's Receiver Config additionally has per-protocol
+    Ignore toggles, Preset Hopping, Delete Old Signals, Reset to Default, and
+    Lock Keyboard, none of which Garage/Gate/Other needs.
+  </div>
+  <div class="box info">
+    <strong>Flipper RAM warning</strong> <span class="badge">New</span> — if
+    free RAM is already low when the app opens (or qFlipper's screen-mirror
+    is already running), a one-time "Flipper RAM" screen gives you a heads-up
+    that Read, Read RAW, and Decode RAW need extra RAM. qFlipper's
+    screen-mirror keeps working normally everywhere else, including while
+    you're browsing this app's other menus and while sitting on the idle
+    Start screen of Read, Read RAW, or Decode. The moment you press
+    Start/Rec in one of those three, Fox disconnects CLI/qFlipper —
+    qFlipper shows its own "Connect your Flipper" screen until you finish
+    and back out, at which point it reconnects automatically and the
+    mirror resumes on its own.
   </div>
 
   <!-- READ RAW -->
@@ -1496,6 +1586,22 @@
     <tr><td>Delete</td><td>All</td><td>Permanently delete the file.</td></tr>
     <tr><td>Counter BruteForce</td><td>Counter-based</td><td>Try incrementing counter attacks.</td></tr>
   </table>
+  <div class="box info">
+    <strong>Fiat V1 (Hitag2) key</strong> <span class="badge">Updated</span> —
+    Fiat V1 signals are secured with a Hitag2-derived rolling code that also
+    depends on a hidden 18-bit "epoch" counter. If Read already matched the
+    signal against one of FoxFW's known keys, Emulate works immediately.
+    Otherwise, Emulate offers a choice: <strong>Recover Key (Auto)</strong>
+    brute-forces every known key against the full epoch range (up to
+    ~2.1 million combinations) with a live progress bar, speed, and ETA —
+    typically done in well under a minute — or <strong>Enter Key
+    Manually</strong> for the original hex-entry flow (epoch fixed at 0).
+    On a successful recovery, the key and epoch are saved straight into the
+    file, and the result screen offers <strong>Apply</strong> (transmit
+    once) or <strong>CBF</strong> (jump straight into Counter BruteForce
+    using the newly recovered key, useful if the fob's rolling counter has
+    drifted from what was captured).
+  </div>
 
   <p><strong>RAW Editor controls:</strong></p>
   <div class="keys">
@@ -1791,50 +1897,102 @@
   <!-- PROTOCOL LIST -->
   <h3 id="protocol-list">Protocol List &amp; Filters <span class="badge">NEW</span></h3>
   <p>
-    Every protocol the Sub-GHz app knows about is listed here. In FoxFW each
-    protocol has an <strong>ON / OFF toggle</strong>. Protocols set to OFF are
-    completely ignored during Read and Read RAW.
+    <strong>Automotive mode</strong> lists every protocol grouped by
+    manufacturer/family (Ford, Kia/Hyundai, VAG, PSA, and so on). Each group
+    has its own master <strong>ON / OFF toggle</strong> that sets every
+    protocol inside it at once, and every individual protocol underneath can
+    still be toggled on its own. Protocols set to OFF are completely ignored
+    during Read and Read RAW — the toggle is live, not just cosmetic.
   </p>
-  <p>The top of the list shows the active protocol count:</p>
+  <p>The top of the list shows the active protocol count, computed live:</p>
   <table>
     <tr><th>Situation</th><th>Display</th></tr>
-    <tr><td>All enabled</td><td><code>Active Protocols: 63</code></td></tr>
-    <tr><td>Some disabled</td><td><code>Active Protocols: 58/63</code></td></tr>
+    <tr><td>All enabled</td><td><code>Protocols: 34</code></td></tr>
+    <tr><td>Some disabled</td><td><code>Protocols: 28/34</code></td></tr>
   </table>
   <div class="keys">
     <div class="key-row"><span class="key-badge">↑ ↓</span><span class="key-desc">Scroll the list</span></div>
-    <div class="key-row"><span class="key-badge">← → or OK</span><span class="key-desc">Toggle the highlighted protocol ON / OFF</span></div>
-    <div class="key-row"><span class="key-badge">Back (hold)</span><span class="key-desc">Reset all protocols to ON</span></div>
-    <div class="key-row"><span class="key-badge">Back (short)</span><span class="key-desc">Save and return</span></div>
+    <div class="key-row"><span class="key-badge">← → or OK</span><span class="key-desc">Toggle the highlighted group or protocol ON / OFF</span></div>
+    <div class="key-row"><span class="key-badge">Select row</span><span class="key-desc">Set to "All"/"None" then OK — bulk-enable or bulk-disable every protocol</span></div>
+    <div class="key-row"><span class="key-badge">Back</span><span class="key-desc">Save and return</span></div>
   </div>
   <div class="box tip">
-    <strong>Persistence:</strong> Toggle states are saved to the SD card
-    (<code>/ext/subghz/protocol_filter.save</code>) and restored on every app launch.
+    <strong>Persistence:</strong> Toggle states are saved as part of
+    <code>last_subghz.settings</code> and restored on every app launch.
   </div>
-
-  <!-- GARAGE DOOR REMOTE -->
-  <h3 id="gdr">Garage Door Remote <span class="badge">New</span></h3>
   <p>
-    The Sub-GHz main menu includes a dedicated <strong>Garage Door Remote</strong>
-    button that launches a purpose-built FAP for rolling-code and fixed-code garage
-    door systems. It is accessible directly from the Sub-GHz start screen without
-    needing to navigate to the Apps menu.
+    <strong>Garage/Gate/Other mode</strong> shows a different screen here
+    instead, opened from the app's own full-width <strong>Protocol
+    Group</strong> button — one double-row button per <a
+    href="#radio-settings">Protocol Group</a>, since only one group is ever
+    loaded at a time. Each button shows the group's name in bold with its
+    member protocols scrolling underneath. Up/Down move the highlight to
+    browse groups; pressing OK on a group makes it the active one for Read,
+    marked with a small icon on the left. This is the only place to change
+    the active group — Radio Settings no longer has a duplicate control
+    for it.
+  </p>
+
+  <!-- MODE PICKER -->
+  <h3 id="mode-picker">Sub-Ghz Mode Picker <span class="badge">New</span></h3>
+  <p>
+    Opening Sub-GHz first shows a <strong>Sub-Ghz Mode</strong> screen —
+    five stacked buttons, two visible at a time with a scrollbar on the
+    right showing there's more to scroll to:
+  </p>
+  <table>
+    <tr><th>Button</th><th>Covers</th></tr>
+    <tr><td><strong>Automotive</strong></td><td>Car and motorcycle key fobs — Ford, Kia/Hyundai, VAG, PSA, Fiat, Honda, and the rest of the <a href="#supported-systems">Automotive Key Fob Protocols</a> table below.</td></tr>
+    <tr><td><strong>Garage/Gate/Other</strong></td><td>Every non-automotive protocol — garage and gate remotes plus general-purpose RF protocols like Princeton, Security+, and X10. See the <a href="#supported-systems">Garage/Gate/Other Protocols</a> tables below.</td></tr>
+    <tr><td><strong>RF Jammer</strong></td><td>Launches the standalone <strong>Fox RF Jammer</strong> app — a multi-mode Sub-GHz jammer running on the Flipper's built-in CC1101 radio.</td></tr>
+    <tr><td><strong>TPMS Read/Edit</strong></td><td>Launches the standalone <a href="#supported-systems">Fox TPMS</a> app to scan, decode, and edit tire-pressure sensor signals — see <a href="#supported-systems">Tire Pressure Monitoring</a> below.</td></tr>
+    <tr><td><strong>Radio Settings</strong></td><td>Opens the shared <a href="#radio-settings">Radio Settings</a> screen directly from this picker — the same screen and settings file every mode uses, so there's only one place to configure frequency, TX power, and the rest regardless of which mode you're about to load.</td></tr>
+  </table>
+  <div class="keys">
+    <div class="key-row"><span class="key-badge">↑ ↓</span><span class="key-desc">Move the highlight between the five buttons, scrolling the page when needed</span></div>
+    <div class="key-row"><span class="key-badge">OK</span><span class="key-desc">Load the highlighted mode, or open Radio Settings</span></div>
+  </div>
+  <p>
+    <strong>Automotive</strong> opens straight into the same Sub-GHz screen
+    you already know — Read, Saved, Protocol List, and so on. <strong>Garages/
+    Gates/Other</strong> launches a separate external app that looks and
+    behaves exactly the same way, just scoped to non-automotive protocols;
+    a loading wheel is shown briefly while it starts, since it's a large app.
+    <strong>RF Jammer</strong> and <strong>TPMS Read/Edit</strong> each launch
+    their own standalone app the same way, and Back returns you to this
+    picker with that row still highlighted. Whichever mode you pick, pressing
+    Back from its main menu exits Sub-GHz entirely (same as before) —
+    relaunch the app to pick a mode again.
   </p>
   <p>
-    The GDR app is a standalone external FAP (<code>garage_door_remote.fap</code>)
-    that communicates with the Sub-GHz radio using the same hardware path as the
-    main Sub-GHz app. When you exit GDR, you are returned cleanly to the Sub-GHz
-    app — the radio state is fully reset between the two apps to prevent conflicts.
+    <strong>Garage/Gate/Other</strong> also automatically uses an external
+    CC1101 module (connected via GPIO/external antenna) instead of the
+    internal radio whenever one is present — no setting to turn on. A small
+    background app checks for one automatically, and remembers the answer,
+    rather than checking on every single launch, which would cost RAM even
+    for the common case of nothing being plugged in. This check only runs
+    while the Flipper is idle (home screen, not locked, nothing else
+    running), on the same schedule as the
+    <a href="FoxESP32_Help.html#wifi-icon" style="color:#80c890;">status bar
+    WiFi/CC1101 icon's</a> ESP32 check — every 15 seconds once an ESP32
+    companion board has ever answered on this device, every minute until
+    then. If you've just connected a module and don't want to wait, run
+    <strong>CC1101 External Probe for SubGhz Garage</strong> from the Apps
+    menu to force an immediate recheck — that also opens Garage/Gate/Other
+    automatically once it's done.
   </p>
 
 
   <!-- SUPPORTED SYSTEMS -->
   <h3 id="supported-systems">Supported Systems <span class="badge">Reference</span></h3>
   <p>
-    FoxFW includes protocol decoders and encoders across three categories:
-    automotive key fobs, gate &amp; access control systems, and general RF
-    protocols. All operate within the 315 MHz, 433 MHz, and 868 MHz Sub-GHz
-    bands.
+    FoxFW includes protocol decoders and encoders across two groups, matching
+    the <a href="#mode-picker">Sub-Ghz Mode</a> picker: the
+    <strong>Automotive Key Fob Protocols</strong> table below is what the
+    Automotive mode loads; <strong>Gate &amp; Access Control</strong> and
+    <strong>General RF Protocols</strong> together are what the
+    Garage/Gate/Other mode loads. All operate within the 315 MHz, 433 MHz,
+    and 868 MHz Sub-GHz bands.
   </p>
   <div class="box warn">
     <strong>Legal notice:</strong> Only capture, replay, or transmit signals on
@@ -1842,7 +2000,7 @@
     local radio regulations.
   </div>
 
-  <h3>Automotive Key Fob Protocols</h3>
+  <h3>Automotive Key Fob Protocols <span class="badge">Automotive</span></h3>
   <table>
     <tr><th>Manufacturer</th><th>Protocol</th><th>Frequency</th><th>Mod</th><th>Encode</th><th>Decode</th><th>CRC</th></tr>
     <tr><td>VAG (VW / Audi / Skoda / Seat)</td><td>VAG GROUP</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
@@ -1874,52 +2032,100 @@
     <tr><td>Sheriff</td><td>Sheriff CFM ZX750 / ZX930</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
   </table>
 
-  <h3>Gate &amp; Access Control Protocols</h3>
+  <h3>Tire Pressure Monitoring (TPMS) <span class="badge">Standalone App</span></h3>
+  <div class="box info">
+    <strong>TPMS is its own app.</strong> TPMS decoding doesn't run inside
+    Automotive mode. Pick <strong>TPMS Read/Edit</strong> on the
+    Sub-Ghz Mode picker (see <a href="#mode-picker">Sub-Ghz Mode</a> above)
+    to launch the standalone <strong>Fox TPMS</strong> app — it scans,
+    decodes, edits, and saves independently of the main Sub-GHz app, and
+    Back returns you to the Mode Picker with TPMS Read/Edit still
+    highlighted, the same way Garage/Gate/Other does.
+  </div>
   <table>
-    <tr><th>Protocol</th><th>Frequency</th><th>Mod</th><th>Encode</th><th>Decode</th><th>CRC</th></tr>
-    <tr><td>Keeloq</td><td>315 / 433 / 868 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Nice FLO</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Nice FloR-S</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td></tr>
-    <tr><td>CAME</td><td>315 / 433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>CAME TWEE</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>CAME Atomo</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Faac SLH</td><td>433 / 868 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Holtek</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Holtek HT12x</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Somfy Telis</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td></tr>
-    <tr><td>Somfy Keytis</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td></tr>
-    <tr><td>Alutech AT-4N</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td></tr>
-    <tr><td>Keyfinder</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>KingGates Stylo4k</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Beninca ARC</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Hormann HSM</td><td>433 / 868 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Marantec</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td></tr>
-    <tr><td>Marantec24</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td></tr>
-    <tr><td>GangQi</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
+    <tr><th>Manufacturer</th><th>Protocol</th><th>Frequency</th><th>Mod</th><th>Send</th><th>Decode</th><th>CRC</th></tr>
+    <tr><td>Schrader</td><td>Schrader GG4</td><td>433 MHz</td><td>FM</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Ford</td><td>TPMS Ford</td><td>315 / 433 MHz</td><td>FM</td><td>—</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Citroën</td><td>TPMS Citroen</td><td>433 MHz</td><td>FM</td><td>—</td><td>✓</td><td>✓</td></tr>
+    <tr><td>PMV (aftermarket)</td><td>TPMS PMV-107J</td><td>433 MHz</td><td>FM</td><td>—</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Renault</td><td>TPMS Renault</td><td>433 MHz</td><td>FM</td><td>—</td><td>✓</td><td>✓</td></tr>
+  </table>
+  <div class="box info">
+    <strong>TPMS signal editing</strong> — decoding a TPMS sensor opens Fox
+    TPMS's receiver info screen showing Pressure, Temperature, ID, and
+    Battery instead of a text dump. Select a field (Up/Down) and press OK
+    to edit Pressure, Temperature, or ID; Battery cycles Ok/Low/Unknown in
+    place with OK. Right saves the edited signal. Editing correctly
+    re-encodes the raw payload and checksum/CRC for all five protocols
+    above, not just Schrader — each has its own re-pack logic matching its
+    real bit layout, so a saved edit is never mismatched with the protocol
+    it claims to be.
+  </div>
+  <div class="box warn">
+    <strong>Send (OK, hold) only works for Schrader GG4.</strong> The other
+    four TPMS protocols don't have a transmit encoder built yet — this is
+    unrelated to editing/saving, which is correct for all five. Ford,
+    Citroën, PMV-107J, and Renault TPMS signals can be received, viewed,
+    edited, and saved; actually re-transmitting one over the air is a
+    separate, not-yet-built feature.
+  </div>
+
+  <h3>Gate &amp; Access Control Protocols <span class="badge">Garage/Gate/Other</span></h3>
+  <p>
+    The <strong>Group</strong> column shows which Protocol Group each
+    protocol belongs to — select that group from the app's own
+    <a href="#mode-picker">Protocols screen</a> to have Read listen for it.
+  </p>
+  <table>
+    <tr><th>Protocol</th><th>Frequency</th><th>Mod</th><th>Encode</th><th>Decode</th><th>CRC</th><th>Group</th></tr>
+    <tr><td>Keeloq</td><td>315 / 433 / 868 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>2 · General 2</td></tr>
+    <tr><td>Clemsa</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>8 · Spain, Russia</td></tr>
+    <tr><td>Dooya</td><td>315 / 433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>11 · Blinds / Shutters</td></tr>
+    <tr><td>Ansonic</td><td>433 MHz</td><td>FM</td><td>✓</td><td>✓</td><td>—</td><td>8 · Spain, Russia</td></tr>
+    <tr><td>Nice FLO</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>6 · Italian Brands 2</td></tr>
+    <tr><td>Nice FloR-S</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td><td>6 · Italian Brands 2</td></tr>
+    <tr><td>CAME</td><td>315 / 433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>5 · Italian Brands 1</td></tr>
+    <tr><td>CAME TWEE</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>5 · Italian Brands 1</td></tr>
+    <tr><td>CAME Atomo</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>5 · Italian Brands 1</td></tr>
+    <tr><td>Faac SLH</td><td>433 / 868 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>7 · Italian Brands 3</td></tr>
+    <tr><td>Telcoma/Cardin EDGE</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>7 · Italian Brands 3</td></tr>
+    <tr><td>Holtek</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>1 · General</td></tr>
+    <tr><td>Holtek HT12x</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>1 · General</td></tr>
+    <tr><td>Somfy Telis</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td><td>11 · Blinds / Shutters</td></tr>
+    <tr><td>Somfy Keytis</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td><td>11 · Blinds / Shutters</td></tr>
+    <tr><td>Alutech AT-4N</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td><td>8 · Spain, Russia</td></tr>
+    <tr><td>Keyfinder</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>2 · General 2</td></tr>
+    <tr><td>KingGates Stylo4k</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>6 · Italian Brands 2</td></tr>
+    <tr><td>Beninca ARC</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>5 · Italian Brands 1</td></tr>
+    <tr><td>Hormann HSM</td><td>433 / 868 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>9 · Germany</td></tr>
+    <tr><td>Marantec</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td><td>9 · Germany</td></tr>
+    <tr><td>Marantec24</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>✓</td><td>9 · Germany</td></tr>
+    <tr><td>GangQi</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>10 · China / Gate Only</td></tr>
+    <tr><td>Jarolift</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>11 · Blinds / Shutters</td></tr>
   </table>
 
-  <h3>General RF Protocols</h3>
+  <h3>General RF Protocols <span class="badge">Garage/Gate/Other</span></h3>
   <table>
-    <tr><th>Protocol</th><th>Frequency</th><th>Mod</th><th>Encode</th><th>Decode</th><th>CRC</th></tr>
-    <tr><td>Princeton</td><td>315 / 433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Linear</td><td>315 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>LinearDelta3</td><td>315 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>GateTX</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Security+ 1.0</td><td>315 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Security+ 2.0</td><td>315 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Chamberlain Code</td><td>315 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>MegaCode</td><td>315 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Mastercode</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Dickert MAHS</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>SMC5326</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Phoenix V2</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Doitrand</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Hay21</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Revers RB2</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>Roger</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td></tr>
-    <tr><td>X10</td><td>310 MHz</td><td>AM</td><td>—</td><td>✓</td><td>—</td></tr>
-    <tr><td>RAW</td><td>315 / 433 / 868 MHz</td><td>AM/FM</td><td>✓</td><td>—</td><td>—</td></tr>
-    <tr><td>BinRAW</td><td>315 / 433 / 868 MHz</td><td>AM/FM</td><td>✓</td><td>✓</td><td>—</td></tr>
+    <tr><th>Protocol</th><th>Frequency</th><th>Mod</th><th>Encode</th><th>Decode</th><th>CRC</th><th>Group</th></tr>
+    <tr><td>Princeton</td><td>315 / 433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>1 · General</td></tr>
+    <tr><td>Linear</td><td>315 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>4 · Linear (USA)</td></tr>
+    <tr><td>LinearDelta3</td><td>315 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>4 · Linear (USA)</td></tr>
+    <tr><td>GateTX</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>10 · China / Gate Only</td></tr>
+    <tr><td>Security+ 1.0</td><td>315 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>3 · Chamberlain (USA)</td></tr>
+    <tr><td>Security+ 2.0</td><td>315 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>3 · Chamberlain (USA)</td></tr>
+    <tr><td>Chamberlain Code</td><td>315 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>3 · Chamberlain (USA)</td></tr>
+    <tr><td>MegaCode</td><td>315 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>4 · Linear (USA)</td></tr>
+    <tr><td>Mastercode</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>8 · Spain, Russia</td></tr>
+    <tr><td>Dickert MAHS</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>9 · Germany</td></tr>
+    <tr><td>SMC5326</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>1 · General</td></tr>
+    <tr><td>Phoenix V2</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>6 · Italian Brands 2</td></tr>
+    <tr><td>Doitrand</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>7 · Italian Brands 3</td></tr>
+    <tr><td>Hay21</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>10 · China / Gate Only</td></tr>
+    <tr><td>Revers RB2</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>10 · China / Gate Only</td></tr>
+    <tr><td>Roger</td><td>433 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>7 · Italian Brands 3</td></tr>
+    <tr><td>X10</td><td>310 MHz</td><td>AM</td><td>✓</td><td>✓</td><td>—</td><td>2 · General 2</td></tr>
+    <tr><td>RAW</td><td>315 / 433 / 868 MHz</td><td>AM/FM</td><td>✓</td><td>—</td><td>—</td><td>All</td></tr>
+    <tr><td>BinRAW</td><td>315 / 433 / 868 MHz</td><td>AM/FM</td><td>✓</td><td>✓</td><td>—</td><td>All</td></tr>
   </table>
   <div class="box tip" style="margin-top:12px;">
     <strong>RAW / BinRAW</strong> aren't device-specific protocols — they're the
@@ -1957,7 +2163,6 @@
     <tr><td>Feron</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
     <tr><td>Elplast</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
     <tr><td>Treadmill37</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
-    <tr><td>Jarolift</td><td>433 MHz</td><td>AM</td><td>Disabled</td></tr>
   </table>
 
   <div class="box info">
@@ -1994,6 +2199,11 @@
     <div class="name">Frequency Hopping</div>
     <div class="desc">When ON, the Receiver cycles through multiple frequencies automatically instead of listening on one.</div>
   </div>
+  <div class="setting">
+    <div class="name">Freq Offset</div>
+    <div class="desc">Crystal calibration offset, applied to every RX and TX frequency. Use this if your radio consistently reads or transmits slightly off-frequency.</div>
+    <div class="values">Range: <span>−500 kHz to +500 kHz in 10 kHz steps</span></div>
+  </div>
 
 </section>
 
@@ -2028,9 +2238,41 @@
 </section>
 
 
+<!-- ══════════════════ 7b · SCREENSHOT TOOL ══════════════════ -->
+<section class="section" id="screenshot">
+  <div class="chapter-label">Chapter 9</div>
+  <h2>Screenshot Tool <span class="badge">FoxFW Exclusive</span></h2>
+  <p>
+    Capture exactly what's on screen, from anywhere in the firmware — no
+    computer, no qFlipper, no cables. Hold <strong>Back + Up</strong> together
+    for about one second on any screen (the lock screen, the Desktop, any
+    app, any menu) and FoxFW saves the current display to your SD card.
+  </p>
+  <div class="box tip">
+    A confirmation box with corner accents pops up on screen for one second
+    ("Screenshot" / camera icon / <strong>Saved</strong>), while the LED
+    flashes blue twice with a short vibration on the second flash. If saving
+    fails (usually a missing or full SD card), you'll get FoxFW's standard
+    error notification instead and nothing else on screen changes.
+  </div>
+  <ul>
+    <li><strong>Where it saves:</strong> <code>/Screenshots/</code> on the SD card, created automatically the first time you use it.</li>
+    <li><strong>Filename:</strong> <code>Screenshot_&lt;app&gt;_YYYYMMDD_HHMMSS.xbm</code> — the date, time, and the currently running app's name (e.g. <code>Screenshot_subghz_garage_20260905_073225.xbm</code>), or <code>desktop</code> in place of the app name when captured from the idle home/lock screen. The timestamp means repeated captures never overwrite each other.</li>
+    <li><strong>Format:</strong> a standard <code>.xbm</code> bitmap — a plain-text file readable by GIMP, ImageMagick, and most image tools, and the exact same format FoxFW's own <a href="#wallpaper" style="color:var(--accent);">Custom Wallpaper</a> feature uses. A screenshot can be dropped straight into <code>/wallpapers</code> and used as a wallpaper if you like what you captured, or viewed full-screen from <a href="#ffb-actions" style="color:var(--accent);">Fox File Browser</a>'s own built-in viewer (press OK on it, then <strong>View</strong>).</li>
+    <li><strong>Converting screenshots</strong> <span class="badge">New</span> — the <strong>Fox XBM Converter</strong> app (Apps → Fox) turns a saved <code>.xbm</code> screenshot into a monochrome <code>.bmp</code> you can edit on a PC (MS Paint or similar), then convert back to <code>.xbm</code> when you're done. It only browses <code>/Screenshots/</code>. From FFB, pressing OK on any <code>.xbm</code> or <code>.bmp</code> file in that folder offers it directly in the <strong>Open With</strong> menu alongside View, once it's installed.</li>
+  </ul>
+  <div class="box info">
+    Back and Up are captured for as long as you hold them together, so the
+    screenshot combo takes over cleanly — it won't also trigger Back's normal
+    "go back" or "exit app" behavior underneath while you're holding for a
+    capture. Release both keys and everything goes back to normal.
+  </div>
+</section>
+
+
 <!-- ══════════════════ 8 · FIRMWARE UPDATE ══════════════════ -->
 <section class="section" id="firmware-update">
-  <div class="chapter-label">Chapter 9</div>
+  <div class="chapter-label">Chapter 10</div>
   <h2>Installing Firmware Updates</h2>
   <p>There are four ways to install a FoxFW update:</p>
 
@@ -2114,7 +2356,7 @@
 
 <!-- ══════════════════ 9 · LOCKOUT ══════════════════ -->
 <section class="section" id="lockout">
-  <div class="chapter-label">Chapter 10</div>
+  <div class="chapter-label">Chapter 11</div>
   <h2>Lockout &amp; Recovery</h2>
 
   <h3>I forgot my PIN</h3>

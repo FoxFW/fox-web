@@ -375,6 +375,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/protobufjs/7.4.0/protobuf.min.js"></script>
+<script src="assets/js/flipper-rpc.js"></script>
 <script>
 (() => {
   "use strict";
@@ -872,19 +873,6 @@
 
   $("downloadBtn").addEventListener("click", downloadXbm);
 
-  // ── Flipper RPC over Web Serial ──────────────────────────────────
-  const PROTO_FILES = [
-    "assets/proto/flipper.proto",
-    "assets/proto/storage.proto",
-    "assets/proto/system.proto",
-    "assets/proto/application.proto",
-    "assets/proto/gui.proto",
-    "assets/proto/gpio.proto",
-    "assets/proto/property.proto",
-    "assets/proto/desktop.proto",
-  ];
-  const WRITE_CHUNK_SIZE = 512; // matches FoxFW2.0's rpc_storage.c MAX_DATA_SIZE
-
   const consoleEl = $("consoleEl");
   function logLine(msg, cls) {
     const div = document.createElement("div");
@@ -917,323 +905,22 @@
     document.querySelectorAll(".help-btn.open").forEach((b) => b.classList.remove("open"));
   });
 
-  const FlipperRPC = {
-    root: null,
-    MainType: null,
-    port: null,
-    writer: null,
-    reader: null,
-    readLoopPromise: null,
-    connected: false,
-    virtualDisplayActive: false,
-    nextCommandId: 1,
-    pending: new Map(), // command_id -> {resolve, reject, timer}
-    rxBuffer: new Uint8Array(0),
-
-    async ensureProtoLoaded() {
-      if (this.root) return;
-      // keepCase is essential here: protobuf.js camelCases .proto field
-      // names by default (command_id -> commandId), but every field name
-      // used throughout this file matches the .proto text exactly
-      // (command_id, has_next, gui_start_virtual_display_request, ...).
-      // Without keepCase, Type.create() silently accepts those snake_case
-      // keys as harmless extra properties (it doesn't validate against the
-      // schema) while the actual camelCased fields stay unset, so every
-      // message we "sent" encoded down to just a couple of empty bytes -
-      // which is why the Flipper never had anything to respond to and
-      // every RPC call just sat there until it timed out.
-      this.root = new protobuf.Root();
-      await this.root.load(PROTO_FILES, { keepCase: true });
-      this.MainType = this.root.lookupType("PB.Main");
+  // ── Flipper RPC over Web Serial ──────────────────────────────────
+  // FlipperRPC class lives in assets/js/flipper-rpc.js (shared with
+  // wallpaper-showcase.html and foxfw-lab.html) - this page only wires it
+  // to its own log console.
+  const flipper = new FlipperRPC({
+    onLog: (msg, cls) => logLine(msg, cls),
+    onConnectionLost: () => {
+      setDeviceStatus("busy", "Reconnecting…");
+      connectToggleBtn.disabled = true;
     },
-
-    appendRx(bytes) {
-      const merged = new Uint8Array(this.rxBuffer.length + bytes.length);
-      merged.set(this.rxBuffer, 0);
-      merged.set(bytes, this.rxBuffer.length);
-      this.rxBuffer = merged;
-      this.drainMessages();
+    onReconnected: () => {
+      setDeviceStatus("connected", "Connected");
+      connectToggleBtn.textContent = "Disconnect";
+      connectToggleBtn.disabled = false;
     },
-
-    drainMessages() {
-      while (true) {
-        if (this.rxBuffer.length === 0) return;
-        const reader = protobuf.Reader.create(this.rxBuffer);
-        let msg;
-        try {
-          msg = this.MainType.decodeDelimited(reader);
-        } catch (e) {
-          // Not enough bytes buffered yet for a full message — wait for
-          // more, unless the buffer has grown unreasonably large, which
-          // means it isn't "incomplete", it's corrupt (e.g. stray
-          // non-protobuf bytes got in front of it) and will never
-          // resolve on its own. Drop it so the session can recover
-          // instead of silently hanging on every command forever.
-          if (this.rxBuffer.length > 65536) {
-            logLine(`Dropping ${this.rxBuffer.length} unparseable byte(s) from the read buffer.`, "e");
-            this.rxBuffer = new Uint8Array(0);
-          }
-          return;
-        }
-        this.rxBuffer = this.rxBuffer.slice(reader.pos);
-        this.handleMessage(msg);
-      }
-    },
-
-    handleMessage(msg) {
-      const id = msg.command_id;
-      const pending = this.pending.get(id);
-      if (!pending) return;
-      if (pending.collect) {
-        pending.collect(msg);
-        return;
-      }
-      this.pending.delete(id);
-      clearTimeout(pending.timer);
-      pending.resolve(msg);
-    },
-
-    async connect() {
-      await this.ensureProtoLoaded();
-      const port = await navigator.serial.requestPort();
-      await port.open({ baudRate: 115200 });
-      this.port = port;
-      this.writer = port.writable.getWriter();
-      this.reader = port.readable.getReader();
-      this.connected = true;
-      this.readLoopPromise = this.readLoop();
-
-      await this.writeRaw(new TextEncoder().encode("start_rpc_session\r"));
-      // Give the CLI a moment to switch into RPC framing before we send
-      // any protobuf-encoded bytes at it.
-      await new Promise((r) => setTimeout(r, 400));
-      // The CLI echoes the typed command (and may still have a boot
-      // banner/prompt sitting in the stream from before we ran it) as
-      // plain text before it actually switches to binary protobuf
-      // framing. Any of that leading text corrupts the very first
-      // decodeDelimited() call and there's no recovering from it once
-      // the buffer has garbage at the front — so throw away whatever
-      // accumulated during the handshake and start reading protobuf
-      // fresh from here.
-      if (this.rxBuffer.length) {
-        logLine(`Discarding ${this.rxBuffer.length} non-protobuf byte(s) from the RPC handshake.`);
-        this.rxBuffer = new Uint8Array(0);
-      }
-      logLine("Connected — RPC session started.", "ok");
-    },
-
-    async readLoop() {
-      try {
-        while (this.connected) {
-          const { value, done } = await this.reader.read();
-          if (done) break;
-          if (value && value.length) this.appendRx(value);
-        }
-      } catch (e) {
-        if (this.connected) logLine("Serial read error: " + e.message, "e");
-      }
-    },
-
-    async writeRaw(bytes) {
-      await this.writer.write(bytes);
-    },
-
-    async sendMain(fields, { expectResponse = true, timeoutMs = 6000 } = {}) {
-      const id = fields.command_id !== undefined ? fields.command_id : this.nextCommandId++;
-      const message = this.MainType.create(Object.assign({ command_id: id, has_next: false }, fields));
-      const bytes = this.MainType.encodeDelimited(message).finish();
-      if (!expectResponse) {
-        await this.writeRaw(bytes);
-        return null;
-      }
-      const promise = new Promise((resolve, reject) => {
-        const timer = setTimeout(() => {
-          this.pending.delete(id);
-          reject(new Error("Timed out waiting for a response from the Flipper."));
-        }, timeoutMs);
-        this.pending.set(id, { resolve, reject, timer });
-      });
-      await this.writeRaw(bytes);
-      return promise;
-    },
-
-    async writeFileChunked(path, text, onProgress) {
-      const bytes = new TextEncoder().encode(text);
-      const id = this.nextCommandId++;
-      const total = Math.ceil(bytes.length / WRITE_CHUNK_SIZE) || 1;
-      let sent = 0;
-      const promise = new Promise((resolve, reject) => {
-        const timer = setTimeout(() => {
-          this.pending.delete(id);
-          reject(new Error("Timed out waiting for the Flipper to confirm the write."));
-        }, 15000);
-        this.pending.set(id, { resolve, reject, timer });
-      });
-      for (let offset = 0; offset < bytes.length || sent === 0; offset += WRITE_CHUNK_SIZE) {
-        const chunk = bytes.slice(offset, offset + WRITE_CHUNK_SIZE);
-        const hasNext = offset + WRITE_CHUNK_SIZE < bytes.length;
-        const message = this.MainType.create({
-          command_id: id,
-          has_next: hasNext,
-          storage_write_request: { path: path, file: { data: chunk } },
-        });
-        await this.writeRaw(this.MainType.encodeDelimited(message).finish());
-        sent++;
-        if (onProgress) onProgress(sent, total);
-        if (!hasNext) break;
-      }
-      const response = await promise;
-      if (response.command_status !== 0) {
-        throw new Error("Flipper reported an error (status " + response.command_status + ") writing " + path);
-      }
-      return response;
-    },
-
-    // Reads a file off the Flipper's storage. The response can stream over
-    // several messages (has_next true on all but the last), same shape as
-    // getDeviceInfo(), so this uses the same collector pattern rather than
-    // the single-response path sendMain() expects.
-    async readFileChunked(path) {
-      const id = this.nextCommandId++;
-      const chunks = [];
-      const message = this.MainType.create({
-        command_id: id,
-        has_next: false,
-        storage_read_request: { path: path },
-      });
-      const promise = new Promise((resolve, reject) => {
-        const timer = setTimeout(() => {
-          this.pending.delete(id);
-          reject(new Error("Timed out waiting for the Flipper to send " + path));
-        }, 15000);
-        this.pending.set(id, {
-          timer,
-          collect: (msg) => {
-            if (msg.command_status !== 0) {
-              clearTimeout(timer);
-              this.pending.delete(id);
-              reject(new Error("Flipper reported an error (status " + msg.command_status + ") reading " + path));
-              return;
-            }
-            const file = msg.storage_read_response && msg.storage_read_response.file;
-            if (file && file.data && file.data.length) chunks.push(file.data);
-            if (!msg.has_next) {
-              clearTimeout(timer);
-              this.pending.delete(id);
-              let total = 0;
-              for (const c of chunks) total += c.length;
-              const out = new Uint8Array(total);
-              let offset = 0;
-              for (const c of chunks) { out.set(c, offset); offset += c.length; }
-              resolve(out);
-            }
-          },
-        });
-      });
-      await this.writeRaw(this.MainType.encodeDelimited(message).finish());
-      return promise;
-    },
-
-    async readFileText(path) {
-      const bytes = await this.readFileChunked(path);
-      return new TextDecoder().decode(bytes);
-    },
-
-    // Best-effort existence check via storage_stat_request - used to avoid
-    // clobbering an existing file when picking a save filename. Treats any
-    // error (including "not found") as "doesn't exist".
-    async fileExists(path) {
-      try {
-        const response = await this.sendMain({ storage_stat_request: { path: path } });
-        return response.command_status === 0;
-      } catch (e) {
-        return false;
-      }
-    },
-
-    // system_device_info_request streams back one Main message per
-    // key/value pair (has_next true on all but the last), unlike every
-    // other call here which expects a single response - so this bypasses
-    // the normal sendMain() resolve-once path with its own collector.
-    async getDeviceInfo() {
-      const id = this.nextCommandId++;
-      const info = {};
-      const message = this.MainType.create({
-        command_id: id,
-        has_next: false,
-        system_device_info_request: {},
-      });
-      const promise = new Promise((resolve, reject) => {
-        const timer = setTimeout(() => {
-          this.pending.delete(id);
-          reject(new Error("Timed out waiting for device info."));
-        }, 6000);
-        this.pending.set(id, {
-          timer,
-          collect: (msg) => {
-            const kv = msg.system_device_info_response;
-            if (kv) info[kv.key] = kv.value;
-            if (!msg.has_next) {
-              clearTimeout(timer);
-              this.pending.delete(id);
-              resolve(info);
-            }
-          },
-        });
-      });
-      await this.writeRaw(this.MainType.encodeDelimited(message).finish());
-      return promise;
-    },
-
-    // Best-effort: asks the Flipper to close whatever app is currently open
-    // so the newly-activated wallpaper is visible on the desktop right away.
-    // A no-op on the device if nothing is running - failures are ignored.
-    async requestReturnToDesktop() {
-      try {
-        await this.sendMain({ app_exit_request: {} }, { expectResponse: false });
-      } catch (e) { /* best effort */ }
-    },
-
-    async startVirtualDisplay(frameBytes) {
-      const response = await this.sendMain({
-        gui_start_virtual_display_request: { first_frame: { data: frameBytes, orientation: 0 } },
-      });
-      if (response.command_status !== 0) {
-        throw new Error("Flipper rejected virtual display start (status " + response.command_status + ")");
-      }
-      this.virtualDisplayActive = true;
-    },
-
-    async sendFrame(frameBytes) {
-      if (!this.connected || !this.virtualDisplayActive) return;
-      await this.sendMain({ gui_screen_frame: { data: frameBytes, orientation: 0 } }, { expectResponse: false });
-    },
-
-    async stopVirtualDisplay() {
-      if (!this.virtualDisplayActive) return;
-      try {
-        await this.sendMain({ gui_stop_virtual_display_request: {} });
-      } catch (e) {
-        logLine("Stop virtual display: " + e.message, "w");
-      }
-      this.virtualDisplayActive = false;
-    },
-
-    async disconnect() {
-      await this.stopVirtualDisplay();
-      try {
-        await this.sendMain({ stop_session: {} }, { expectResponse: false });
-      } catch (e) { /* best effort */ }
-      this.connected = false;
-      try { await this.reader.cancel(); } catch (e) {}
-      try { this.reader.releaseLock(); } catch (e) {}
-      try { this.writer.releaseLock(); } catch (e) {}
-      try { await this.port.close(); } catch (e) {}
-      this.port = null;
-      this.rxBuffer = new Uint8Array(0);
-      logLine("Disconnected.");
-    },
-  };
+  });
 
   // ── Device UI wiring ──────────────────────────────────────────
   const devicePill = $("devicePill");
@@ -1276,14 +963,14 @@
   }
 
   connectToggleBtn.addEventListener("click", async () => {
-    if (FlipperRPC.connected) {
+    if (flipper.connected) {
       connectToggleBtn.disabled = true;
       $("liveToggle").checked = false;
       $("liveToggle").disabled = true;
       $("saveToSdBtn").disabled = true;
       $("toolImportCurrent").disabled = true;
       hideVersionWarning();
-      await FlipperRPC.disconnect();
+      await flipper.disconnect();
       setDeviceStatus(null, "No device connected");
       connectToggleBtn.textContent = "🔌 Connect Flipper";
       connectToggleBtn.disabled = false;
@@ -1294,7 +981,7 @@
     hideVersionWarning();
     setDeviceStatus("busy", "Connecting…");
     try {
-      await FlipperRPC.connect();
+      await flipper.connect();
       connectToggleBtn.textContent = "Disconnect";
       $("liveToggle").disabled = false;
 
@@ -1302,7 +989,7 @@
       let canSaveToSd = false;
       let canImportCurrent = false;
       try {
-        const info = await FlipperRPC.getDeviceInfo();
+        const info = await flipper.getDeviceInfo();
         const v = parseFoxfwVersion(info["firmware_version"]);
         if (v && isVersionAtLeast(v, MIN_WALLPAPERS_FIRMWARE)) {
           canSaveToSd = true;
@@ -1346,12 +1033,12 @@
 
   // ── Import Current Wallpaper (from a connected Flipper) ──────────
   $("toolImportCurrent").addEventListener("click", async () => {
-    if (!FlipperRPC.connected) return;
+    if (!flipper.connected) return;
     const btn = $("toolImportCurrent");
     btn.disabled = true;
     setDeviceStatus("busy", "Reading current wallpaper…");
     try {
-      const text = await FlipperRPC.readFileText("/ext/wallpapers/.current");
+      const text = await flipper.readFileText("/ext/wallpapers/.current");
       const bits = parseXbmText(text);
       if (confirm("Replace your current drawing with the wallpaper currently active on the Flipper?")) {
         applyImportedBits(bits);
@@ -1375,12 +1062,12 @@
     try {
       if (on) {
         setDeviceStatus("busy", "Starting live preview…");
-        await FlipperRPC.startVirtualDisplay(finalBits());
+        await flipper.startVirtualDisplay(finalBits());
         setDeviceStatus("connected", "Live on device");
         logLine("Live preview started.", "ok");
       } else {
         setDeviceStatus("busy", "Stopping live preview…");
-        await FlipperRPC.stopVirtualDisplay();
+        await flipper.stopVirtualDisplay();
         setDeviceStatus("connected", "Connected");
         logLine("Live preview stopped.");
       }
@@ -1395,10 +1082,10 @@
 
   let liveSendTimer = null;
   function pushLiveFrameIfActive() {
-    if (!FlipperRPC.virtualDisplayActive) return;
+    if (!flipper.virtualDisplayActive) return;
     if (liveSendTimer) clearTimeout(liveSendTimer);
     liveSendTimer = setTimeout(() => {
-      FlipperRPC.sendFrame(finalBits()).catch((e) => logLine("Live frame send failed: " + e.message, "e"));
+      flipper.sendFrame(finalBits()).catch((e) => logLine("Live frame send failed: " + e.message, "e"));
     }, 60);
   }
 
@@ -1415,7 +1102,7 @@
   // overwrites an existing wallpaper.
   async function findAvailableWallpaperFilename(baseName) {
     let candidate = `${baseName}.xbm`;
-    for (let n = 2; await FlipperRPC.fileExists(`${WALLPAPERS_DIR}/${candidate}`); n++) {
+    for (let n = 2; await flipper.fileExists(`${WALLPAPERS_DIR}/${candidate}`); n++) {
       candidate = `${baseName}(${n}).xbm`;
     }
     return candidate;
@@ -1432,13 +1119,13 @@
       const targetPath = `${WALLPAPERS_DIR}/${filename}`;
 
       setDeviceStatus("busy", "Saving to SD card…");
-      await FlipperRPC.writeFileChunked(targetPath, text, (sent, total) => {
+      await flipper.writeFileChunked(targetPath, text, (sent, total) => {
         setDeviceStatus("busy", `Saving… (${sent}/${total})`);
       });
 
       setDeviceStatus("busy", "Activating…");
-      await FlipperRPC.writeFileChunked(`${WALLPAPERS_DIR}/.activate`, filename, () => {});
-      await FlipperRPC.requestReturnToDesktop();
+      await flipper.writeFileChunked(`${WALLPAPERS_DIR}/.activate`, filename, () => {});
+      await flipper.requestReturnToDesktop();
 
       setDeviceStatus("connected", "Connected");
       logLine(`Saved to wallpapers/${filename} and activated.`, "ok");
@@ -1451,7 +1138,7 @@
   });
 
   window.addEventListener("beforeunload", () => {
-    if (FlipperRPC.connected) FlipperRPC.disconnect();
+    if (flipper.connected) flipper.disconnect();
   });
 
   // ── Init ──────────────────────────────────────────────────────

@@ -324,15 +324,15 @@
       <td>Compiled <code>.fap</code> binaries, sorted into one subfolder per firmware (<code>FoxFW</code>, <code>ARF</code>, <code>Stock</code>, <code>Unleashed</code>, <code>Momentum</code>) since a <code>.fap</code> built against one firmware isn't guaranteed to load on another. Copy the <code>.fap</code> matching whatever firmware your Flipper is running straight to <code>/ext/apps/&lt;category&gt;/</code> on its SD card.</td>
     </tr>
     <tr>
-      <td><code>SD_CARD</code></td>
-      <td>The <code>apps_data</code> and <code>apps_assets</code> folders some apps need present on the SD card the first time they run — copy the contents of this folder onto your Flipper's SD card root.</td>
+      <td><code>SD_CARD.zip</code></td>
+      <td>The <code>apps_data</code> and <code>subghz</code> files some apps need present on the SD card the first time they run — unzip and copy the contents onto your Flipper's SD card root.</td>
     </tr>
   </table>
   <div class="box tip">
     None of these apps need a full firmware update to install or run. Download
     the <code>.fap</code> matching your firmware below, copy it to your SD
-    card's <code>apps</code> folder, copy the contents of <code>SD_CARD</code>
-    onto your SD card root if the app needs it (see
+    card's <code>apps</code> folder, unzip <code>SD_CARD.zip</code> and copy
+    its contents onto your SD card root if the app needs it (see
     <a href="#sd-card" style="color:#80c890;">SD Card Resources</a>), and
     launch the app from the Flipper's Apps menu.
   </div>
@@ -358,7 +358,7 @@
     <tr><td><strong>Fox Chameleon</strong></td><td><code>fox_chameleon</code></td><td>ESP32 Suite</td><td>BLE bridge to a Chameleon Ultra via an ESP32 running Fox ESP32 Firmware — Fox exclusive.</td></tr>
     <tr><td><strong>Fox Chat</strong></td><td><code>fox_chat</code></td><td>ESP32 Suite</td><td>Post to and read from a Discord channel through an ESP32's internet connection.</td></tr>
     <tr><td><strong>Fox Chill</strong></td><td><code>fox_chill</code></td><td>Utility</td><td>Jokes, riddles, fun facts, random statistics, Yo Mama jokes, a scroll counter, a mindfulness timer, and a patience-testing wait screen.</td></tr>
-    <tr><td><strong>Fox ESP32 Commander</strong></td><td><code>fox_esp32_commander</code></td><td>ESP32 Suite</td><td>Main ESP32 control hub — WiFi recon/attacks, BLE scanning, HTTP/WebSocket bridge, scripting engine, raw terminal.</td></tr>
+    <tr><td><strong>FoxHub</strong></td><td><code>foxhub</code></td><td>ESP32 Suite</td><td>Main ESP32 control hub — WiFi recon/attacks, BLE scanning, HTTP/WebSocket bridge, scripting engine, raw terminal.</td></tr>
     <tr><td><strong>Fox ESP32 Detector</strong></td><td><code>fox_esp32_detector</code></td><td>ESP32 Suite</td><td>Scans every GPIO pin pair and baud rate to find a connected ESP32 and confirm wiring.</td></tr>
     <tr><td><strong>Fox ESP32 Terminal</strong></td><td><code>fox_esp32_terminal</code></td><td>ESP32 Suite</td><td>Streaming live terminal to the ESP32, quick command send, per-session SD card logs.</td></tr>
     <tr><td><strong>Fox ESP32 Flasher</strong></td><td><code>fox_esp32_flasher</code></td><td>ESP32 Suite</td><td>Flashes Fox ESP32 Firmware onto a connected board directly from the Flipper.</td></tr>
@@ -368,7 +368,7 @@
     <tr><td><strong>Fox RF Jammer</strong></td><td><code>fox_rf_jammer</code></td><td>Sub-GHz</td><td>Multi-mode RF jamming.</td></tr>
     <tr><td><strong>Fox Update Downloader</strong></td><td><code>fox_update_downloader</code></td><td>ESP32 Suite</td><td>Checks GitHub for newer FoxFW/Fox ESP32 Firmware releases and installs them on-device over the ESP32 bridge — the only on-device update downloader for Flipper Zero.</td></tr>
     <tr><td><strong>Frequency Analyzer</strong></td><td><code>subghz_frequency_analyzer</code></td><td>Sub-GHz</td><td>Scans a configured frequency list to identify an unknown remote's transmit frequency.</td></tr>
-    <tr><td><strong>Garage Door Remote</strong></td><td><code>garage_door_remote</code></td><td>Sub-GHz</td><td>Capture, save, and emulate garage and gate remote signals, with dual-receiver and rolling-code tooling.</td></tr>
+    <tr><td><strong>Garage/Gate/Other</strong></td><td><code>subghz_garage</code></td><td>Sub-GHz</td><td>Read, Read RAW, and saved-file management for every non-automotive Sub-GHz protocol — garage/gate remotes plus general-purpose RF like Princeton and X10. 40 protocols split into 11 switchable groups, each loaded as its own plugin on demand.</td></tr>
     <tr><td><strong>Modulation Analyzer</strong></td><td><code>subghz_modulation_analyzer</code></td><td>Sub-GHz</td><td>Scans modulation presets at a fixed frequency to identify an unknown signal's encoding.</td></tr>
     <tr><td><strong>SubGHz RAW Edit</strong></td><td><code>subghz_raw_edit</code></td><td>Sub-GHz</td><td>Trim and edit Sub-GHz RAW captures (<code>.sub</code> files).</td></tr>
     <tr><td><strong>TagTinker (Fox Edition)</strong></td><td><code>tagtinker</code></td><td>NFC/IR</td><td>ESL tag reader/writer and IR broadcast tool — Fox Edition adds a WiFi Plugins menu that streams server-rendered images to the tag over the ESP32.</td></tr>
@@ -405,12 +405,12 @@
       <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/fox_chill.fap" download>⬇</a></td>
       <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/fox_chill.fap" download>⬇</a></td>
     </tr>
-    <tr><td>Fox ESP32 Commander</td>
-      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/fox_esp32_commander.fap" download>⬇</a></td>
-      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/fox_esp32_commander.fap" download>⬇</a></td>
-      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/fox_esp32_commander.fap" download>⬇</a></td>
-      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/fox_esp32_commander.fap" download>⬇</a></td>
-      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/fox_esp32_commander.fap" download>⬇</a></td>
+    <tr><td>FoxHub</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/foxhub.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/foxhub.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/foxhub.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/foxhub.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/foxhub.fap" download>⬇</a></td>
     </tr>
     <tr><td>Fox ESP32 Detector</td>
       <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/fox_esp32_detector.fap" download>⬇</a></td>
@@ -475,12 +475,12 @@
       <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/subghz_frequency_analyzer.fap" download>⬇</a></td>
       <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/subghz_frequency_analyzer.fap" download>⬇</a></td>
     </tr>
-    <tr><td>Garage Door Remote</td>
-      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/garage_door_remote.fap" download>⬇</a></td>
-      <td class="dl-cell"><span class="no">✗</span></td>
-      <td class="dl-cell"><span class="no">✗</span></td>
-      <td class="dl-cell"><span class="no">✗</span></td>
-      <td class="dl-cell"><span class="no">—</span></td>
+    <tr><td>Garage/Gate/Other</td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/subghz_garage.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Stock/subghz_garage.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Unleashed/subghz_garage.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/Momentum/subghz_garage.fap" download>⬇</a></td>
+      <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/ARF/subghz_garage.fap" download>⬇</a></td>
     </tr>
     <tr><td>Modulation Analyzer</td>
       <td class="dl-cell"><a href="https://raw.githubusercontent.com/FoxFW/Fox_Apps/main/FAP_FILES/FoxFW/subghz_modulation_analyzer.fap" download>⬇</a></td>
@@ -506,12 +506,9 @@
   </table>
 
   <div class="box info">
-    <strong>Garage Door Remote</strong> is FoxFW-only — it depends on
-    additions FoxFW has made to its own copy of the Sub-GHz protocol library
-    that aren't present in Stock, Unleashed, or Momentum's Sub-GHz core
-    libraries, and ARF already ships an equivalent of its own.
-    <strong>SubGHz RAW Edit</strong> isn't listed for ARF for the same
-    reason — ARF already ships its own.
+    <strong>SubGHz RAW Edit</strong> isn't listed for ARF — ARF already
+    ships its own equivalent app, so ours is skipped on that fork rather
+    than colliding with it.
   </div>
   <div class="box tip">
     <strong>Fox Chill</strong> and <strong>Fox ESP32 Flasher</strong> needed
@@ -538,14 +535,14 @@
   </p>
   <table>
     <tr><th>App</th><th>Key capabilities</th></tr>
-    <tr><td><strong>Fox ESP32 Commander</strong></td><td>WiFi menu (network scan, saved credentials, recon/attack toggles), BLE menu (device scan, tag detection), HTTP menu (HTTP/WebSocket bridge), Scripts menu (FoxScript automation engine), Tags menu, a raw message/terminal view, and connection settings shared across the rest of the suite.</td></tr>
+    <tr><td><strong>FoxHub</strong></td><td>WiFi menu (network scan, saved credentials, recon/attack toggles), BLE menu (device scan, tag detection), HTTP menu (HTTP/WebSocket bridge), Scripts menu (FoxScript automation engine), Tags menu, a raw message/terminal view, and connection settings shared across the rest of the suite.</td></tr>
     <tr><td><strong>Fox ESP32 Detector</strong></td><td>Single-purpose diagnostic — sweeps every GPIO pin pair and baud rate looking for an ESP-AT-compatible response, reports what it finds.</td></tr>
     <tr><td><strong>Fox ESP32 Terminal</strong></td><td>Live streaming console view, quick single-line command send, session log list and viewer, logs written to <code>/ext/apps_data/fox_esp32_terminal</code> per session.</td></tr>
     <tr><td><strong>Fox ESP32 Flasher</strong></td><td>Guided flow: connect, auto-detect chip (ESP32 / S2 / S3 / C3 / C5 / C6), pick firmware files, erase/prepare, flash with a progress view, result screen, plus a raw terminal view for manual commands. Needs the per-chip bootloader/firmware/partition binaries from <code>SD_CARD/apps_data/fox_esp32_flasher</code>.</td></tr>
     <tr><td><strong>Fox File Downloader</strong></td><td>Four menus off a shared connection: File Download (URL) for direct HTTP/HTTPS downloads with byte-range resume, App Catalog for browsing and installing straight from catalog.flipperzero.one, My Apps for uninstalling anything already on the SD card, and GitHub Repos for pulling a <code>.fap</code> release straight off a repo. A <code>Download.txt</code> queue file lets you line up several URLs at once and let it work through them unattended.</td></tr>
     <tr><td><strong>Fox Update Downloader</strong></td><td>Reads GitHub releases (version comparison, changelog), downloads the matching board's update package over the ESP32 bridge, verifies it, and hands off to the installer — covers both FoxFW itself and Fox ESP32 Firmware. Downloads are resumable, and a downloaded package is validated before install. A Download Settings screen lets you set the UART baud rate, retry attempts, per-chunk timeout, and whether to automatically step down to a lower baud rate on repeated failures.</td></tr>
     <tr><td><strong>Fox Chat</strong></td><td>Connection settings, a scrollable message list, a detail view for a single message thread, and a compose/send view — all relayed through the ESP32 to a configured Discord channel.</td></tr>
-    <tr><td><strong>Fox Portal</strong></td><td>Configurable captive portal menu, QR code generation for quick join, and consent-based field logging. Serves <code>start.html</code> / <code>finish.html</code> from <code>/ext/apps_data/fox_portal</code>, self-seeding them from the repo copy if missing.</td></tr>
+    <tr><td><strong>Fox Portal</strong></td><td>Configurable captive portal menu, QR code generation for quick join, and consent-based field logging. Serves <code>start.html</code> / <code>finish.html</code> from <code>/ext/apps_data/fox_portal</code>, self-seeding them from the ESP32's own defaults over the AT bridge if missing.</td></tr>
     <tr><td><strong>Fox Chameleon</strong></td><td>Bridges BLE commands between the Flipper and a Chameleon Ultra over the ESP32's BLE stack, with a built-in key dictionary for known tag keys.</td></tr>
     <tr><td><strong>CSIght (Fox Edition)</strong></td><td>WiFi CSI radar — motion detection, breathing/heart-rate vitals, and mesh node tracking across multiple ESP-NOW-linked boards, all fed through Fox ESP32 Firmware. Same connect/retry/settings gate as the rest of the suite on startup.</td></tr>
   </table>
@@ -573,7 +570,7 @@
     <tr><th>App</th><th>Key capabilities</th></tr>
     <tr><td><strong>Frequency Analyzer</strong></td><td>Scans your configured Sub-GHz frequency list and reports which one an unknown transmitter is actually using.</td></tr>
     <tr><td><strong>Modulation Analyzer</strong></td><td>Holds a fixed frequency and cycles through modulation presets to identify how an unknown signal is encoded, then hands off to the Receiver pre-configured for it.</td></tr>
-    <tr><td><strong>Garage Door Remote</strong></td><td>Standard and dual-frequency receivers, a shield receiver mode, a timing tuner, saved-key management with encrypted keystore storage, RAW <code>.sub</code> decode, and an emulate scene for replaying saved keys. Ships with roughly sixty individual protocol decoders/encoders (Keeloq, Nice FLO/FloR-S, Came, Faac SLH, Somfy Telis/Keytis, Linear, Princeton, Security+ 1.0/2.0, and many more) split across an AM plugin, an FM plugin, and an emulate plugin. Keystore files live at <code>SD_CARD/apps_assets/garage_door_remote</code>.</td></tr>
+    <tr><td><strong>Garage/Gate/Other</strong></td><td>A dedicated mode picker for every non-automotive Sub-GHz protocol — garage/gate remotes (Keeloq, Nice FLO/FloR-S, Came, Faac SLH, Somfy Telis/Keytis, Linear, Security+ 1.0/2.0, and more) plus general-purpose fixed-code RF like Princeton and X10. 40 protocols split into 11 switchable groups, each loaded as its own plugin on demand to keep RAM use low. Read, Read RAW, saved-file management, and an emulate scene for replaying saved keys. Needs <code>setting_garage_full</code> from this suite's <code>SD_CARD.zip</code> at <code>/ext/subghz/assets/</code> on every firmware except FoxFW2.0, which pushes it automatically.</td></tr>
     <tr><td><strong>SubGHz RAW Edit</strong></td><td>Loads a <code>.sub</code> RAW capture and lets you trim it down before saving, without needing a PC.</td></tr>
     <tr><td><strong>Fox RF Jammer</strong></td><td>Multi-mode RF jamming across the Sub-GHz band.</td></tr>
   </table>
@@ -601,23 +598,29 @@
   <p>
     Most apps need nothing extra on the SD card — the app is entirely
     self-contained in its <code>.fap</code>. The apps below read files from
-    specific SD card paths at runtime; copy the matching folder from
-    <code>SD_CARD/</code> in the repo onto your Flipper's SD card root before
-    running them.
+    specific SD card paths at runtime; unzip <code>SD_CARD.zip</code> from
+    the repo and copy the matching folder onto your Flipper's SD card root
+    before running them. <code>SD_CARD.zip</code> only ships what's actually
+    needed: files for apps whose <code>resources=</code> manifest field had
+    to be stripped to build outside FoxFW2.0, plus Garage/Gate/Other's own
+    preset file (loaded from the SD card directly, not via
+    <code>resources=</code>).
   </p>
   <table>
     <tr><th>App</th><th>SD card path</th><th>What's there</th></tr>
     <tr><td>Fox Chill</td><td><code>/ext/apps_data/fox_chill/</code></td><td><code>jokes.txt</code>, <code>riddles.txt</code>, <code>fun_facts.txt</code>, <code>statistics.txt</code>, <code>yo_mama.txt</code> — the random content pools.</td></tr>
     <tr><td>Fox ESP32 Flasher</td><td><code>/ext/apps_data/fox_esp32_flasher/&lt;chip&gt;/</code></td><td><code>bootloader.bin</code>, <code>boot_app0.bin</code>, <code>firmware.bin</code>, <code>partitions.bin</code> per supported chip (<code>esp32</code>, <code>esp32c3</code>, <code>esp32c5</code>, <code>esp32c6</code>, <code>esp32s2</code>, <code>esp32s3</code>).</td></tr>
-    <tr><td>Fox Portal</td><td><code>/ext/apps_data/fox_portal/</code></td><td><code>start.html</code>, <code>finish.html</code> — the portal's landing and confirmation pages. The app will self-seed these from the ESP32 if missing, but they load faster if already present.</td></tr>
-    <tr><td>Garage Door Remote</td><td><code>/ext/apps_assets/garage_door_remote/</code></td><td><code>encrypted</code>, <code>vag</code> — the keystore files used for rolling-code key derivation.</td></tr>
+    <tr><td>Garage/Gate/Other</td><td><code>/ext/subghz/assets/</code></td><td><code>setting_garage_full</code> — Garage's own trimmed Sub-GHz preset file. On FoxFW2.0 this is pushed automatically; on every other firmware, copy it from <code>SD_CARD.zip</code>'s <code>subghz/assets/</code> onto your SD card's existing <code>/ext/subghz/assets/</code> folder (it adds one file alongside whatever's already there, doesn't replace anything).</td></tr>
   </table>
   <p>
-    Everything else — CSIght, Fox Chameleon, Fox Chat, Fox ESP32 Commander,
-    Fox ESP32 Detector, Fox File Downloader, Fox RF Jammer, Fox Update
-    Downloader, Frequency Analyzer, Modulation Analyzer, SubGHz RAW Edit, and
-    TagTinker — runs with just the <code>.fap</code> copied over, no SD card
-    folder required.
+    Everything else — CSIght, Fox Chameleon, Fox Chat, FoxHub,
+    Fox ESP32 Detector, Fox ESP32 Terminal, Fox File Browser, Fox File
+    Downloader, Fox Portal, Fox RF Jammer, Fox Update Downloader, Frequency
+    Analyzer, Modulation Analyzer, SubGHz RAW Edit, and TagTinker — runs with
+    just the <code>.fap</code> copied over, no SD card folder required. Fox
+    Portal specifically self-seeds its <code>start.html</code>/
+    <code>finish.html</code> from the ESP32 on first run if they're not
+    already present, so it doesn't need <code>SD_CARD.zip</code> either.
   </p>
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
@@ -647,12 +650,12 @@
       push it straight to a connected Flipper). The compiled <code>.fap</code>
       is named after the app's app ID, which for a few apps doesn't match its
       folder name: Fox File Browser's folder is <code>fox_file_browser</code>
-      but its app ID is <code>ffb</code>; Garage Door Remote's folder is
-      <code>subghz_gdr</code> but its app ID is <code>garage_door_remote</code>;
-      CSIght's folder is <code>CSIght-FoxEdition</code> but its app ID is
-      <code>csight</code>; TagTinker's folder is
-      <code>TagTinker_FoxEdition</code> but its app ID is
-      <code>tagtinker</code>.</li>
+      but its app ID is <code>ffb</code>; Garage/Gate/Other's folder is
+      <code>subghz_garage_COMPATIBLE</code> (for non-FoxFW builds) but its
+      app ID is <code>subghz_garage</code>; CSIght's folder is
+      <code>CSIght-FoxEdition</code> but its app ID is <code>csight</code>;
+      TagTinker's folder is <code>TagTinker_FoxEdition</code> but its app ID
+      is <code>tagtinker</code>.</li>
   </ol>
   <div class="box warn">
     If you're running Fox Firmware, don't copy these apps into

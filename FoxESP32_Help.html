@@ -320,7 +320,7 @@
         </ul>
       </li>
       <li><a href="#detector">Fox ESP32 Detector</a></li>
-      <li><a href="#commander">Fox ESP32 Commander</a>
+      <li><a href="#commander">FoxHub</a>
         <ul class="sub">
           <li><a href="#cmd-firstrun">First run &amp; detection</a></li>
           <li><a href="#cmd-wifi">WiFi menu</a></li>
@@ -352,7 +352,7 @@
         </ul>
       </li>
       <li><a href="#deflock">FoxDeFlock</a></li>
-      <li><a href="#wifi-icon">Status Bar WiFi Icon</a></li>
+      <li><a href="#wifi-icon">Status Bar WiFi / CC1101 Icon</a></li>
       <li><a href="#commands">Full Command Reference</a>
         <ul class="sub">
           <li><a href="#cmd-wifi-recon">WiFi recon &amp; attacks</a></li>
@@ -409,7 +409,7 @@
       <div class="muse">Diagnostic tool — tells you which GPIO pins and baud rate your ESP32 is actually wired/talking on.</div>
     </div>
     <div class="mod-card">
-      <div class="mname">Fox ESP32 Commander</div>
+      <div class="mname">FoxHub</div>
       <div class="mtype">Flipper app</div>
       <div class="muse">The main control app — WiFi, Bluetooth, Tag Detection, Scripts, Settings, Terminal.</div>
     </div>
@@ -604,7 +604,7 @@
     The Flipper and the ESP32 talk over a plain 4-wire UART connection — no
     special adapter needed, just jumper wires from the Flipper's GPIO header
     to the ESP32's RX/TX/GND/5V (or 3V3) pins. Every Flipper-side app in this
-    project (Detector, Commander, Fox Chat, Fox Portal) probes the
+    project (Detector, FoxHub, Fox Chat, Fox Portal) probes the
     <strong>same two standard pin pairs</strong> automatically at boot, so as
     long as you wire into one of these two pairs, every app will find your
     ESP32 without any manual configuration:
@@ -648,7 +648,7 @@
       Tag Detection) replies with a plain error instead of failing silently,
       so it's always obvious when you're on an S2 board.
     </div>
-    <div class="values">Applies to: <span>the Bluetooth menu and Tag Detection menu in Fox ESP32 Commander</span></div>
+    <div class="values">Applies to: <span>the Bluetooth menu and Tag Detection menu in FoxHub</span></div>
   </div>
 
   <h3 id="peripherals">Optional add-on hardware</h3>
@@ -711,7 +711,7 @@
     which baud rate, and — where it can tell — which firmware. There's no
     menu, no configuration, and nothing is saved. Point it at a freshly
     wired board when you're not sure the wiring is right, or when Fox ESP32
-    Commander reports "not detected" and you want to know why.
+    FoxHub reports "not detected" and you want to know why.
   </p>
 
   <h3>How it works</h3>
@@ -762,7 +762,7 @@
 <!-- ══════════════════ 5 · COMMANDER ══════════════════ -->
 <section class="section" id="commander">
   <div class="chapter-label">Chapter 5</div>
-  <h2>Fox ESP32 Commander</h2>
+  <h2>FoxHub</h2>
   <p>
     The main control app for the firmware — WiFi, Bluetooth, item-tracker
     detection, automation scripts, the safety toggle, and a raw Terminal, all
@@ -807,7 +807,7 @@
   <div class="box info">
     <strong>Global default <span class="badge">New</span>:</strong> Fox
     Settings now has its own <strong>ESP32 UART</strong> toggle (13/14
-    or 15/16) that's shared across Commander, Terminal, Flasher, and the
+    or 15/16) that's shared across FoxHub, Terminal, Flasher, and the
     built-in UART Terminal. Changing the pin pair from any one of those
     apps' own Connect Settings updates this same shared default — so once
     you've told one app which pins you wired, the others start from that
@@ -815,7 +815,7 @@
   </div>
 
   <p><strong>Main menu:</strong></p>
-  <div class="menu-tree">Fox ESP32 Commander
+  <div class="menu-tree">FoxHub
 ├── <span class="hl">WiFi</span>
 ├── <span class="hl">Bluetooth</span>
 ├── <span class="hl">Tag Detection</span>
@@ -870,7 +870,7 @@
     <strong>This is the menu that drives your Flipper's own status bar WiFi
     icon.</strong> Every Connect/Disconnect/Forget/Status action here updates
     a small status file on your SD card that the Flipper's desktop polls —
-    see <a href="#wifi-icon" style="color:inherit;">Status Bar WiFi Icon</a>.
+    see <a href="#wifi-icon" style="color:inherit;">Status Bar WiFi / CC1101 Icon</a>.
     Fox Chat and Fox Portal don't touch this file — they just use whatever
     WiFi connection is already active.
   </div>
@@ -1037,7 +1037,7 @@
   <p>
     Post to and read from a Discord text channel, straight from your
     Flipper's screen, using your ESP32's internet connection. You'll need an
-    active WiFi connection (set up via Fox ESP32 Commander's WiFi menu) —
+    active WiFi connection (set up via FoxHub's WiFi menu) —
     nothing else to configure.
   </p>
 
@@ -1083,7 +1083,7 @@
 
   <h3>Content moderation — what's protected and what isn't</h3>
   <ul>
-    <li>Every outgoing message is checked against a built-in word/phrase filter before sending (toggle in Fox ESP32 Commander's Settings — on by default). It's plain word-matching, not spacing- or leetspeak-aware, so it can occasionally false-positive on an innocent word that contains a blocked substring.</li>
+    <li>Every outgoing message is checked against a built-in word/phrase filter before sending (toggle in FoxHub's Settings — on by default). It's plain word-matching, not spacing- or leetspeak-aware, so it can occasionally false-positive on an innocent word that contains a blocked substring.</li>
     <li>Mentions are always sent inert — <code>@everyone</code>, <code>@here</code>, and role pings render as plain text and can't actually ping anyone, regardless of what you type.</li>
     <li>A short minimum gap is enforced between posts to prevent accidental flooding.</li>
     <li><strong>Discord's own AutoMod does not see bot-posted messages</strong> — AutoMod only scans human-account messages, so whatever protections your server has configured there won't apply here. The built-in filter above is the only thing standing between what you type and the channel.</li>
@@ -1101,7 +1101,7 @@
   <p>
     Chat with Google Gemini directly from your Flipper's screen, using your
     ESP32's WiFi connection. You'll need an active WiFi connection (set up
-    via Fox ESP32 Commander's WiFi menu) — nothing else to configure, no API
+    via FoxHub's WiFi menu) — nothing else to configure, no API
     key to enter.
   </p>
 
@@ -1322,7 +1322,7 @@
     downloads whichever one you pick, and hands off straight to install —
     no PC, no browser, no manual file copying. Because the Flipper itself has
     no internet connection of its own, this app reaches GitHub over your
-    already-wired ESP32 the same way Fox ESP32 Commander does — it needs the
+    already-wired ESP32 the same way FoxHub does — it needs the
     same UART wiring and a WiFi network for the ESP32 to join.
   </p>
 
@@ -1414,7 +1414,7 @@
     Downloads files onto your SD card over the ESP32's internet connection —
     a direct URL, a browsable App Catalog, or a <code>.fap</code> straight off
     a GitHub repo — plus its own WiFi menu for connecting, scanning, and (if
-    Attacks is on) the same recon/attack tools as Fox ESP32 Commander.
+    Attacks is on) the same recon/attack tools as FoxHub.
   </p>
 
   <div class="menu-tree">Fox File Downloader
@@ -1548,7 +1548,7 @@
   <p>
     The main menu's <strong>Settings</strong> item goes straight here — this
     app doesn't have a separate Connect Settings screen reachable from the
-    menu the way Commander does. Four rows, Left/Right to cycle, saved
+    menu the way FoxHub does. Four rows, Left/Right to cycle, saved
     automatically on every change:
   </p>
   <div class="setting">
@@ -1574,16 +1574,15 @@
 
   <h3 id="file-downloader-wifi">WiFi, Recon &amp; Attacks</h3>
   <p>
-    Same shared WiFi module as <a href="#commander" style="color:#80c890;">Fox
-    ESP32 Commander</a> — full network connect/manage plus Recon and (if
+    Same shared WiFi module as <a href="#commander" style="color:#80c890;">FoxHub</a> — full network connect/manage plus Recon and (if
     enabled) Attacks, not a trimmed-down "just connect" menu. The main menu's
     WiFi item disappears once you're connected, replaced by nothing (there's
-    no menu-level shortcut to the Connection submenu here the way Commander
+    no menu-level shortcut to the Connection submenu here the way FoxHub
     has one) — reopen WiFi from Terminal/Settings context if you need to
     check status without disconnecting.
   </p>
   <div class="menu-tree">WiFi
-├── Connect / Connection   <span style="color:#888">(same as Commander — see Chapter 5)</span>
+├── Connect / Connection   <span style="color:#888">(same as FoxHub — see Chapter 5)</span>
 ├── My IP
 ├── Recon
 │     ├── Scan APs
@@ -1603,10 +1602,10 @@
       └── Probe Flood</div>
   <div class="box info">
     Every screen, file format, and gated-behind-Attacks rule here is
-    identical to Commander's WiFi menu — see <a href="#cmd-wifi" style="color:inherit;">Chapter
+    identical to FoxHub's WiFi menu — see <a href="#cmd-wifi" style="color:inherit;">Chapter
     5's WiFi menu</a> for the full breakdown (Wardrive's CSV columns, Packet
     Capture's <code>.pcap</code> format, saved-network handling, and so on).
-    Attacks is turned on and off from Fox ESP32 Commander's Settings screen —
+    Attacks is turned on and off from FoxHub's Settings screen —
     it's one shared toggle stored on the ESP32 itself, not per-app.
   </div>
 
@@ -1685,32 +1684,43 @@
 <!-- ══════════════════ 12 · WIFI ICON ══════════════════ -->
 <section class="section" id="wifi-icon">
   <div class="chapter-label">Chapter 12</div>
-  <h2>Status Bar WiFi Icon</h2>
+  <h2>Status Bar WiFi / CC1101 Icon</h2>
   <p>
-    Your Flipper's own desktop status bar shows a small WiFi icon,
-    immediately to the left of the battery indicator, reflecting your
-    ESP32's connection state as last reported by Fox ESP32 Commander's WiFi
-    menu.
+    Your Flipper's own desktop status bar shows a small icon, immediately to
+    the left of the battery indicator, that does double duty: it reflects
+    your ESP32's WiFi connection state as last reported by Fox ESP32
+    FoxHub's WiFi menu, and — only when WiFi isn't connected — whether
+    Sub-GHz Garage/Gate/Other has found an external CC1101 module attached.
+    See the
+    <a href="FoxFW_Help.html#mode-picker" style="color:#80c890;">FoxFW2.0
+    guide</a> for what the CC1101 module itself does.
   </p>
   <table>
     <tr><th>State</th><th>Appearance</th></tr>
-    <tr><td><strong>Connected</strong></td><td>Three bold, solid ascending bars</td></tr>
-    <tr><td><strong>Disconnected / idle</strong></td><td>The same three bars, drawn as thin lines instead of solid — still visible, not an error indicator</td></tr>
+    <tr><td><strong>WiFi connected</strong></td><td>Three bold, solid ascending bars — always shown first, regardless of the CC1101 module</td></tr>
+    <tr><td><strong>WiFi not connected, CC1101 module connected</strong></td><td>A small antenna glyph</td></tr>
+    <tr><td><strong>Neither connected</strong></td><td>The same three bars, drawn as thin lines instead of solid — still visible, not an error indicator</td></tr>
   </table>
   <div class="box info">
     <strong>How this actually works.</strong> The Flipper's desktop can't
     talk to the ESP32 directly while a Fox app has the serial connection
     open, so instead it polls a small status file on your SD card every two
-    seconds. Only Fox ESP32 Commander's WiFi menu writes that file — Fox
-    Chat and Fox Portal just use whatever WiFi connection already exists and
-    never change it, so the icon only ever reflects actions taken through
-    Commander's WiFi menu, updated within a couple of seconds of you taking
-    them.
+    seconds for the WiFi half. Only FoxHub's WiFi menu writes
+    that file — Fox Chat and Fox Portal just use whatever WiFi connection
+    already exists and never change it, so that half only ever reflects
+    actions taken through FoxHub's WiFi menu, updated within a couple of
+    seconds of you taking them. The CC1101 half polls a second, separate
+    status file the same way, kept fresh by a small background probe app —
+    see the CC1101 paragraph under
+    <a href="FoxFW_Help.html#mode-picker" style="color:#80c890;">Sub-Ghz
+    Mode</a> in the FoxFW2.0 guide for exactly when that probe runs.
   </div>
   <p>
     The icon stays visible even when disconnected on purpose — if it vanished
     entirely, someone who hasn't discovered the Fox ESP32 apps yet would have
-    no hint that this feature exists at all.
+    no hint that this feature exists at all. You can hide it entirely from
+    Settings → Desktop → <strong>WiFi/CC1101 Icon</strong> — that one toggle
+    hides both halves together, not just WiFi.
   </p>
 
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
@@ -1724,8 +1734,8 @@
   <p>
     Every command the firmware understands, sent over serial at
     <strong>115200 baud</strong>. You'll rarely need to type these by hand —
-    Fox ESP32 Commander, Fox Chat, and Fox Portal send them for you — but
-    they're all reachable from Commander's <strong>Terminal</strong> screen
+    FoxHub, Fox Chat, and Fox Portal send them for you — but
+    they're all reachable from FoxHub's <strong>Terminal</strong> screen
     if you want raw access, and knowing them helps make sense of what each
     menu action is actually doing.
   </p>
@@ -1775,8 +1785,8 @@
 
   <h4>Wardriving &amp; packet capture</h4>
   <table>
-    <tr><td><code>WIFIWARDRIVE</code></td><td>AP scan tagged with your current GPS fix (needs the optional GPS module). Commander logs results to <code>/ext/apps_data/fox_esp32/wardrive/wardrive_&lt;YYYY-MM-DD&gt;.csv</code> — columns <code>bssid,ssid,latitude,longitude,rssi,channel,encryption_type,timestamp</code>.</td></tr>
-    <tr><td><code>WIFIPCAP</code></td><td>15-second raw capture, hopping channels 1–11 every 400ms. Commander saves a standard <code>.pcap</code> to <code>/ext/apps_data/fox_esp32/captures/capture_&lt;timestamp&gt;.pcap</code> — opens directly in Wireshark. Frames truncated to 256 bytes, capped at 150 frames per capture.</td></tr>
+    <tr><td><code>WIFIWARDRIVE</code></td><td>AP scan tagged with your current GPS fix (needs the optional GPS module). FoxHub logs results to <code>/ext/apps_data/fox_esp32/wardrive/wardrive_&lt;YYYY-MM-DD&gt;.csv</code> — columns <code>bssid,ssid,latitude,longitude,rssi,channel,encryption_type,timestamp</code>.</td></tr>
+    <tr><td><code>WIFIPCAP</code></td><td>15-second raw capture, hopping channels 1–11 every 400ms. FoxHub saves a standard <code>.pcap</code> to <code>/ext/apps_data/fox_esp32/captures/capture_&lt;timestamp&gt;.pcap</code> — opens directly in Wireshark. Frames truncated to 256 bytes, capped at 150 frames per capture.</td></tr>
   </table>
 
   <h4>WiFi attacks <span class="badge gated">gated</span></h4>
@@ -1900,7 +1910,7 @@
     HTTPS requests do not validate the server's certificate (<code>setInsecure()</code> — no root CA store). Fine for casual API calls; don't route sensitive credentials through it.
   </div>
   <div class="box warn">
-    Known gaps against real FlipperHTTP, kept deliberately rather than missed: <code>[WIFI/LIST]</code> doesn't leak saved passwords (see above), <code>[WIFI/AP]</code> doesn't implement the blocking AP-bridge loop some apps expect, and <code>[GET/BYTES]</code>/<code>[POST/BYTES]</code> are still base64 rather than raw-byte streaming. Deauth-style commands some third-party apps ship their own buttons for (e.g. FlipWiFi's <code>[DEAUTH]</code>) aren't part of the real FlipperHTTP protocol either — use Fox ESP32 Commander's own WiFi Attacks menu for that instead.
+    Known gaps against real FlipperHTTP, kept deliberately rather than missed: <code>[WIFI/LIST]</code> doesn't leak saved passwords (see above), <code>[WIFI/AP]</code> doesn't implement the blocking AP-bridge loop some apps expect, and <code>[GET/BYTES]</code>/<code>[POST/BYTES]</code> are still base64 rather than raw-byte streaming. Deauth-style commands some third-party apps ship their own buttons for (e.g. FlipWiFi's <code>[DEAUTH]</code>) aren't part of the real FlipperHTTP protocol either — use FoxHub's own WiFi Attacks menu for that instead.
   </div>
 
   <h3 id="cmd-script-ref">FoxScript</h3>
@@ -2064,7 +2074,7 @@ repeat (3) {
     All WiFi attacks, BLE spam, the TCP port scanner, and Fox Portal are
     gated behind one setting, checked with <code>SETTINGS</code> and changed
     with <code>SETTINGS:ATTACKS:ON</code> / <code>SETTINGS:ATTACKS:OFF</code>
-    — reachable from Fox ESP32 Commander's <strong>Settings</strong> screen
+    — reachable from FoxHub's <strong>Settings</strong> screen
     as a single "Attacks: ON/OFF" row that applies immediately.
   </p>
   <div class="box info">
@@ -2135,7 +2145,7 @@ repeat (3) {
     <li>The BLE spam payloads match each vendor's proximity-pairing packet framing (AD structure, company ID, UUID) correctly, but the exact inner payload bytes beyond that framing are a best-effort approximation.</li>
   </ul>
 
-  <h3>Fox ESP32 Commander</h3>
+  <h3>FoxHub</h3>
   <ul>
     <li>The AP/station scan-result list re-scans every time you open it — there's no caching between visits.</li>
     <li>SSIDs, passwords, URLs, and script text sent to the firmware aren't JSON-escaped — a literal quote or backslash in one of these can break the request.</li>
@@ -2159,7 +2169,7 @@ repeat (3) {
   <h3>General</h3>
   <ul>
     <li>ESP32-S2 boards have no Bluetooth radio at all — Bluetooth menu, Tag Detection, and every BLE command are unavailable on that chip.</li>
-    <li>The status bar WiFi icon reflects only the last action taken through Fox ESP32 Commander's WiFi menu — it does not live-poll the ESP32 and doesn't reflect WiFi state from Fox Chat or Fox Portal, since those apps never change the connection themselves.</li>
+    <li>The status bar WiFi icon reflects only the last action taken through FoxHub's WiFi menu — it does not live-poll the ESP32 and doesn't reflect WiFi state from Fox Chat or Fox Portal, since those apps never change the connection themselves.</li>
   </ul>
 
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
@@ -2210,13 +2220,12 @@ repeat (3) {
     <tr><td>Connect button does nothing</td><td>Web Serial requires Chrome or Edge on desktop — Firefox and Safari don't support it, and it's not available on mobile.</td></tr>
     <tr><td>"Mismatch: board=..., chip=..."</td><td>You selected the wrong board for your chip. Disconnect, pick the matching board, reconnect. Erase still works regardless of a mismatch if you need to start over.</td></tr>
     <tr><td>Flashing fails partway through</td><td>Keep the browser tab in focus the entire time — backgrounding it can interrupt the serial transfer. Try a lower baud rate if it keeps failing.</td></tr>
-    <tr><td>Device unresponsive after flashing</td><td>Disconnect and reconnect in the Web Installer, then verify with <code>AT</code>/<code>info</code> from Commander or Detector.</td></tr>
+    <tr><td>Device unresponsive after flashing</td><td>Disconnect and reconnect in the Web Installer, then verify with <code>AT</code>/<code>info</code> from FoxHub or Detector.</td></tr>
   </table>
 
   <h3>Attacks say "ERROR:DISABLED"</h3>
   <p>
-    This is the Attacks safety toggle, not a fault — turn it on from Fox
-    ESP32 Commander's Settings screen (see Chapter 13).
+    This is the Attacks safety toggle, not a fault — turn it on from FoxHub's Settings screen (see Chapter 13).
   </p>
 
   <h3>Fox Chat issues</h3>

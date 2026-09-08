@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>FoxFW Lab — Browser Toolkit</title>
+<style>
+:root{--orange:#e8750a;--dark:#0d0d0d;--mid:#161616;--card:#1e1e1e;--border:#2a2a2a;--light:#f0ebe5;--accent:#ff9a3c;--green:#3dba6a;--red:#e04040;--glow:rgba(232,117,10,.22);--mono:Consolas,'SF Mono','JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:var(--light);display:flex;flex-direction:column;min-height:100vh}
+
+.topbar{background:#080808;border-bottom:1px solid var(--border);padding:11px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px;flex-wrap:wrap}
+.tb-left{display:flex;align-items:center;gap:10px}
+.logo{font-size:1.05rem;font-weight:700;color:var(--accent)}.logo span{color:#fff}
+.badge{background:rgba(232,117,10,.13);border:1px solid var(--orange);color:var(--accent);font-size:.66rem;padding:2px 8px;border-radius:20px;letter-spacing:1px;font-weight:700}
+.tb-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.status-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;background:var(--card);border:1px solid var(--border);color:#888;font-size:.76rem}
+.status-pill .dot{width:7px;height:7px;border-radius:50%;background:#c0392b;flex-shrink:0}
+.status-pill.connected{color:var(--green);border-color:#1f4a30}
+.status-pill.connected .dot{background:var(--green);box-shadow:0 0 6px var(--green);animation:blk 1.6s steps(2) infinite}
+@keyframes blk{50%{opacity:.25}}
+.bsm{border:1px solid var(--border);background:transparent;color:#ccc;font-size:.8rem;padding:7px 16px;border-radius:5px;cursor:pointer;transition:all .15s;font-family:inherit}
+.bsm:hover{color:#fff;border-color:#555}
+.bsm.pri{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:600;box-shadow:0 0 10px var(--glow)}
+.bsm.pri:hover{background:var(--accent);border-color:var(--accent)}
+.bsm.sm{padding:5px 11px;font-size:.72rem}
+.bsm:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.tb-right a{color:#888;font-size:.8rem;text-decoration:none}
+.tb-right a:hover{color:var(--accent)}
+
+.shell{flex:1;display:flex;min-height:0}
+
+.sidebar{width:64px;background:#0a0a0a;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px 0;flex-shrink:0;overflow-y:auto}
+.dev-tabs{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);width:100%;align-items:center}
+.dev-tab{width:44px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:.04em;color:#666;cursor:pointer;border:1px solid transparent;background:transparent}
+.dev-tab:hover:not(.disabled){color:#aaa}
+.dev-tab.active{background:rgba(232,117,10,.15);border-color:var(--orange);color:var(--accent)}
+.dev-tab.disabled{opacity:.3;cursor:not-allowed}
+.sec-icons{display:none;flex-direction:column;gap:4px;width:100%;align-items:center}
+.sec-icons.active{display:flex}
+.sec-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:1.2rem;cursor:pointer;color:#777;border:1px solid transparent;position:relative;background:transparent}
+.sec-icon:hover{background:var(--card);color:#ccc}
+.sec-icon.active{background:rgba(232,117,10,.15);border-color:var(--orange);color:var(--accent)}
+.sec-icon .tip{position:absolute;left:54px;top:50%;transform:translateY(-50%);background:#000;border:1px solid var(--border);color:#ddd;font-size:.72rem;padding:4px 9px;border-radius:5px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s;z-index:30}
+.sec-icon:hover .tip{opacity:1}
+
+.main{flex:1;overflow-y:auto;padding:26px 30px 90px}
+.device-panel{display:none}
+.device-panel.active{display:block}
+.section-panel{display:none}
+.section-panel.active{display:block}
+
+.hero{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:22px 26px;display:flex;align-items:center;gap:18px;margin-bottom:20px}
+.hero .hi{font-size:2.4rem;flex-shrink:0}
+.hero .ht{flex:1;min-width:0}
+.hero .ht h2{font-size:1.2rem;color:#fff;margin-bottom:4px}
+.hero .ht .sub{font-size:.8rem;color:#888}
+.hero .detail-btn{border:1px solid var(--border);background:transparent;color:#aaa;font-size:.78rem;padding:8px 16px;border-radius:6px;cursor:pointer;flex-shrink:0;font-family:inherit}
+.hero .detail-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.hero .detail-btn:disabled{opacity:.4;cursor:default}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px}
+.stat-card .k{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:#777;margin-bottom:6px}
+.stat-card .v{font-size:1.3rem;font-weight:700;color:#fff}
+.stat-card .v small{font-size:.7rem;color:#888;font-weight:400}
+.stat-bar{height:5px;background:#0a0a0a;border-radius:3px;margin-top:8px;overflow:hidden}
+.stat-bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--orange),var(--accent))}
+
+.lib-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.lib-pill{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 16px;cursor:pointer;border-color:var(--border)}
+.lib-pill:hover{border-color:var(--fox-dim,#c97417)}
+.lib-pill .li{font-size:1.1rem}
+.lib-pill .lv{font-size:1rem;font-weight:700;color:#fff}
+.lib-pill .lk{font-size:.68rem;color:#888;text-transform:uppercase;letter-spacing:.05em}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:16px}
+.card h3{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.empty{color:#666;font-size:.85rem;line-height:1.7;padding:22px 0;text-align:center}
+.empty .big{font-size:1.8rem;display:block;margin-bottom:8px}
+
+.notice{border-radius:6px;padding:12px 16px;margin-bottom:18px;font-size:.84rem;line-height:1.6}
+.notice.warn{background:#1f0a0a;border:1px solid var(--red);color:#e08080}
+.notice.info{background:#0d1a0f;border:1px solid #2a5a35;color:#80c890}
+.notice.ok{background:#0d1a0f;border:1px solid #2a5a35;color:#80c890}
+.notice.show{display:block}
+.notice:not(.show){display:none}
+
+.page-title{font-size:1.4rem;font-weight:700;color:#fff;margin-bottom:4px}
+.page-sub{font-size:.85rem;color:#888;margin-bottom:20px}
+
+/* File Explorer */
+.breadcrumb{display:flex;align-items:center;gap:4px;flex-wrap:wrap;font-family:var(--mono);font-size:.8rem;color:#999;margin-bottom:14px}
+.breadcrumb .seg{cursor:pointer;padding:3px 6px;border-radius:4px}
+.breadcrumb .seg:hover{background:var(--card);color:var(--accent)}
+.breadcrumb .sep{color:#555}
+.file-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.file-list{border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.file-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);font-size:.85rem;cursor:default}
+.file-row:last-child{border-bottom:none}
+.file-row:hover{background:#161616}
+.file-row .fi{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.file-row .fn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.file-row .fn:hover{color:var(--accent)}
+.file-row .fs{color:#777;font-size:.75rem;flex-shrink:0;width:70px;text-align:right}
+.file-row .fa{display:flex;gap:4px;flex-shrink:0}
+.file-row .fa button{background:transparent;border:1px solid var(--border);color:#888;font-size:.7rem;padding:3px 8px;border-radius:4px;cursor:pointer}
+.file-row .fa button:hover{color:var(--accent);border-color:var(--accent)}
+.progress-wrap{margin-top:10px}
+.progress-bar{height:6px;background:#0a0a0a;border-radius:3px;overflow:hidden;border:1px solid var(--border)}
+.progress-bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--orange),var(--accent));transition:width .1s}
+.progress-txt{font-size:.72rem;color:#888;margin-top:4px;font-family:var(--mono)}
+
+/* Terminal */
+.term{background:#000;border:1px solid var(--border);border-radius:8px;height:360px;overflow-y:auto;padding:12px 14px;font-family:var(--mono);font-size:.8rem;white-space:pre-wrap;word-break:break-all;color:#c8e8c8;margin-bottom:10px}
+.term-input-row{display:flex;gap:8px}
+.term-input-row input{flex:1;background:var(--card);border:1px solid var(--border);color:#fff;font-family:var(--mono);font-size:.85rem;padding:9px 12px;border-radius:6px}
+.term-input-row input:focus{outline:none;border-color:var(--orange)}
+
+/* Screen mirror */
+.screen-wrap{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+#screenCanvas{background:#c8d6b8;border:3px solid #222;border-radius:4px;image-rendering:pixelated;width:384px;height:192px;flex-shrink:0}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(3,52px);gap:4px}
+.dpad button{background:var(--card);border:1px solid var(--border);color:#ccc;font-size:1.1rem;border-radius:6px;cursor:pointer}
+.dpad button:hover{border-color:var(--accent);color:var(--accent)}
+.dpad button:active{background:rgba(232,117,10,.25)}
+.dpad .dp-up{grid-column:2;grid-row:1}
+.dpad .dp-left{grid-column:1;grid-row:2}
+.dpad .dp-ok{grid-column:2;grid-row:2;background:rgba(232,117,10,.15);border-color:var(--orange);color:var(--accent);font-weight:700}
+.dpad .dp-right{grid-column:3;grid-row:2}
+.dpad .dp-down{grid-column:2;grid-row:3}
+.dpad .dp-back{grid-column:1;grid-row:1;font-size:.65rem}
+
+/* Pulse plotter / SubGHz viewer */
+.plot-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.plot-toolbar input[type=file]{font-size:.78rem;color:#aaa}
+#plotCanvas{width:100%;height:220px;background:#080808;border:1px solid var(--border);border-radius:8px;cursor:crosshair;display:block}
+.plot-info{font-family:var(--mono);font-size:.75rem;color:#888;margin-top:8px;display:flex;gap:18px;flex-wrap:wrap}
+
+/* Generic key/value table */
+table.kv{width:100%;border-collapse:collapse;font-size:.82rem}
+table.kv td{padding:6px 8px;border-bottom:1px solid var(--border)}
+table.kv td:first-child{color:#888;width:40%;font-family:var(--mono);font-size:.76rem}
+table.kv td:last-child{color:#eee;word-break:break-all}
+
+/* Command console (ESP32 tabs) */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:14px}
+.cmd-btn{background:var(--card);border:1px solid var(--border);color:#ddd;font-size:.78rem;padding:9px 10px;border-radius:6px;cursor:pointer;text-align:left;font-family:inherit}
+.cmd-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.cmd-btn:disabled{opacity:.35;cursor:not-allowed}
+.cmd-out{background:#000;border:1px solid var(--border);border-radius:8px;height:220px;overflow-y:auto;padding:10px 12px;font-family:var(--mono);font-size:.76rem;white-space:pre-wrap;word-break:break-all;color:#c8e8c8}
+.cmd-input-row{display:flex;gap:8px;margin-top:10px}
+.cmd-input-row input{flex:1;background:var(--card);border:1px solid var(--border);color:#fff;font-family:var(--mono);font-size:.82rem;padding:8px 11px;border-radius:6px}
+.gated-toggle{display:flex;align-items:center;gap:8px;font-size:.8rem;color:#ccc;margin-bottom:14px}
+
+/* Log console (shared, bottom) */
+.logbar{position:fixed;left:0;right:0;bottom:0;background:#080808;border-top:1px solid var(--border);z-index:40}
+.logbar-head{display:flex;align-items:center;justify-content:space-between;padding:8px 20px;cursor:pointer;font-size:.75rem;color:#999;font-family:var(--mono)}
+.logbar-head:hover{color:#ccc}
+.logbar-body{display:none;max-height:180px;overflow-y:auto;padding:0 20px 12px;font-family:var(--mono);font-size:.74rem}
+.logbar.open .logbar-body{display:block}
+.logbar-body div{padding:2px 0;color:#999;border-bottom:1px solid #151515}
+.logbar-body div.ok{color:var(--green)}
+.logbar-body div.e{color:var(--red)}
+.logbar-body div.w{color:#e8b93c}
+.main{padding-bottom:70px}
+
+@media(max-width:640px){
+  .sidebar{width:54px}
+  .main{padding:18px 14px 90px}
+  .tb-right a{display:none}
+  .hero{flex-direction:column;text-align:center}
+  .screen-wrap{flex-direction:column;align-items:center}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="tb-left">
+    <div class="logo">🦊 <span>FoxFW</span> Lab</div>
+    <div class="badge">BETA</div>
+  </div>
+  <div class="tb-right" id="statusRow">
+    <span class="status-pill" id="pillFlipper"><span class="dot"></span><span>Flipper: not connected</span></span>
+    <span class="status-pill" id="pillEsp32"><span class="dot"></span><span>ESP32: not connected</span></span>
+    <button class="bsm pri" id="connectBtn">Connect</button>
+    <a href="index.html">← User Guide</a>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="sidebar">
+    <div class="dev-tabs">
+      <button class="dev-tab active" id="devtab-flipper" data-device="flipper">FLPR</button>
+      <button class="dev-tab" id="devtab-esp32" data-device="esp32">ESP32</button>
+    </div>
+
+    <div class="sec-icons active" id="secicons-flipper" data-device="flipper">
+      <div class="sec-icon active" data-section="dashboard">📊<span class="tip">Dashboard</span></div>
+      <div class="sec-icon" data-section="files">📁<span class="tip">File Explorer</span></div>
+      <div class="sec-icon" data-section="libraries">📚<span class="tip">Libraries</span></div>
+      <div class="sec-icon" data-section="screen">🖥️<span class="tip">Screen</span></div>
+      <div class="sec-icon" data-section="terminal">⌨️<span class="tip">Terminal / CLI</span></div>
+      <div class="sec-icon" data-section="nfc">💳<span class="tip">NFC Tools</span></div>
+      <div class="sec-icon" data-section="paint">🎨<span class="tip">Paint</span></div>
+      <div class="sec-icon" data-section="showcase">🖼️<span class="tip">Showcase</span></div>
+      <div class="sec-icon" data-section="pulseplotter">〰️<span class="tip">Pulse Plotter</span></div>
+      <div class="sec-icon" data-section="subghz">📈<span class="tip">SubGHz Viewer/Trimmer</span></div>
+      <div class="sec-icon" data-section="settings">⚙️<span class="tip">Settings</span></div>
+    </div>
+
+    <div class="sec-icons" id="secicons-esp32" data-device="esp32">
+      <div class="sec-icon active" data-section="dashboard">📊<span class="tip">Dashboard</span></div>
+      <div class="sec-icon" data-section="wifi">📶<span class="tip">WiFi</span></div>
+      <div class="sec-icon" data-section="ble">🔵<span class="tip">BLE</span></div>
+      <div class="sec-icon" data-section="gps">🛰️<span class="tip">GPS</span></div>
+      <div class="sec-icon" data-section="ir">📡<span class="tip">IR</span></div>
+      <div class="sec-icon" data-section="subghz">📻<span class="tip">SubGHz</span></div>
+      <div class="sec-icon" data-section="rfid">🏷️<span class="tip">RFID</span></div>
+      <div class="sec-icon" data-section="ai">🤖<span class="tip">AI</span></div>
+      <div class="sec-icon" data-section="settings">⚙️<span class="tip">Settings</span></div>
+    </div>
+  </nav>
+
+  <main class="main">
+    <!-- ══════════════════ FLIPPER DEVICE PANEL ══════════════════ -->
+    <div class="device-panel active" id="panel-flipper" data-device="flipper">
+
+      <div class="notice warn" id="flipperCompat"></div>
+
+      <section class="section-panel active" data-section="dashboard">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">Connected device overview.</div>
+
+        <div class="hero">
+          <div class="hi">🐬</div>
+          <div class="ht">
+            <h2 id="flipperName">No Flipper connected</h2>
+            <div class="sub" id="flipperSub">Click Connect above and select your Flipper from the browser's port list.</div>
+          </div>
+          <button class="detail-btn" id="flipperDetailBtn" disabled>Detailed view</button>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="k">Battery</div>
+            <div class="v" id="statBattery">—<small> %</small></div>
+            <div class="stat-bar"><i id="barBattery" style="width:0%"></i></div>
+          </div>
+          <div class="stat-card">
+            <div class="k">SD Storage</div>
+            <div class="v" id="statSd">—<small> used</small></div>
+            <div class="stat-bar"><i id="barSd" style="width:0%"></i></div>
+          </div>
+          <div class="stat-card">
+            <div class="k">Internal Storage</div>
+            <div class="v" id="statInt">—<small> used</small></div>
+            <div class="stat-bar"><i id="barInt" style="width:0%"></i></div>
+          </div>
+          <div class="stat-card">
+            <div class="k">Firmware</div>
+            <div class="v" id="statFw" style="font-size:1rem">—</div>
+          </div>
+        </div>
+
+        <div class="lib-row" id="dashLibRow">
+          <div class="lib-pill" data-lib="subghz"><span class="li">📻</span><span class="lv" id="libCountSubghz">—</span><span class="lk">SubGHz</span></div>
+          <div class="lib-pill" data-lib="ir"><span class="li">📡</span><span class="lv" id="libCountIr">—</span><span class="lk">Infrared</span></div>
+          <div class="lib-pill" data-lib="nfc"><span class="li">💳</span><span class="lv" id="libCountNfc">—</span><span class="lk">NFC</span></div>
+          <div class="lib-pill" data-lib="lfrfid"><span class="li">🏷️</span><span class="lv" id="libCountRfid">—</span><span class="lk">RFID</span></div>
+          <div class="lib-pill" data-lib="badusb"><span class="li">🔌</span><span class="lv" id="libCountBadusb">—</span><span class="lk">BadUSB</span></div>
+          <div class="lib-pill" data-lib="apps"><span class="li">📦</span><span class="lv" id="libCountApps">—</span><span class="lk">Apps</span></div>
+        </div>
+
+        <div class="card">
+          <h3>Firmware update</h3>
+          <div id="updateCardBody"><div class="empty"><span class="big">🔄</span>Connect a Flipper to check its firmware version against FoxFW's SDK index.</div></div>
+        </div>
+      </section>
+
+      <section class="section-panel" data-section="files">
+        <div class="page-title">File Explorer</div>
+        <div class="page-sub">Browse, upload, download, rename and delete files on /ext and /int.</div>
+        <div id="filesBody"><div class="empty"><span class="big">📁</span>Connect a Flipper to browse its storage.</div></div>
+      </section>
+
+      <section class="section-panel" data-section="libraries">
+        <div class="page-title">Libraries</div>
+        <div class="page-sub">Indexed SubGHz / IR / NFC / RFID / BadUSB files and installed apps.</div>
+        <div id="librariesBody"><div class="empty"><span class="big">📚</span>Connect a Flipper, then click a library pill on the Dashboard or scan below.</div></div>
+      </section>
+
+      <section class="section-panel" data-section="screen">
+        <div class="page-title">Screen</div>
+        <div class="page-sub">Live 128x64 mirror with D-pad input and screenshot export.</div>
+        <div id="screenBody"><div class="empty"><span class="big">🖥️</span>Connect a Flipper to start the screen mirror.</div></div>
+      </section>
+
+      <section class="section-panel" data-section="terminal">
+        <div class="page-title">Terminal</div>
+        <div class="page-sub">A raw CLI pane over the Flipper's serial console.</div>
+        <div class="notice info show">Only one thing can hold the Flipper's serial port at a time — close qFlipper first. Opening this panel briefly suspends the RPC session (Dashboard/Files/Screen) while it's open.</div>
+        <div id="terminalBody"><div class="empty"><span class="big">⌨️</span>Connect a Flipper to open a terminal.</div></div>
+      </section>
+
+      <section class="section-panel" data-section="nfc">
+        <div class="page-title">NFC Tools</div>
+        <div class="page-sub">Browse and inspect saved .nfc files on /ext/nfc.</div>
+        <div id="nfcBody"><div class="empty"><span class="big">💳</span>Connect a Flipper to browse its NFC library.</div></div>
+      </section>
+
+      <section class="section-panel" data-section="paint">
+        <div class="page-title">Paint</div>
+        <div class="page-sub">FoxFW's full wallpaper painter, embedded here.</div>
+        <div class="notice info show">This embed opens its own serial connection — click Connect inside it (it doesn't share the Lab's Connect above).</div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <iframe id="paintFrame" src="wallpaper-painter.html" style="width:100%;height:900px;border:0;display:block;background:#0c0d10"></iframe>
+        </div>
+        <div class="page-sub" style="margin-top:10px"><a href="wallpaper-painter.html" target="_blank" style="color:var(--accent)">Open Paint in its own tab →</a></div>
+      </section>
+
+      <section class="section-panel" data-section="showcase">
+        <div class="page-title">Showcase</div>
+        <div class="page-sub">Community wallpaper gallery, embedded here.</div>
+        <div class="notice info show">This embed opens its own serial connection — click Connect inside it (it doesn't share the Lab's Connect above).</div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <iframe id="showcaseFrame" src="wallpaper-showcase.html" style="width:100%;height:900px;border:0;display:block;background:#0c0d10"></iframe>
+        </div>
+        <div class="page-sub" style="margin-top:10px"><a href="wallpaper-showcase.html" target="_blank" style="color:var(--accent)">Open Showcase in its own tab →</a></div>
+      </section>
+
+      <section class="section-panel" data-section="pulseplotter">
+        <div class="page-title">Pulse Plotter</div>
+        <div class="page-sub">Plot raw pulse timing from a SubGHz (.sub) or Infrared (.ir) capture.</div>
+        <div id="plotterBody"></div>
+      </section>
+
+      <section class="section-panel" data-section="subghz">
+        <div class="page-title">SubGHz Viewer / Trimmer</div>
+        <div class="page-sub">Load a .sub RAW file, view its waveform, trim it, save the result.</div>
+        <div id="subghzViewerBody"></div>
+      </section>
+
+      <section class="section-panel" data-section="settings">
+        <div class="page-title">Settings</div>
+        <div class="page-sub">Device clock, reboot, and FoxFW-specific settings.</div>
+        <div id="settingsBody"><div class="empty"><span class="big">⚙️</span>Connect a Flipper to see its settings.</div></div>
+      </section>
+
+    </div>
+
+    <!-- ══════════════════ ESP32 DEVICE PANEL ══════════════════ -->
+    <div class="device-panel" id="panel-esp32" data-device="esp32">
+
+      <section class="section-panel active" data-section="dashboard">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">Connected ESP32 overview.</div>
+
+        <div class="hero">
+          <div class="hi">📡</div>
+          <div class="ht">
+            <h2 id="esp32Name">No ESP32 connected</h2>
+            <div class="sub" id="esp32Sub">Click Connect above and select your Fox_ESP32_FW device from the browser's port list.</div>
+          </div>
+          <button class="detail-btn" disabled>Detailed view</button>
+        </div>
+
+        <div class="card">
+          <h3>Hardware</h3>
+          <div id="esp32HwBody"><div class="empty"><span class="big">📊</span>Connect an ESP32 to see which optional hardware (RFID/SubGHz/IR/GPS) is enabled.</div></div>
+        </div>
+      </section>
+
+      <section class="section-panel" data-section="wifi">
+        <div class="page-title">WiFi</div>
+        <div class="page-sub">Scan, wardrive, sniff, and (once armed) attack.</div>
+        <div id="esp32WifiBody"></div>
+      </section>
+
+      <section class="section-panel" data-section="ble">
+        <div class="page-title">BLE</div>
+        <div class="page-sub">General BLE bridge, tag detection (FINDMY/SMARTTAG/TILE/FLOCK), and (once armed) spam.</div>
+        <div id="esp32BleBody"></div>
+      </section>
+
+      <section class="section-panel" data-section="gps">
+        <div class="page-title">GPS</div>
+        <div class="page-sub">Fix/track readout and POI marking (optional hardware).</div>
+        <div id="esp32GpsBody"></div>
+      </section>
+
+      <section class="section-panel" data-section="ir">
+        <div class="page-title">IR</div>
+        <div class="page-sub">Send, receive, and TV-B-Gone (optional hardware).</div>
+        <div id="esp32IrBody"></div>
+      </section>
+
+      <section class="section-panel" data-section="subghz">
+        <div class="page-title">SubGHz</div>
+        <div class="page-sub">External CC1101-on-ESP32 radio control (optional hardware), independent of the Flipper's own radio.</div>
+        <div id="esp32SubghzBody"></div>
+      </section>
+
+      <section class="section-panel" data-section="rfid">
+        <div class="page-title">RFID</div>
+        <div class="page-sub">PN532 breakout — scan/read/write Mifare (optional hardware).</div>
+        <div id="esp32RfidBody"></div>
+      </section>
+
+      <section class="section-panel" data-section="ai">
+        <div class="page-title">AI</div>
+        <div class="page-sub">Gemini relay, cooldown-gated.</div>
+        <div id="esp32AiBody"></div>
+      </section>
+
+      <section class="section-panel" data-section="settings">
+        <div class="page-title">Settings</div>
+        <div class="page-sub">Fox_ESP32_FW settings, including the attacks-arm toggle.</div>
+        <div id="esp32SettingsBody"></div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div class="logbar" id="logbar">
+  <div class="logbar-head" id="logbarHead"><span>▸ Device Log</span><span id="logbarCount"></span></div>
+  <div class="logbar-body" id="logbarBody"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/protobufjs/7.4.0/protobuf.min.js"></script>
+<script src="assets/js/flipper-rpc.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  function $(id) { return document.getElementById(id); }
+  const FLIPPER_VID = 0x0483;
+
+  // ── Shared log console ─────────────────────────────────────────────
+  const logbar = $("logbar");
+  const logbarBody = $("logbarBody");
+  const logbarCount = $("logbarCount");
+  let logCount = 0;
+  $("logbarHead").addEventListener("click", () => logbar.classList.toggle("open"));
+  function logLine(msg, cls) {
+    const div = document.createElement("div");
+    if (cls) div.className = cls;
+    const ts = new Date().toLocaleTimeString();
+    div.textContent = `[${ts}] ${msg}`;
+    logbarBody.appendChild(div);
+    logbarBody.scrollTop = logbarBody.scrollHeight;
+    logCount++;
+    logbarCount.textContent = logCount + " entries";
+  }
+
+  // ── Device/section tab switching ────────────────────────────────────
+  let activeDevice = "flipper";
+  let activeSection = { flipper: "dashboard", esp32: "dashboard" };
+
+  function setDevice(device) {
+    activeDevice = device;
+    document.querySelectorAll(".dev-tab").forEach(el => el.classList.toggle("active", el.dataset.device === device));
+    document.querySelectorAll(".sec-icons").forEach(el => el.classList.toggle("active", el.dataset.device === device));
+    document.querySelectorAll(".device-panel").forEach(el => el.classList.toggle("active", el.dataset.device === device));
+    updateConnectBtn();
+  }
+
+  async function setSection(device, section) {
+    const prevSection = activeSection[device];
+    if (device === "flipper" && prevSection !== section) {
+      await onLeaveFlipperSection(prevSection).catch(e => logLine("Leaving section: " + e.message, "e"));
+    }
+    activeSection[device] = section;
+    const iconRow = $("secicons-" + device);
+    iconRow.querySelectorAll(".sec-icon").forEach(el => el.classList.toggle("active", el.dataset.section === section));
+    const panel = $("panel-" + device);
+    panel.querySelectorAll(".section-panel").forEach(el => el.classList.toggle("active", el.dataset.section === section));
+    if (device === "flipper") {
+      await onEnterFlipperSection(section).catch(e => logLine("Entering section: " + e.message, "e"));
+    }
+  }
+
+  document.querySelectorAll(".dev-tab").forEach(btn => {
+    btn.addEventListener("click", () => { if (!btn.classList.contains("disabled")) setDevice(btn.dataset.device); });
+  });
+  document.querySelectorAll(".sec-icon").forEach(icon => {
+    icon.addEventListener("click", () => {
+      const device = icon.closest(".sec-icons").dataset.device;
+      setSection(device, icon.dataset.section);
+    });
+  });
+
+  // Screen streaming and the Terminal's CLI mode are mutually exclusive
+  // with everything else on the wire, so tear them down/back up as the
+  // user leaves/enters those two sections rather than leaving them
+  // running in the background.
+  async function onLeaveFlipperSection(section) {
+    if (!flipper.connected) return;
+    if (section === "screen" && flipper.screenStreamActive) {
+      await flipper.stopScreenStream();
+    }
+    if (section === "terminal" && flipper.cliMode) {
+      await flipper.exitCliMode();
+      logLine("Left CLI mode, RPC session resumed.");
+    }
+  }
+  async function onEnterFlipperSection(section) {
+    if (!flipper.connected) return;
+    if (section === "screen") await startScreenMirror();
+    if (section === "terminal") await enterTerminal();
+    if (section === "files" && !fileExplorerState.loaded) await refreshFileList();
+    if (section === "nfc" && !nfcState.loaded) await refreshNfcList();
+  }
+
+  // ── Flipper RPC client ──────────────────────────────────────────────
+  const flipper = new FlipperRPC({
+    onLog: logLine,
+    onScreenFrame: (data, orientation) => renderScreenFrame(data, orientation),
+    onConnectionLost: () => {
+      setPillConnected("flipper", false, "Flipper: reconnecting…");
+      if (activeDevice === "flipper") $("connectBtn").disabled = true;
+      updateConnectBtn();
+    },
+    onReconnected: () => {
+      setPillConnected("flipper", true, "Flipper: connected");
+      if (activeDevice === "flipper") $("connectBtn").disabled = false;
+      updateConnectBtn();
+    },
+  });
+
+  function updateConnectBtn() {
+    const btn = $("connectBtn");
+    const connected = activeDevice === "flipper" ? flipper.connected : esp32.connected;
+    btn.textContent = connected ? "Disconnect" : "Connect";
+    btn.classList.toggle("pri", !connected);
+  }
+
+  function setPillConnected(device, connected, label) {
+    const pill = $(device === "flipper" ? "pillFlipper" : "pillEsp32");
+    pill.classList.toggle("connected", connected);
+    pill.querySelector("span:last-child").textContent = label;
+  }
+
+  // ── ESP32 raw serial client (plain text commands, no protobuf) ──────
+  const esp32 = {
+    port: null,
+    writer: null,
+    reader: null,
+    connected: false,
+    lineBuffer: "",
+    listeners: [], // (line) => void, called per received line
+    _intentionalDisconnect: false,
+    _reconnecting: false,
+    _reconnectGeneration: 0,
+    _serialListenersBound: false,
+    async connect() {
+      const port = await navigator.serial.requestPort();
+      this._intentionalDisconnect = false;
+      this._reconnectGeneration++;
+      await port.open({ baudRate: 115200 });
+      this.port = port;
+      this.writer = port.writable.getWriter();
+      this.reader = port.readable.getReader();
+      this.connected = true;
+      this.readLoop();
+      this._bindSerialEvents();
+      logLine("ESP32 serial port open.", "ok");
+    },
+    // See flipper-rpc.js's FlipperRPC for the identical pattern/reasoning -
+    // this client is a separate hand-rolled one (plain text, no protobuf)
+    // so it needs its own copy rather than sharing the class.
+    _bindSerialEvents() {
+      if (this._serialListenersBound || !("serial" in navigator)) return;
+      this._serialListenersBound = true;
+      navigator.serial.addEventListener("disconnect", (evt) => {
+        if (evt.target === this.port) this._handleUnexpectedDrop();
+      });
+      navigator.serial.addEventListener("connect", (evt) => {
+        if (evt.target === this.port && this._reconnecting) this._tryReopen();
+      });
+    },
+    _handleUnexpectedDrop() {
+      if (!this.connected || this._intentionalDisconnect || this._reconnecting) return;
+      this.connected = false;
+      this.lineBuffer = "";
+      try { this.reader.releaseLock(); } catch (e) {}
+      try { this.writer.releaseLock(); } catch (e) {}
+      this._reconnecting = true;
+      logLine("ESP32 connection lost — waiting for the device to come back...", "e");
+      if (activeDevice === "esp32") {
+        setPillConnected("esp32", false, "ESP32: reconnecting…");
+        $("connectBtn").disabled = true;
+      }
+      this._reconnectLoop(this._reconnectGeneration);
+    },
+    _reconnectLoop(generation) {
+      if (generation !== this._reconnectGeneration || !this._reconnecting) return;
+      this._tryReopen(generation).finally(() => {
+        setTimeout(() => this._reconnectLoop(generation), 1500);
+      });
+    },
+    async _tryReopen(generation) {
+      if (!this._reconnecting || this._intentionalDisconnect) return;
+      if (generation !== undefined && generation !== this._reconnectGeneration) return;
+      try {
+        await this.port.open({ baudRate: 115200 });
+      } catch (e) {
+        return;
+      }
+      if (!this._reconnecting) {
+        try { await this.port.close(); } catch (e) {}
+        return;
+      }
+      this.writer = this.port.writable.getWriter();
+      this.reader = this.port.readable.getReader();
+      this.connected = true;
+      this._reconnecting = false;
+      this.readLoop();
+      logLine("ESP32 reconnected.", "ok");
+      if (activeDevice === "esp32") {
+        setPillConnected("esp32", true, "ESP32: connected");
+        $("connectBtn").disabled = false;
+      }
+    },
+    async readLoop() {
+      try {
+        while (this.connected) {
+          const { value, done } = await this.reader.read();
+          if (done) break;
+          if (!value || !value.length) continue;
+          this.lineBuffer += new TextDecoder().decode(value);
+          let idx;
+          while ((idx = this.lineBuffer.indexOf("\n")) >= 0) {
+            const line = this.lineBuffer.slice(0, idx).replace(/\r$/, "");
+            this.lineBuffer = this.lineBuffer.slice(idx + 1);
+            if (line.length) this.listeners.forEach(fn => { try { fn(line); } catch (e) {} });
+          }
+        }
+      } catch (e) {
+        if (this.connected) logLine("ESP32 serial read error: " + e.message, "e");
+      }
+      if (this.connected && !this._intentionalDisconnect) this._handleUnexpectedDrop();
+    },
+    async send(cmd) {
+      if (!this.connected) return;
+      await this.writer.write(new TextEncoder().encode(cmd + "\n"));
+    },
+    onLine(fn) { this.listeners.push(fn); return () => { this.listeners = this.listeners.filter(f => f !== fn); }; },
+    async disconnect() {
+      this._intentionalDisconnect = true;
+      this._reconnecting = false;
+      this._reconnectGeneration++;
+      this.connected = false;
+      try { await this.reader.cancel(); } catch (e) {}
+      try { this.reader.releaseLock(); } catch (e) {}
+      try { this.writer.releaseLock(); } catch (e) {}
+      try { await this.port.close(); } catch (e) {}
+      this.port = null;
+      this.lineBuffer = "";
+      logLine("ESP32 disconnected.");
+    },
+    // Sends a command, collects lines until a predicate matches (a
+    // "DONE"-style sentinel or an ERROR line), with a timeout. Fox_ESP32_FW's
+    // command/response framing (see FoxESP32_Help.html) is line-oriented
+    // with per-subsystem completion sentinels, not request/response pairs
+    // with IDs, so this is the general shape every command here needs.
+    sendAndCollect(cmd, isDone, timeoutMs = 12000) {
+      return new Promise((resolve, reject) => {
+        const collected = [];
+        const timer = setTimeout(() => { off(); reject(new Error("Timed out waiting for a response.")); }, timeoutMs);
+        const off = this.onLine((line) => {
+          collected.push(line);
+          if (line.startsWith("ERROR")) { clearTimeout(timer); off(); resolve(collected); return; }
+          if (isDone(line)) { clearTimeout(timer); off(); resolve(collected); }
+        });
+        this.send(cmd).catch(e => { clearTimeout(timer); off(); reject(e); });
+      });
+    },
+  };
+
+  // ── Connect flow ─────────────────────────────────────────────────────
+  // One requestPort() prompt; after opening, probe which firmware answered
+  // (Flipper's CLI vs. Fox_ESP32_FW's "info" -> "Fox ESP32 Firmware" line)
+  // and route to that device's own connect path, switching the sidebar to
+  // match. See FOXFW_LAB_WEBUI_DESIGN.md 3 - simultaneous Flipper+ESP32
+  // over one Flipper GPIO-UART relay isn't attempted here, each device
+  // gets its own independent Web Serial connection.
+  async function doConnect() {
+    if (!("serial" in navigator)) {
+      $("flipperCompat").textContent = "Web Serial isn't supported in this browser — use Chrome or Edge on desktop.";
+      $("flipperCompat").classList.add("show");
+      return;
+    }
+
+    const connected = activeDevice === "flipper" ? flipper.connected : esp32.connected;
+    if (connected) {
+      if (activeDevice === "flipper") await flipper.disconnect(); else await esp32.disconnect();
+      setPillConnected(activeDevice, false, (activeDevice === "flipper" ? "Flipper" : "ESP32") + ": not connected");
+      resetDeviceUi(activeDevice);
+      updateConnectBtn();
+      return;
+    }
+
+    const btn = $("connectBtn");
+    btn.disabled = true;
+    try {
+      if (activeDevice === "flipper") {
+        await flipper.connect();
+        setPillConnected("flipper", true, "Flipper: connected");
+        await onFlipperConnected();
+      } else {
+        await esp32.connect();
+        setPillConnected("esp32", true, "ESP32: connected");
+        await onEsp32Connected();
+      }
+    } catch (e) {
+      if (e && e.name !== "NotFoundError") logLine("Connect failed: " + e.message, "e");
+    }
+    btn.disabled = false;
+    updateConnectBtn();
+  }
+  $("connectBtn").addEventListener("click", doConnect);
+
+  function resetDeviceUi(device) {
+    if (device === "flipper") {
+      $("flipperName").textContent = "No Flipper connected";
+      $("flipperSub").textContent = "Click Connect above and select your Flipper from the browser's port list.";
+      $("flipperDetailBtn").disabled = true;
+      fileExplorerState.loaded = false;
+      nfcState.loaded = false;
+      librariesState.scanned = false;
+    } else {
+      $("esp32Name").textContent = "No ESP32 connected";
+      $("esp32Sub").textContent = "Click Connect above and select your Fox_ESP32_FW device from the browser's port list.";
+    }
+  }
+
+  window.addEventListener("beforeunload", () => {
+    if (flipper.connected) flipper.disconnect();
+    if (esp32.connected) esp32.disconnect();
+  });
+
+  // ══════════════════════ FLIPPER: Dashboard ══════════════════════════
+
+  function formatBytes(n) {
+    if (n === undefined || n === null) return "—";
+    n = Number(n);
+    if (n < 1024) return n + " B";
+    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + " KB";
+    if (n < 1024 * 1024 * 1024) return (n / (1024 * 1024)).toFixed(1) + " MB";
+    return (n / (1024 * 1024 * 1024)).toFixed(2) + " GB";
+  }
+
+  function parseFoxfwVersion(str) {
+    const m = /^foxfw-v(\d+)\.(\d+)\.(\d+)/.exec(str || "");
+    return m ? { major: +m[1], minor: +m[2], patch: +m[3] } : null;
+  }
+  function versionString(v) { return v ? `${v.major}.${v.minor}.${v.patch}` : "unknown"; }
+  function isVersionAtLeast(v, min) {
+    if (v.major !== min.major) return v.major > min.major;
+    if (v.minor !== min.minor) return v.minor > min.minor;
+    return v.patch >= min.patch;
+  }
+
+  let lastDeviceInfo = null;
+
+  async function onFlipperConnected() {
+    $("flipperCompat").classList.remove("show");
+    $("flipperName").textContent = "Flipper connected";
+    $("flipperSub").textContent = "Loading device info…";
+    $("flipperDetailBtn").disabled = false;
+    try {
+      const info = await flipper.getDeviceInfo();
+      lastDeviceInfo = info;
+      const v = parseFoxfwVersion(info["firmware_version"]);
+      $("flipperName").textContent = info["hardware_name"] || "Flipper Zero";
+      $("flipperSub").textContent = v ? `FoxFW v${versionString(v)}` : (info["firmware_version"] || "Firmware version unknown");
+      $("statFw").textContent = v ? `v${versionString(v)}` : "unknown";
+      await refreshPowerInfo();
+      await refreshStorageInfo();
+      await refreshFirmwareUpdateCheck(v);
+    } catch (e) {
+      logLine("Dashboard load failed: " + e.message, "e");
+      $("flipperSub").textContent = "Connected, but couldn't read device info: " + e.message;
+    }
+    // Kick off a Libraries scan in the background so the Dashboard's
+    // library counts and the Libraries panel are both ready without
+    // making the user visit Libraries first.
+    scanLibraries().catch(e => logLine("Library scan failed: " + e.message, "w"));
+  }
+
+  async function refreshPowerInfo() {
+    try {
+      const power = await flipper.getPowerInfo();
+      const pct = power["gauge_charge"] || power["charge"] || power["battery_charge"];
+      const pctNum = pct !== undefined ? Math.round(parseFloat(pct)) : null;
+      if (pctNum !== null && !Number.isNaN(pctNum)) {
+        $("statBattery").innerHTML = pctNum + "<small> %</small>";
+        $("barBattery").style.width = Math.min(100, Math.max(0, pctNum)) + "%";
+      }
+    } catch (e) {
+      logLine("Power info: " + e.message, "w");
+    }
+  }
+
+  async function refreshStorageInfo() {
+    try {
+      const ext = await flipper.getStorageInfo("/ext");
+      if (ext) {
+        const usedPct = ext.total_space > 0 ? Math.round(((ext.total_space - ext.free_space) / ext.total_space) * 100) : 0;
+        $("statSd").innerHTML = usedPct + "<small> % used</small>";
+        $("barSd").style.width = usedPct + "%";
+      }
+    } catch (e) { logLine("SD storage info: " + e.message, "w"); }
+    try {
+      const int_ = await flipper.getStorageInfo("/int");
+      if (int_) {
+        const usedPct = int_.total_space > 0 ? Math.round(((int_.total_space - int_.free_space) / int_.total_space) * 100) : 0;
+        $("statInt").innerHTML = usedPct + "<small> % used</small>";
+        $("barInt").style.width = usedPct + "%";
+      }
+    } catch (e) { logLine("Internal storage info: " + e.message, "w"); }
+  }
+
+  async function refreshFirmwareUpdateCheck(v) {
+    const body = $("updateCardBody");
+    if (!v) {
+      body.innerHTML = '<div class="empty">Couldn\'t determine the connected firmware\'s version.</div>';
+      return;
+    }
+    body.innerHTML = '<div class="empty">Checking FoxFW\'s SDK index…</div>';
+    try {
+      const resp = await fetch("directory.json", { cache: "no-store" });
+      const dir = await resp.json();
+      const releaseChannel = (dir.channels || []).find(c => c.id === "release") || (dir.channels || [])[0];
+      const latestStr = releaseChannel && releaseChannel.versions && releaseChannel.versions[0] && releaseChannel.versions[0].version;
+      const latest = latestStr ? { major: +latestStr.split(".")[0], minor: +latestStr.split(".")[1], patch: +latestStr.split(".")[2] } : null;
+      if (!latest) {
+        body.innerHTML = '<div class="empty">Couldn\'t read the SDK index.</div>';
+        return;
+      }
+      if (isVersionAtLeast(v, latest)) {
+        body.innerHTML = `<div class="notice ok show">You're up to date — v${versionString(v)} (latest is v${versionString(latest)}).</div>`;
+      } else {
+        body.innerHTML = `<div class="notice warn show">Update available: v${versionString(latest)} (you have v${versionString(v)}).</div>
+          <a href="flasher.html" class="bsm pri" style="display:inline-block;text-decoration:none;margin-top:10px">Open Web Flasher →</a>`;
+      }
+    } catch (e) {
+      body.innerHTML = '<div class="empty">Update check failed: ' + e.message + '</div>';
+    }
+  }
+
+  $("flipperDetailBtn").addEventListener("click", () => {
+    if (!lastDeviceInfo) return;
+    const rows = Object.keys(lastDeviceInfo).sort().map(k =>
+      `<tr><td>${k}</td><td>${lastDeviceInfo[k]}</td></tr>`).join("");
+    $("updateCardBody").insertAdjacentHTML("afterend", "");
+    alert(Object.keys(lastDeviceInfo).map(k => k + ": " + lastDeviceInfo[k]).join("\n"));
+  });
+
+  // ══════════════════════ FLIPPER: Libraries ══════════════════════════
+
+  const LIB_DIRS = {
+    subghz: "/ext/subghz",
+    ir: "/ext/infrared",
+    nfc: "/ext/nfc",
+    lfrfid: "/ext/lfrfid",
+    badusb: "/ext/badusb",
+    apps: "/ext/apps",
+  };
+  const LIB_EXT = { subghz: ".sub", ir: ".ir", nfc: ".nfc", lfrfid: ".rfid", badusb: ".txt", apps: ".fap" };
+
+  const librariesState = { scanned: false, counts: {}, files: {} };
+
+  // Recursively lists a directory over RPC, one storage_list_request per
+  // folder (there's no recursive-list request in storage.proto) - fine for
+  // a background scan, just needs to not be called on every tab switch.
+  async function listRecursive(path, extFilter, depthLeft = 6) {
+    let results = [];
+    let entries;
+    try {
+      entries = await flipper.listDir(path);
+    } catch (e) {
+      return results;
+    }
+    for (const f of entries) {
+      const full = path + "/" + f.name;
+      if (f.type === 1) {
+        if (depthLeft > 0) results = results.concat(await listRecursive(full, extFilter, depthLeft - 1));
+      } else if (!extFilter || f.name.toLowerCase().endsWith(extFilter)) {
+        results.push({ path: full, name: f.name, size: f.size });
+      }
+    }
+    return results;
+  }
+
+  async function scanLibraries() {
+    if (!flipper.connected) return;
+    for (const key of Object.keys(LIB_DIRS)) {
+      try {
+        const files = await listRecursive(LIB_DIRS[key], LIB_EXT[key]);
+        librariesState.files[key] = files;
+        librariesState.counts[key] = files.length;
+      } catch (e) {
+        librariesState.counts[key] = 0;
+      }
+    }
+    librariesState.scanned = true;
+    $("libCountSubghz").textContent = librariesState.counts.subghz ?? "—";
+    $("libCountIr").textContent = librariesState.counts.ir ?? "—";
+    $("libCountNfc").textContent = librariesState.counts.nfc ?? "—";
+    $("libCountRfid").textContent = librariesState.counts.lfrfid ?? "—";
+    $("libCountBadusb").textContent = librariesState.counts.badusb ?? "—";
+    $("libCountApps").textContent = librariesState.counts.apps ?? "—";
+    renderLibrariesPanel();
+  }
+
+  function renderLibrariesPanel(filterKey) {
+    const body = $("librariesBody");
+    if (!librariesState.scanned) {
+      body.innerHTML = '<div class="empty"><span class="big">📚</span>Scanning…</div>';
+      return;
+    }
+    const keys = filterKey ? [filterKey] : Object.keys(LIB_DIRS);
+    let html = "";
+    for (const key of keys) {
+      const files = librariesState.files[key] || [];
+      html += `<div class="card"><h3>${key.toUpperCase()} <span style="color:#666;font-weight:400">${files.length} file(s)</span></h3>`;
+      if (!files.length) {
+        html += '<div class="empty">Nothing found.</div>';
+      } else {
+        html += '<div class="file-list">' + files.slice(0, 300).map(f =>
+          `<div class="file-row"><span class="fi">📄</span><span class="fn" title="${f.path}">${f.path}</span><span class="fs">${formatBytes(f.size)}</span></div>`
+        ).join("") + "</div>";
+        if (files.length > 300) html += `<div class="empty">…and ${files.length - 300} more.</div>`;
+      }
+      html += "</div>";
+    }
+    body.innerHTML = html;
+  }
+
+  document.querySelectorAll(".lib-pill").forEach(pill => {
+    pill.addEventListener("click", () => {
+      setSection("flipper", "libraries").then(() => renderLibrariesPanel(pill.dataset.lib));
+    });
+  });
+
+  // ══════════════════════ FLIPPER: File Explorer ══════════════════════
+
+  const fileExplorerState = { loaded: false, path: "/ext", entries: [] };
+
+  function renderBreadcrumb(path) {
+    const parts = path.split("/").filter(Boolean);
+    let acc = "";
+    let html = '<span class="seg" data-path="/">/</span>';
+    for (const p of parts) {
+      acc += "/" + p;
+      html += `<span class="sep">›</span><span class="seg" data-path="${acc}">${p}</span>`;
+    }
+    return html;
+  }
+
+  async function refreshFileList() {
+    fileExplorerState.loaded = true;
+    const body = $("filesBody");
+    body.innerHTML = `
+      <div class="breadcrumb" id="fileBreadcrumb"></div>
+      <div class="file-toolbar">
+        <button class="bsm" id="fileNewFolderBtn">📁 New folder</button>
+        <label class="bsm" style="cursor:pointer">⬆ Upload<input type="file" id="fileUploadInput" style="display:none"></label>
+        <button class="bsm" id="fileRefreshBtn">↻ Refresh</button>
+      </div>
+      <div class="file-list" id="fileListEl"><div class="empty">Loading…</div></div>
+      <div class="progress-wrap" id="fileProgressWrap" style="display:none">
+        <div class="progress-bar"><i id="fileProgressBar"></i></div>
+        <div class="progress-txt" id="fileProgressTxt"></div>
+      </div>`;
+    $("fileNewFolderBtn").addEventListener("click", onNewFolder);
+    $("fileUploadInput").addEventListener("change", onUploadFile);
+    $("fileRefreshBtn").addEventListener("click", () => loadFileDir(fileExplorerState.path));
+    await loadFileDir(fileExplorerState.path);
+  }
+
+  async function loadFileDir(path) {
+    fileExplorerState.path = path;
+    $("fileBreadcrumb").innerHTML = renderBreadcrumb(path);
+    $("fileBreadcrumb").querySelectorAll(".seg").forEach(seg => {
+      seg.addEventListener("click", () => loadFileDir(seg.dataset.path));
+    });
+    const listEl = $("fileListEl");
+    listEl.innerHTML = '<div class="empty">Loading…</div>';
+    try {
+      const entries = await flipper.listDir(path, { includeMd5: false });
+      entries.sort((a, b) => (b.type - a.type) || a.name.localeCompare(b.name));
+      fileExplorerState.entries = entries;
+      if (!entries.length) {
+        listEl.innerHTML = '<div class="empty">Empty folder.</div>';
+        return;
+      }
+      listEl.innerHTML = entries.map(f => {
+        const isDir = f.type === 1;
+        const full = (path === "/" ? "" : path) + "/" + f.name;
+        return `<div class="file-row" data-path="${full}" data-dir="${isDir ? 1 : 0}">
+          <span class="fi">${isDir ? "📁" : "📄"}</span>
+          <span class="fn">${f.name}</span>
+          <span class="fs">${isDir ? "" : formatBytes(f.size)}</span>
+          <span class="fa">
+            ${isDir ? "" : '<button data-act="dl">⬇</button>'}
+            <button data-act="ren">✎</button>
+            <button data-act="del">🗑</button>
+          </span>
+        </div>`;
+      }).join("");
+      listEl.querySelectorAll(".file-row").forEach(row => {
+        const full = row.dataset.path;
+        const isDir = row.dataset.dir === "1";
+        row.querySelector(".fn").addEventListener("click", () => {
+          if (isDir) loadFileDir(full);
+        });
+        const dlBtn = row.querySelector('[data-act="dl"]');
+        if (dlBtn) dlBtn.addEventListener("click", (e) => { e.stopPropagation(); downloadFile(full); });
+        row.querySelector('[data-act="ren"]').addEventListener("click", (e) => { e.stopPropagation(); renameEntry(full); });
+        row.querySelector('[data-act="del"]').addEventListener("click", (e) => { e.stopPropagation(); deleteEntry(full, isDir); });
+      });
+    } catch (e) {
+      listEl.innerHTML = '<div class="empty">Couldn\'t list this folder: ' + e.message + '</div>';
+    }
+  }
+
+  async function downloadFile(path) {
+    try {
+      logLine("Downloading " + path + "…");
+      const bytes = await flipper.readFileChunked(path);
+      const blob = new Blob([bytes]);
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = path.split("/").pop();
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      logLine("Downloaded " + path, "ok");
+    } catch (e) {
+      logLine("Download failed: " + e.message, "e");
+    }
+  }
+
+  async function onUploadFile(evt) {
+    const file = evt.target.files[0];
+    if (!file) return;
+    const targetPath = (fileExplorerState.path === "/" ? "" : fileExplorerState.path) + "/" + file.name;
+    const progWrap = $("fileProgressWrap");
+    progWrap.style.display = "block";
+    try {
+      const buf = new Uint8Array(await file.arrayBuffer());
+      await flipper.writeFileChunked(targetPath, buf, (sent, total) => {
+        $("fileProgressBar").style.width = Math.round((sent / total) * 100) + "%";
+        $("fileProgressTxt").textContent = `Uploading ${file.name}… (${sent}/${total})`;
+      });
+      logLine("Uploaded " + targetPath, "ok");
+    } catch (e) {
+      logLine("Upload failed: " + e.message, "e");
+    }
+    progWrap.style.display = "none";
+    evt.target.value = "";
+    await loadFileDir(fileExplorerState.path);
+  }
+
+  async function onNewFolder() {
+    const name = prompt("New folder name:");
+    if (!name) return;
+    const path = (fileExplorerState.path === "/" ? "" : fileExplorerState.path) + "/" + name;
+    try {
+      await flipper.mkdir(path);
+      logLine("Created " + path, "ok");
+    } catch (e) {
+      logLine("mkdir failed: " + e.message, "e");
+    }
+    await loadFileDir(fileExplorerState.path);
+  }
+
+  async function renameEntry(path) {
+    const oldName = path.split("/").pop();
+    const newName = prompt("Rename to:", oldName);
+    if (!newName || newName === oldName) return;
+    const newPath = path.slice(0, path.length - oldName.length) + newName;
+    try {
+      await flipper.renameFile(path, newPath);
+      logLine("Renamed to " + newPath, "ok");
+    } catch (e) {
+      logLine("Rename failed: " + e.message, "e");
+    }
+    await loadFileDir(fileExplorerState.path);
+  }
+
+  async function deleteEntry(path, isDir) {
+    if (!confirm(`Delete ${path}?${isDir ? " (and everything inside it)" : ""}`)) return;
+    try {
+      await flipper.deleteFile(path, isDir);
+      logLine("Deleted " + path, "ok");
+    } catch (e) {
+      logLine("Delete failed: " + e.message, "e");
+    }
+    await loadFileDir(fileExplorerState.path);
+  }
+
+  // ══════════════════════ FLIPPER: Screen mirror ══════════════════════
+
+  let screenCanvas = null, screenCtx = null;
+
+  function ensureScreenUi() {
+    const body = $("screenBody");
+    if ($("screenCanvas")) return;
+    body.innerHTML = `
+      <div class="screen-wrap">
+        <canvas id="screenCanvas" width="128" height="64"></canvas>
+        <div>
+          <div class="dpad">
+            <button class="dp-back" data-key="5">BACK</button>
+            <button class="dp-up" data-key="0">▲</button>
+            <button class="dp-left" data-key="3">◀</button>
+            <button class="dp-ok" data-key="4">OK</button>
+            <button class="dp-right" data-key="2">▶</button>
+            <button class="dp-down" data-key="1">▼</button>
+          </div>
+          <button class="bsm" id="screenshotBtn" style="margin-top:14px;width:100%">📸 Save screenshot</button>
+        </div>
+      </div>`;
+    screenCanvas = $("screenCanvas");
+    screenCtx = screenCanvas.getContext("2d");
+    screenCanvas.querySelectorAll ? null : null;
+    body.querySelectorAll(".dpad button").forEach(btn => {
+      btn.addEventListener("click", () => flipper.tapInput(+btn.dataset.key).catch(e => logLine("Input failed: " + e.message, "e")));
+    });
+    $("screenshotBtn").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = screenCanvas.toDataURL("image/png");
+      a.download = "flipper-screenshot.png";
+      a.click();
+    });
+  }
+
+  async function startScreenMirror() {
+    ensureScreenUi();
+    try {
+      await flipper.startScreenStream();
+      logLine("Screen stream started.", "ok");
+    } catch (e) {
+      logLine("Screen stream failed: " + e.message, "e");
+    }
+  }
+
+  // Flipper's screen is 128x64, 1bpp, packed row-major MSB-first (same
+  // framebuffer format u8g2/the firmware's Canvas uses) - 1024 bytes total.
+  function renderScreenFrame(data, orientation) {
+    if (!screenCtx) return;
+    const img = screenCtx.createImageData(128, 64);
+    const bytesPerRow = 128 / 8;
+    for (let y = 0; y < 64; y++) {
+      for (let x = 0; x < 128; x++) {
+        const byteIdx = y * bytesPerRow + (x >> 3);
+        const bit = data[byteIdx] !== undefined ? (data[byteIdx] >> (x & 7)) & 1 : 0;
+        const on = bit === 1;
+        const idx = (y * 128 + x) * 4;
+        const v = on ? 30 : 200;
+        img.data[idx] = v; img.data[idx + 1] = on ? 40 : 214; img.data[idx + 2] = v; img.data[idx + 3] = 255;
+      }
+    }
+    screenCtx.putImageData(img, 0, 0);
+  }
+
+  // ══════════════════════ FLIPPER: Terminal ═══════════════════════════
+
+  let termEl = null;
+
+  function ensureTerminalUi() {
+    if ($("termOutput")) return;
+    $("terminalBody").innerHTML = `
+      <div class="term" id="termOutput"></div>
+      <div class="term-input-row">
+        <input type="text" id="termInput" placeholder="Type a CLI command and press Enter…" autocomplete="off">
+        <button class="bsm pri" id="termSendBtn">Send</button>
+      </div>`;
+    termEl = $("termOutput");
+    const input = $("termInput");
+    const send = () => {
+      const text = input.value;
+      if (!text) return;
+      termEl.textContent += "> " + text + "\n";
+      flipper.writeCliText(text + "\r").catch(e => logLine("CLI write failed: " + e.message, "e"));
+      input.value = "";
+    };
+    $("termSendBtn").addEventListener("click", send);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+  }
+
+  async function enterTerminal() {
+    ensureTerminalUi();
+    flipper.onCliLine = (fullText, newBytes) => {
+      termEl.textContent += new TextDecoder().decode(newBytes);
+      termEl.scrollTop = termEl.scrollHeight;
+    };
+    try {
+      await flipper.enterCliMode();
+      termEl.textContent += "[CLI mode - type '?' for a command list]\n";
+    } catch (e) {
+      logLine("Enter CLI mode failed: " + e.message, "e");
+    }
+  }
+
+  // ══════════════════════ FLIPPER: NFC Tools ══════════════════════════
+
+  const nfcState = { loaded: false, files: [] };
+
+  async function refreshNfcList() {
+    nfcState.loaded = true;
+    const body = $("nfcBody");
+    body.innerHTML = '<div class="empty">Scanning /ext/nfc…</div>';
+    try {
+      const files = librariesState.files.nfc || await listRecursive(LIB_DIRS.nfc, LIB_EXT.nfc);
+      nfcState.files = files;
+      if (!files.length) {
+        body.innerHTML = '<div class="empty"><span class="big">💳</span>No .nfc files found on /ext/nfc.</div>';
+        return;
+      }
+      body.innerHTML = '<div class="file-list" id="nfcListEl">' + files.map(f =>
+        `<div class="file-row"><span class="fi">💳</span><span class="fn" data-path="${f.path}">${f.name}</span><span class="fs">${formatBytes(f.size)}</span></div>`
+      ).join("") + '</div><div class="card" id="nfcDetailCard" style="display:none"><h3>Details</h3><table class="kv" id="nfcDetailTable"></table></div>';
+      body.querySelectorAll(".fn").forEach(el => {
+        el.addEventListener("click", () => showNfcDetail(el.dataset.path));
+      });
+    } catch (e) {
+      body.innerHTML = '<div class="empty">Couldn\'t list /ext/nfc: ' + e.message + '</div>';
+    }
+  }
+
+  // Flipper's .nfc save format is FlipperFormat text: "Key: Value" lines,
+  // "#"-prefixed comments. No live-scan RPC exists for NFC (not in this
+  // firmware's bundled proto set), so this is browse-and-parse only, same
+  // as lab.flipper.net's own NFC tools scope for a saved-card view.
+  function parseFlipperFormat(text) {
+    const kv = {};
+    text.split("\n").forEach(line => {
+      line = line.trim();
+      if (!line || line.startsWith("#")) return;
+      const idx = line.indexOf(":");
+      if (idx < 0) return;
+      kv[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
+    });
+    return kv;
+  }
+
+  async function showNfcDetail(path) {
+    const card = $("nfcDetailCard");
+    const table = $("nfcDetailTable");
+    card.style.display = "block";
+    table.innerHTML = "<tr><td>Loading…</td><td></td></tr>";
+    try {
+      const text = await flipper.readFileText(path);
+      const kv = parseFlipperFormat(text);
+      table.innerHTML = Object.keys(kv).map(k => `<tr><td>${k}</td><td>${kv[k]}</td></tr>`).join("") || "<tr><td>No fields found.</td><td></td></tr>";
+    } catch (e) {
+      table.innerHTML = `<tr><td>Error</td><td>${e.message}</td></tr>`;
+    }
+  }
+
+  // ══════════════════════ FLIPPER: Pulse Plotter + SubGHz Viewer ══════
+  //
+  // Both panels plot the same shape of data - a sequence of signed
+  // microsecond durations, positive = mark/high, negative = space/low -
+  // so they share one renderer. Pulse Plotter is read-only across .sub
+  // and .ir RAW captures (lab.flipper.net's own scope per its forum/help
+  // text: a raw pulse plotter for SubGHz/IR/RFID). SubGHz Viewer/Trimmer
+  // adds trim range selection + export + save-back-to-device, scoped to
+  // .sub only, mirroring https://siroxcw.github.io/Flipper-SubGHz-Viewer-Trimmer/
+  // (client-side, file-based, no device needed - reimplemented rather than
+  // copied since only its README/behavior was reviewed, not its source).
+
+  function parseSubRaw(text) {
+    const meta = {};
+    let durations = null;
+    text.split("\n").forEach(line => {
+      line = line.trim();
+      if (!line) return;
+      if (line.startsWith("RAW_Data:")) {
+        const nums = line.slice(9).trim().split(/\s+/).map(Number).filter(n => !Number.isNaN(n));
+        durations = durations ? durations.concat(nums) : nums;
+        return;
+      }
+      const idx = line.indexOf(":");
+      if (idx > 0) meta[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
+    });
+    return { meta, durations: durations || [] };
+  }
+
+  function parseIrRaw(text) {
+    // .ir files can hold several signal blocks; this plots the first
+    // "type: raw" block found - IR raw data is unsigned, alternating
+    // mark/space starting with a mark, unlike .sub's already-signed values.
+    const lines = text.split("\n").map(l => l.trim());
+    let inBlock = false, isRaw = false, name = "";
+    const meta = {};
+    for (const line of lines) {
+      if (line.startsWith("name:")) { name = line.slice(5).trim(); inBlock = true; isRaw = false; }
+      if (inBlock && line.startsWith("type:")) isRaw = line.includes("raw");
+      if (inBlock && isRaw && line.startsWith("data:")) {
+        const unsigned = line.slice(5).trim().split(/\s+/).map(Number).filter(n => !Number.isNaN(n));
+        const durations = unsigned.map((n, i) => (i % 2 === 0 ? n : -n));
+        meta["name"] = name;
+        return { meta, durations };
+      }
+    }
+    return { meta: { name }, durations: [] };
+  }
+
+  function buildSubText(meta, durations) {
+    const lines = [
+      "Filetype: Flipper SubGhz RAW File",
+      "Version: 1",
+      "Frequency: " + (meta["Frequency"] || "433920000"),
+      "Preset: " + (meta["Preset"] || "FuriHalSubGhzPresetOok650Async"),
+      "Protocol: RAW",
+      "RAW_Data: " + durations.join(" "),
+    ];
+    return lines.join("\n") + "\n";
+  }
+
+  function makePlotter(containerId, opts) {
+    const trimmable = !!opts.trim;
+    const el = $(containerId);
+    el.innerHTML = `
+      <div class="plot-toolbar">
+        <input type="file" id="${containerId}File" accept="${opts.accept}">
+        <span id="${containerId}Status" style="color:#888;font-size:.8rem"></span>
+        ${trimmable ? `<button class="bsm sm" id="${containerId}TrimBtn" disabled>Set trim from selection</button>
+        <button class="bsm sm" id="${containerId}ExportBtn" disabled>Export trimmed .sub</button>
+        <button class="bsm sm" id="${containerId}SaveBtn" disabled>Save to device</button>` : ""}
+      </div>
+      <canvas id="${containerId}Canvas"></canvas>
+      <div class="plot-info" id="${containerId}Info"></div>`;
+
+    const canvas = $(containerId + "Canvas");
+    const ctx = canvas.getContext("2d");
+    let durations = [];
+    let meta = {};
+    let viewStart = 0, viewEnd = 0; // index range into durations currently visible
+    let selStart = null, selEnd = null; // pixel-drag selection, in duration-index space
+    let sourceName = "";
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.max(300, rect.width) * (window.devicePixelRatio || 1);
+      canvas.height = 220 * (window.devicePixelRatio || 1);
+      draw();
+    }
+    window.addEventListener("resize", resizeCanvas);
+
+    function totalDurationUs() { return durations.reduce((a, b) => a + Math.abs(b), 0); }
+
+    function draw() {
+      const w = canvas.width, h = canvas.height;
+      ctx.fillStyle = "#080808";
+      ctx.fillRect(0, 0, w, h);
+      if (!durations.length) return;
+      const visible = durations.slice(viewStart, viewEnd || durations.length);
+      const total = visible.reduce((a, b) => a + Math.abs(b), 0) || 1;
+      const midY = h / 2;
+      const amp = h * 0.32;
+      ctx.strokeStyle = "#e8750a";
+      ctx.lineWidth = Math.max(1, window.devicePixelRatio || 1);
+      ctx.beginPath();
+      let x = 0;
+      let y = midY - amp; // start high (first duration is a mark)
+      ctx.moveTo(0, y);
+      for (const d of visible) {
+        const segW = (Math.abs(d) / total) * w;
+        ctx.lineTo(x + segW, y);
+        const newY = d >= 0 ? midY - amp : midY + amp;
+        ctx.lineTo(x + segW, newY);
+        x += segW;
+        y = newY;
+      }
+      ctx.stroke();
+
+      if (selStart !== null && selEnd !== null) {
+        const s = Math.min(selStart, selEnd), e = Math.max(selStart, selEnd);
+        ctx.fillStyle = "rgba(255,154,60,0.18)";
+        ctx.fillRect(s, 0, e - s, h);
+      }
+    }
+
+    function updateInfo() {
+      const info = $(containerId + "Info");
+      const parts = [];
+      if (sourceName) parts.push("File: " + sourceName);
+      parts.push("Pulses: " + durations.length);
+      parts.push("Duration: " + (totalDurationUs() / 1000).toFixed(1) + " ms");
+      if (meta["Frequency"]) parts.push("Freq: " + (parseInt(meta["Frequency"], 10) / 1e6).toFixed(3) + " MHz");
+      if (meta["Preset"]) parts.push("Preset: " + meta["Preset"]);
+      info.textContent = parts.join("   ·   ");
+    }
+
+    function loadParsed(parsed, name) {
+      meta = parsed.meta;
+      durations = parsed.durations;
+      sourceName = name;
+      viewStart = 0; viewEnd = durations.length;
+      selStart = selEnd = null;
+      $(containerId + "Status").textContent = durations.length ? "" : "No RAW pulse data found in this file.";
+      if (trimmable) {
+        $(containerId + "ExportBtn").disabled = !durations.length;
+        $(containerId + "SaveBtn").disabled = !durations.length || !flipper.connected;
+      }
+      resizeCanvas();
+      updateInfo();
+    }
+
+    $(containerId + "File").addEventListener("change", async (evt) => {
+      const file = evt.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      const isIr = /\.ir$/i.test(file.name) || /Filetype:\s*IR/i.test(text);
+      const parsed = isIr ? parseIrRaw(text) : parseSubRaw(text);
+      loadParsed(parsed, file.name);
+    });
+
+    if (trimmable) {
+      let dragging = false;
+      canvas.addEventListener("mousedown", (e) => {
+        dragging = true;
+        selStart = (e.offsetX) * (window.devicePixelRatio || 1);
+        selEnd = selStart;
+      });
+      canvas.addEventListener("mousemove", (e) => {
+        if (!dragging) return;
+        selEnd = (e.offsetX) * (window.devicePixelRatio || 1);
+        draw();
+      });
+      window.addEventListener("mouseup", () => {
+        if (!dragging) return;
+        dragging = false;
+        $(containerId + "TrimBtn").disabled = selStart === null || Math.abs(selEnd - selStart) < 4;
+      });
+
+      $(containerId + "TrimBtn").addEventListener("click", () => {
+        if (selStart === null) return;
+        const w = canvas.width;
+        const total = totalDurationUs() || 1;
+        const s = Math.min(selStart, selEnd) / w, e = Math.max(selStart, selEnd) / w;
+        // Map pixel fractions back to duration-array indices by walking
+        // cumulative time, same mapping draw() used to place each pulse.
+        let acc = 0, startIdx = 0, endIdx = durations.length;
+        for (let i = 0; i < durations.length; i++) {
+          const frac = acc / total;
+          if (frac <= s) startIdx = i;
+          if (frac <= e) endIdx = i + 1;
+          acc += Math.abs(durations[i]);
+        }
+        viewStart = startIdx; viewEnd = endIdx;
+        selStart = selEnd = null;
+        $(containerId + "TrimBtn").disabled = true;
+        draw();
+        updateInfo();
+      });
+
+      $(containerId + "ExportBtn").addEventListener("click", () => {
+        const trimmed = durations.slice(viewStart, viewEnd || durations.length);
+        const text = buildSubText(meta, trimmed);
+        const blob = new Blob([text], { type: "text/plain" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = (sourceName ? sourceName.replace(/\.(sub|ir)$/i, "") : "trimmed") + "_trimmed.sub";
+        a.click();
+      });
+
+      $(containerId + "SaveBtn").addEventListener("click", async () => {
+        if (!flipper.connected) { alert("Connect a Flipper first."); return; }
+        const trimmed = durations.slice(viewStart, viewEnd || durations.length);
+        const text = buildSubText(meta, trimmed);
+        const name = prompt("Save as (in /ext/subghz):", (sourceName || "trimmed").replace(/\.(sub|ir)$/i, "") + "_trimmed.sub");
+        if (!name) return;
+        try {
+          await flipper.writeFileChunked("/ext/subghz/" + name, text);
+          logLine("Saved /ext/subghz/" + name, "ok");
+        } catch (e) {
+          logLine("Save to device failed: " + e.message, "e");
+        }
+      });
+    }
+
+    return { resizeCanvas };
+  }
+
+  let plotterInited = false, subghzViewerInited = false;
+  function ensurePlotterUi() {
+    if (plotterInited) return;
+    plotterInited = true;
+    makePlotter("plotterBody", { accept: ".sub,.ir", trim: false });
+  }
+  function ensureSubghzViewerUi() {
+    if (subghzViewerInited) return;
+    subghzViewerInited = true;
+    makePlotter("subghzViewerBody", { accept: ".sub", trim: true });
+  }
+
+  // ══════════════════════ FLIPPER: Settings ═══════════════════════════
+
+  async function renderFlipperSettings() {
+    const body = $("settingsBody");
+    if (!flipper.connected) {
+      body.innerHTML = '<div class="empty"><span class="big">⚙️</span>Connect a Flipper to see its settings.</div>';
+      return;
+    }
+    body.innerHTML = `
+      <div class="card">
+        <h3>Clock</h3>
+        <div id="clockRow" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <span id="deviceClockTxt" style="font-family:var(--mono);color:#ccc">reading…</span>
+          <button class="bsm" id="syncClockBtn">Sync to this computer's time</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Reboot</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="bsm" id="rebootOsBtn">Reboot</button>
+          <button class="bsm" id="rebootDfuBtn">Reboot to DFU</button>
+        </div>
+      </div>
+      <div class="notice info show">
+        FoxFW-specific settings (menu theme, Fox.cfg toggles, GPIO remap, RAM warning
+        threshold, etc.) live in files/structures without a generic RPC read/write path yet -
+        edit those on-device under Settings for now. This panel covers what the Flipper's
+        RPC service actually exposes.
+      </div>`;
+    try {
+      const dt = await flipper.getDateTime();
+      if (dt) $("deviceClockTxt").textContent = `${String(dt.day).padStart(2, "0")}/${String(dt.month).padStart(2, "0")}/${dt.year} ${String(dt.hour).padStart(2, "0")}:${String(dt.minute).padStart(2, "0")}:${String(dt.second).padStart(2, "0")}`;
+    } catch (e) { $("deviceClockTxt").textContent = "unavailable"; }
+    $("syncClockBtn").addEventListener("click", async () => {
+      const now = new Date();
+      try {
+        await flipper.setDateTime({
+          hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds(),
+          day: now.getDate(), month: now.getMonth() + 1, year: now.getFullYear(),
+          weekday: now.getDay() === 0 ? 7 : now.getDay(),
+        });
+        logLine("Clock synced.", "ok");
+        renderFlipperSettings();
+      } catch (e) { logLine("Clock sync failed: " + e.message, "e"); }
+    });
+    $("rebootOsBtn").addEventListener("click", () => { if (confirm("Reboot the Flipper?")) flipper.reboot(0).catch(e => logLine(e.message, "e")); });
+    $("rebootDfuBtn").addEventListener("click", () => { if (confirm("Reboot into DFU mode? You'll need to reboot again manually to leave it.")) flipper.reboot(1).catch(e => logLine(e.message, "e")); });
+  }
+
+  // Hook the remaining Flipper section entries not already wired via
+  // onEnterFlipperSection() above.
+  const _origEnter = onEnterFlipperSection;
+  onEnterFlipperSection = async function (section) {
+    await _origEnter(section);
+    if (section === "pulseplotter") ensurePlotterUi();
+    if (section === "subghz") ensureSubghzViewerUi();
+    if (section === "settings") await renderFlipperSettings();
+    if (section === "libraries" && !librariesState.scanned) await scanLibraries();
+  };
+
+  // ══════════════════════ ESP32: command console builder ══════════════
+
+  function makeCmdConsole(containerId, commands, opts) {
+    opts = opts || {};
+    const el = $(containerId);
+    let html = "";
+    if (opts.gateNotice) {
+      html += `<div class="notice warn show">Gated commands below need <code>SETTINGS:ATTACKS:ON</code> first (Settings tab) - they reply <code>ERROR:DISABLED</code> otherwise, and this firmware self-limits every burst to a few seconds.</div>`;
+    }
+    html += '<div class="cmd-grid">' + commands.map((c, i) =>
+      `<button class="cmd-btn" data-idx="${i}" disabled>${c.label}</button>`
+    ).join("") + "</div>";
+    html += `<div class="cmd-out" id="${containerId}Out"></div>
+      <div class="cmd-input-row">
+        <input type="text" id="${containerId}RawInput" placeholder="Or type a raw command…" autocomplete="off">
+        <button class="bsm" id="${containerId}RawSend" disabled>Send</button>
+      </div>`;
+    el.innerHTML = html;
+    const out = $(containerId + "Out");
+    function print(line, cls) {
+      const div = document.createElement("div");
+      if (cls) div.style.color = cls;
+      div.textContent = line;
+      out.appendChild(div);
+      out.scrollTop = out.scrollHeight;
+    }
+    el.querySelectorAll(".cmd-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const cmd = commands[+btn.dataset.idx];
+        let text = cmd.cmd;
+        if (cmd.prompt) {
+          const val = prompt(cmd.prompt);
+          if (val === null) return;
+          text = cmd.cmd + val;
+        }
+        print("> " + text);
+        try {
+          const off = esp32.onLine((line) => print(line, line.startsWith("ERROR") ? "#e88" : "#8e8"));
+          await esp32.send(text);
+          setTimeout(off, cmd.durationMs || 9000);
+        } catch (e) { print("send failed: " + e.message, "#e88"); }
+      });
+    });
+    const rawInput = $(containerId + "RawInput");
+    const rawSend = $(containerId + "RawSend");
+    const sendRaw = async () => {
+      const text = rawInput.value;
+      if (!text) return;
+      print("> " + text);
+      // Scoped listener, same as the preset buttons above - not a permanent
+      // subscription, so typing into one panel's raw box doesn't also echo
+      // into every other panel's output.
+      const off = esp32.onLine((line) => print(line, line.startsWith("ERROR") ? "#e88" : "#8e8"));
+      esp32.send(text).catch(e => print("send failed: " + e.message, "#e88"));
+      setTimeout(off, 9000);
+      rawInput.value = "";
+    };
+    rawSend.addEventListener("click", sendRaw);
+    rawInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendRaw(); });
+    return {
+      setEnabled(enabled) {
+        el.querySelectorAll(".cmd-btn, button, input").forEach(b => { b.disabled = !enabled; });
+      },
+    };
+  }
+
+  const esp32Consoles = {};
+  function buildEsp32Consoles() {
+    esp32Consoles.wifi = makeCmdConsole("esp32WifiBody", [
+      { label: "Scan APs", cmd: "WIFISCANAP" },
+      { label: "Scan Stations", cmd: "WIFISCANSTA" },
+      { label: "Scan All", cmd: "WIFISCANALL" },
+      { label: "List cached APs", cmd: "WIFILIST:AP" },
+      { label: "List cached STAs", cmd: "WIFILIST:STA" },
+      { label: "Select AP…", cmd: "WIFISELECT:AP:", prompt: "AP index:" },
+      { label: "Select STA…", cmd: "WIFISELECT:STA:", prompt: "STA index:" },
+      { label: "AP info…", cmd: "WIFIAPINFO:", prompt: "AP index:" },
+      { label: "Channel (read)", cmd: "WIFICHANNEL" },
+      { label: "Set channel…", cmd: "WIFICHANNEL:", prompt: "Channel 1-14:" },
+      { label: "Signal monitor (10s)", cmd: "WIFISIGMON", durationMs: 11000 },
+      { label: "Packet count (5s)", cmd: "WIFIPACKETCOUNT", durationMs: 6000 },
+      { label: "Sniff: Beacon", cmd: "WIFISNIFF:BEACON", durationMs: 9000 },
+      { label: "Sniff: Deauth", cmd: "WIFISNIFF:DEAUTH", durationMs: 9000 },
+      { label: "Sniff: Probe", cmd: "WIFISNIFF:PROBE", durationMs: 9000 },
+      { label: "Sniff: Raw", cmd: "WIFISNIFF:RAW", durationMs: 9000 },
+      { label: "Sniff: MultiSSID", cmd: "WIFISNIFF:MULTISSID", durationMs: 9000 },
+      { label: "Sniff: PMKID", cmd: "WIFISNIFF:PMKID", durationMs: 9000 },
+      { label: "Sniff: SAE", cmd: "WIFISNIFF:SAE", durationMs: 9000 },
+      { label: "MAC: show", cmd: "WIFIMAC:GET" },
+      { label: "MAC: randomize", cmd: "WIFIMAC:RAND" },
+      { label: "MAC: clone AP", cmd: "WIFIMAC:CLONEAP" },
+      { label: "MAC: reset", cmd: "WIFIMAC:RESET" },
+      { label: "Wardrive (needs GPS)", cmd: "WIFIWARDRIVE", durationMs: 15000 },
+      { label: "PCAP capture (15s)", cmd: "WIFIPCAP", durationMs: 16000 },
+      { label: "Port scan…", cmd: "WIFIPORTSCAN:", prompt: "ip:start:end e.g. 192.168.1.1:1:100", durationMs: 15000 },
+      { label: "Attack: Deauth (broadcast)", cmd: "WIFIATTACK:DEAUTH", durationMs: 6000 },
+      { label: "Attack: Deauth station…", cmd: "WIFIATTACK:DEAUTH:", prompt: "Station MAC:", durationMs: 6000 },
+      { label: "Attack: Beacon spam…", cmd: "WIFIATTACK:BEACON:", prompt: "SSID list, comma-separated:", durationMs: 6000 },
+      { label: "Attack: Probe flood", cmd: "WIFIATTACK:PROBE", durationMs: 6000 },
+      { label: "Attack: Rickroll", cmd: "WIFIATTACK:RICKROLL", durationMs: 6000 },
+      { label: "Attack: Bad packet", cmd: "WIFIATTACK:BADPACKET", durationMs: 6000 },
+      { label: "Attack: CSA", cmd: "WIFIATTACK:CSA", durationMs: 6000 },
+      { label: "Attack: Sleep", cmd: "WIFIATTACK:SLEEP", durationMs: 6000 },
+    ], { gateNotice: true });
+
+    esp32Consoles.ble = makeCmdConsole("esp32BleBody", [
+      { label: "BLE init", cmd: "BLEINIT" },
+      { label: "BLE scan", cmd: "BLESCAN", durationMs: 9000 },
+      { label: "Connect…", cmd: "BLECONN:", prompt: "MAC address:" },
+      { label: "Status", cmd: "BLESTATUS" },
+      { label: "Disconnect", cmd: "BLEDISC" },
+      { label: "Tag scan: Find My", cmd: "BLETAGSCAN:FINDMY", durationMs: 9000 },
+      { label: "Tag scan: SmartTag", cmd: "BLETAGSCAN:SMARTTAG", durationMs: 9000 },
+      { label: "Tag scan: Tile", cmd: "BLETAGSCAN:TILE", durationMs: 9000 },
+      { label: "Tag scan: Flock", cmd: "BLETAGSCAN:FLOCK", durationMs: 9000 },
+      { label: "Spam: iOS", cmd: "BLESPAM:IOS", durationMs: 9000 },
+      { label: "Spam: Windows", cmd: "BLESPAM:WINDOWS", durationMs: 9000 },
+      { label: "Spam: Samsung", cmd: "BLESPAM:SAMSUNG", durationMs: 9000 },
+      { label: "Spam: Android", cmd: "BLESPAM:ANDROID", durationMs: 9000 },
+      { label: "Spam: All", cmd: "BLESPAM:ALL", durationMs: 9000 },
+    ], { gateNotice: true });
+
+    esp32Consoles.gps = makeCmdConsole("esp32GpsBody", [
+      { label: "GPS init", cmd: "GPSINIT" },
+      { label: "Fix status", cmd: "GPS:FIX" },
+      { label: "Satellites", cmd: "GPS:SAT" },
+      { label: "Latitude", cmd: "GPS:LAT" },
+      { label: "Longitude", cmd: "GPS:LON" },
+      { label: "Altitude", cmd: "GPS:ALT" },
+      { label: "Date/time", cmd: "GPS:DATE" },
+      { label: "Track (30s)", cmd: "GPSTRACK", durationMs: 31000 },
+      { label: "POI: start", cmd: "GPSPOI:START" },
+      { label: "POI: mark…", cmd: "GPSPOI:MARK:", prompt: "Label (optional):" },
+      { label: "POI: end", cmd: "GPSPOI:END" },
+    ]);
+
+    esp32Consoles.ir = makeCmdConsole("esp32IrBody", [
+      { label: "Send…", cmd: "IRSEND:", prompt: "protocol:hex[:bits] e.g. NEC:0x00FF00FF" },
+      { label: "Receive (10s)", cmd: "IRRECV", durationMs: 11000 },
+      { label: "TV-B-Gone", cmd: "IRTVBGONE", durationMs: 8000 },
+    ]);
+
+    esp32Consoles.subghz = makeCmdConsole("esp32SubghzBody", [
+      { label: "Init", cmd: "SUBGHZINIT" },
+      { label: "Set frequency…", cmd: "SUBGHZFREQ:", prompt: "MHz, 300-928:" },
+      { label: "RX (10s)", cmd: "SUBGHZRX", durationMs: 11000 },
+      { label: "TX…", cmd: "SUBGHZTX:", prompt: "Raw hex bytes:" },
+    ]);
+
+    esp32Consoles.rfid = makeCmdConsole("esp32RfidBody", [
+      { label: "Init", cmd: "RFIDINIT" },
+      { label: "Scan for tag", cmd: "RFIDSCAN" },
+      { label: "Read block…", cmd: "RFIDREAD:", prompt: "Block number:" },
+      { label: "Write block…", cmd: "RFIDWRITE:", prompt: "block:hexdata e.g. 4:00112233445566778899AABBCCDDEEFF" },
+    ]);
+
+    esp32Consoles.ai = makeCmdConsole("esp32AiBody", [
+      { label: "Ask…", cmd: "AIASK:", prompt: "Your message:", durationMs: 15000 },
+      { label: "Cooldown remaining", cmd: "AICOOLDOWN" },
+    ]);
+
+    const settingsBody = $("esp32SettingsBody");
+    settingsBody.innerHTML = `
+      <div class="card">
+        <h3>Attacks arm switch</h3>
+        <p style="color:#999;font-size:.85rem;margin-bottom:12px">WiFi/BLE attack and beacon-spam commands are refused with <code>ERROR:DISABLED</code> until this is on.</p>
+        <div style="display:flex;gap:10px">
+          <button class="bsm" id="attacksOnBtn" disabled>Arm attacks (ON)</button>
+          <button class="bsm" id="attacksOffBtn" disabled>Disarm (OFF)</button>
+        </div>
+      </div>
+      <div class="cmd-out" id="esp32SettingsOut"></div>`;
+    const settingsOut = $("esp32SettingsOut");
+    function printSettings(line) {
+      const div = document.createElement("div");
+      div.textContent = line;
+      settingsOut.appendChild(div);
+      settingsOut.scrollTop = settingsOut.scrollHeight;
+    }
+    function sendSetting(cmd) {
+      printSettings("> " + cmd);
+      const off = esp32.onLine(printSettings);
+      esp32.send(cmd).catch(e => printSettings(e.message));
+      setTimeout(off, 3000);
+    }
+    $("attacksOnBtn").addEventListener("click", () => sendSetting("SETTINGS:ATTACKS:ON"));
+    $("attacksOffBtn").addEventListener("click", () => sendSetting("SETTINGS:ATTACKS:OFF"));
+    esp32Consoles.settingsToggle = { setEnabled(en) { $("attacksOnBtn").disabled = !en; $("attacksOffBtn").disabled = !en; } };
+  }
+  buildEsp32Consoles();
+
+  function setEsp32ConsolesEnabled(enabled) {
+    Object.values(esp32Consoles).forEach(c => c.setEnabled(enabled));
+  }
+
+  async function onEsp32Connected() {
+    $("esp32Name").textContent = "ESP32 connected";
+    $("esp32Sub").textContent = "Probing firmware…";
+    setEsp32ConsolesEnabled(true);
+    try {
+      const lines = await esp32.sendAndCollect("info", (l) => l.includes("Fox ESP32 Firmware") || l.startsWith("ERROR"), 4000);
+      const ok = lines.some(l => l.includes("Fox ESP32 Firmware"));
+      $("esp32Sub").textContent = ok ? lines.join(" · ") : "Connected (unexpected response to 'info').";
+    } catch (e) {
+      $("esp32Sub").textContent = "Connected, but 'info' didn't respond: " + e.message;
+    }
+    // FOX_HAS_* flags aren't queryable directly; each optional-hardware
+    // family reports ERROR:NORFID/NOSUBGHZ/NOIR/NOGPS on first use instead,
+    // so probe each with its init/no-op-ish command rather than guessing.
+    // IR has no passive init-only command, so it's probed with a real
+    // transmit - but not IRTVBGONE (real TV power-toggle codes). Instead:
+    // IRSEND:NEC:00000000:32 - a full 32-bit NEC frame where the address
+    // and command bytes are NOT complemented by their upper 16 bits (NEC
+    // requires addr/~addr and cmd/~cmd; sending 0x00000000 violates both).
+    // IRremoteESP8266's sender (what Fox_ESP32_FW's IRSEND uses) transmits
+    // whatever bit pattern it's given with no validation, so this still
+    // proves the IR LED/hardware actually fires - but essentially every
+    // real NEC-protocol receiver (TVs, ACs, etc.) checks that complement
+    // relationship before acting and silently discards a frame that fails
+    // it, so no real device treats this as a valid button press.
+    const hwChecks = [
+      { key: "RFID", cmd: "RFIDINIT", errTag: "NORFID" },
+      { key: "SubGHz", cmd: "SUBGHZINIT", errTag: "NOSUBGHZ" },
+      { key: "IR", cmd: "IRSEND:NEC:00000000:32", errTag: "NOIR" },
+      { key: "GPS", cmd: "GPSINIT", errTag: "NOGPS" },
+    ];
+    const hwBody = $("esp32HwBody");
+    hwBody.innerHTML = '<div class="empty">Checking optional hardware…</div>';
+    const results = [];
+    for (const chk of hwChecks) {
+      try {
+        const lines = await esp32.sendAndCollect(chk.cmd, (l) => true, 3000);
+        const enabled = !lines.some(l => l.includes(chk.errTag));
+        results.push({ key: chk.key, enabled });
+      } catch (e) {
+        results.push({ key: chk.key, enabled: null });
+      }
+    }
+    hwBody.innerHTML = '<table class="kv">' + results.map(r =>
+      `<tr><td>${r.key}</td><td>${r.enabled === null ? "unknown" : (r.enabled ? "✅ enabled" : "— not compiled in")}</td></tr>`
+    ).join("") + "</table>";
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────
+  if (!("serial" in navigator)) {
+    $("flipperCompat").textContent = "Web Serial isn't supported in this browser — use Chrome or Edge on desktop.";
+    $("flipperCompat").classList.add("show");
+    $("connectBtn").disabled = true;
+  }
+})();
+
+</script>
+
+</body>
+</html>
