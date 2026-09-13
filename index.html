@@ -328,7 +328,6 @@
         </ul>
       </li>
       <li><a href="#fox-esp32-apps">Fox ESP32 Apps</a></li>
-      <li><a href="#fox-apps-suite-info">Fox Apps Suite</a></li>
     </ol>
     <ol start="8">
       <li><a href="#subghz">Sub-GHz</a>
@@ -380,6 +379,7 @@
     <li>A custom <strong>Fox File Browser (FFB)</strong> that replaces the stock Archive, with a Favorites system and firmware-install support.</li>
     <li><strong>System-wide bounce-scroll text</strong> — any label too long to fit bounces left and right automatically rather than wrapping or truncating.</li>
     <li>A <strong>Modulation Analyzer</strong> exclusive to FoxFW — find what modulation an unknown device uses, then open the Receiver pre-configured for it.</li>
+    <li><strong>FoxLAB</strong> — a full browser control page served straight from a wired ESP32, reachable from any phone, tablet, or laptop on its WiFi hotspot. No companion app, no USB, no drivers.</li>
     <li>An in-app <strong>RAW Waveform Editor</strong> for trimming Sub-GHz captures without leaving the device.</li>
     <li>A live <strong>Bar / Line Signal Display</strong> for spotting intermittent transmissions.</li>
     <li>Per-protocol <strong>enable / disable toggles</strong> in the Protocol List.</li>
@@ -1431,6 +1431,12 @@
       <td>A focused live-terminal companion — streaming console, quick command send, and per-session logs saved to your SD card.</td>
     </tr>
     <tr>
+      <td><strong>CSIght_FoxEdition</strong></td>
+      <td>Apps → Fox</td>
+      <td style="text-align:center;">✓</td>
+      <td>WiFi CSI (Channel State Information) motion/presence sensing through a wired ESP32 — connects the same way as every other Fox-Edition app (auto-detect, no board picker) and reports the ESP32's CSI capability tier (Full/Limited/None) for your board.</td>
+    </tr>
+    <tr>
       <td><strong>Fox Update Downloader</strong></td>
       <td>Apps → Fox</td>
       <td style="text-align:center;">✓</td>
@@ -1441,6 +1447,12 @@
       <td>Apps → Fox</td>
       <td style="text-align:center;">✓</td>
       <td>Direct URL downloads with resume, an App Catalog browser, a GitHub <code>.fap</code> installer, and its own app-manager and WiFi/recon/attack menus — all over the ESP32 bridge.</td>
+    </tr>
+    <tr>
+      <td><strong>FoxLAB</strong></td>
+      <td>Apps → Fox</td>
+      <td style="text-align:center;">✓</td>
+      <td>Turns the ESP32 into a full browser control page for your Flipper — dashboard, file browser, Fox app library, live screen mirror, NFC tools, a Paint canvas, a pulse plotter, a Sub-GHz signal viewer, a raw Terminal, and a full Settings tab (display, locale, alarms, Security &amp; Privacy/PIN, and more). Reachable from any phone, tablet, or laptop joined to the ESP32's WiFi hotspot (<code>foxlab.local</code>) — no companion app, no USB, no drivers. Keep the FoxLAB app open on the Flipper while connected.</td>
     </tr>
     <tr>
       <td><strong>FoxDeFlock</strong></td>
@@ -1468,63 +1480,32 @@
     </tr>
   </table>
 
+  <div class="box tip">
+    <strong>What's inside FoxLAB?</strong> Open the app on your Flipper (Main Menu → Fox →
+    FoxLAB) to start the ESP32's WiFi hotspot and web server, then join that network — advertised
+    as both a fixed IP and <code>foxlab.local</code> — from any phone, tablet, or laptop and point
+    a browser at it — no companion app, no USB cable, no drivers to install. The page itself is
+    tabbed: <strong>Dashboard</strong> (device, power, and storage info at a glance),
+    <strong>Files</strong> (browse, read, and write your SD card straight from the browser),
+    <strong>Libraries</strong> (Fox app library), <strong>Screen mirror</strong> (live view of
+    the Flipper's display with remote D-pad input), <strong>NFC</strong>, <strong>Paint</strong>
+    (a drawing canvas you can send to the Flipper), <strong>Pulse Plotter</strong>,
+    <strong>Sub-GHz Viewer</strong> (visualize captured signals), <strong>Terminal</strong> (a
+    raw command console), and a full <strong>Settings</strong> tab built out to match the
+    on-device Settings app — Display &amp; Sound, Locale &amp; Input, Menu Theme, Desktop
+    Display, Night Shift, RGB Backlight, Device Name, Input, Bluetooth, Power, Fox Alarm Clock,
+    and Security &amp; Privacy (PIN set/change/remove and the rest). The old Firmware Update
+    Check, Showcase, and FAP Compiler tabs have been removed — none of them work without internet
+    access, which the FoxLAB hotspot doesn't provide. FoxLAB has to stay open on the Flipper for
+    the page to respond — closing it, or the Flipper losing power or its connection to the ESP32,
+    disconnects the browser; changing your Flipper's device name from here queues a restart until
+    you close the app, rather than rebooting immediately.
+  </div>
   <div class="box info">
     <strong>Compatible boards.</strong> ESP32 Classic (WROOM-32 / DevKit), ESP32-S3,
     ESP32-S2, ESP32-C3, ESP32-C5, and ESP32-C6 are all supported. See the
     <a href="FoxESP32_Help.html" style="color:#80c890;">Fox ESP32 Firmware guide</a>
     for full wiring diagrams, board-specific notes, and the complete command reference.
-  </div>
-  <div class="box tip">
-    <strong>Not running FoxFW?</strong> Most of these apps are also built prebuilt
-    for ARF, Stock, Unleashed, and Momentum in the
-    <a href="fox-apps-suite.html" style="color:#80c890;">Fox Apps Suite</a>
-    — no firmware switch required.
-  </div>
-
-</section>
-
-
-<!-- ══════════════════ 5c · FOX APPS SUITE ══════════════════ -->
-<section class="section" id="fox-apps-suite-info">
-  <div class="chapter-label">Chapter 5c</div>
-  <h2>Fox Apps Suite <span class="badge">New</span></h2>
-  <p>
-    Not running FoxFW, or want to grab a single Fox app without a full
-    firmware flash? The Fox Apps Suite packages every Fox app separately,
-    prebuilt for FoxFW, ARF, Stock, Unleashed, and Momentum, with each
-    <code>.fap</code> available as a direct download.
-  </p>
-
-  <div class="box tip">
-    No account or firmware switch needed — download the <code>.fap</code>
-    matching your firmware and copy it to your SD card's <code>apps</code>
-    folder.
-  </div>
-
-  <div style="text-align:center;margin:28px 0;">
-    <a href="fox-apps-suite.html"
-       style="display:inline-block;background:var(--orange);color:#fff;font-weight:700;
-              font-size:1.05rem;padding:16px 40px;border-radius:8px;text-decoration:none;
-              box-shadow:0 0 20px rgba(232,117,10,0.35);letter-spacing:0.3px;">
-      🦊 Open Fox Apps Suite →
-    </a>
-    <p style="margin-top:12px;font-size:0.82rem;color:#888;">
-      Opens at foxfw.github.io/fox-web/fox-apps-suite.html
-    </p>
-  </div>
-
-  <h3>How it works</h3>
-  <ol style="color:#ccc;padding-left:22px;line-height:1.9;">
-    <li>Find your app in the App List &amp; Direct Downloads table, then click the icon under your firmware to download the <code>.fap</code>.</li>
-    <li>Copy the file to <code>/ext/apps/&lt;category&gt;/</code> on your Flipper's SD card.</li>
-    <li>Some apps also need SD card resource files — the page's SD Card Resources section lists which.</li>
-  </ol>
-
-  <div class="box info" style="margin-top:18px;">
-    Full source, all compiled <code>.fap</code> files, and the SD card
-    resources live in the
-    <a href="https://github.com/FoxFW/Fox_Apps" style="color:#80aad0;">Fox_Apps</a>
-    repository on GitHub.
   </div>
 
 </section>
@@ -1647,12 +1628,15 @@
     Otherwise, Emulate offers a choice: <strong>Recover Key (Auto)</strong>
     brute-forces every known key against the full epoch range (up to
     ~2.1 million combinations) with a live progress bar, speed, and ETA —
-    typically done in well under a minute — or <strong>Enter Key
-    Manually</strong> for the original hex-entry flow (epoch fixed at 0).
-    On a successful recovery, the key and epoch are saved straight into the
-    file, and the result screen offers <strong>Apply</strong> (transmit
-    once) or <strong>CBF</strong> (jump straight into Counter BruteForce
-    using the newly recovered key, useful if the fob's rolling counter has
+    typically done in well under a minute — <strong>Enter Key
+    Manually</strong> for the original hex-entry flow (epoch fixed at 0), or,
+    if the free <strong>Hitag2 Hell</strong> app is installed,
+    <strong>Recover Key (Hitag2Hell)</strong> to launch it directly against
+    the loaded signal. On a successful recovery, the key and epoch are saved
+    straight into the file, and the result screen offers
+    <strong>Apply</strong> (transmit once) or <strong>CBF</strong> (jump
+    straight into Counter BruteForce using the newly recovered key, useful if
+    the fob's rolling counter has
     drifted from what was captured).
   </div>
 
@@ -2095,6 +2079,20 @@
     Back returns you to the Mode Picker with TPMS Read/Edit still
     highlighted, the same way Garage/Gate/Other does.
   </div>
+  <div class="box tip">
+    <strong>Guided Select Model flow.</strong> Fox TPMS opens on a
+    <strong>Select Model</strong> screen — pick your vehicle group (Ford,
+    Renault, Citroën/Peugeot, Toyota/Lexus, Kia/Mercedes/Other) and the app
+    walks you through vehicle-specific instructions while tuning the
+    scanner to that group's candidate frequencies and modulations. Pick
+    <strong>Manual Scan</strong> instead to skip the guide and scan
+    everything, the old generic behavior. A <strong>Trigger</strong>
+    screen (renamed from "Relearn/Activate") pulses the sensor's 125kHz LF
+    wake signal to prompt it to transmit — once triggered, the
+    Scanning/Receiver screen automatically re-fires that pulse every 5
+    seconds while listening, with a vibrate + "Reposition" cue if a pulse
+    gets no reply, instead of pulsing once and listening forever.
+  </div>
   <table>
     <tr><th>Manufacturer</th><th>Protocol</th><th>Frequency</th><th>Mod</th><th>Send</th><th>Decode</th><th>CRC</th></tr>
     <tr><td>Schrader</td><td>Schrader GG4</td><td>433 MHz</td><td>FM</td><td>✓</td><td>✓</td><td>✓</td></tr>
@@ -2456,8 +2454,6 @@
 <footer style="text-align:center;color:#555;font-size:0.85rem;padding:40px 24px 20px;">
   FoxFW v2.0 &nbsp;·&nbsp; foxcustomfirmware@gmail.com &nbsp;·&nbsp;
   <a href="https://discord.gg/gZDqCwSGrQ" target="_blank" rel="noopener" style="color:#888;">Discord</a>
-  &nbsp;·&nbsp;
-  <a href="fox-apps-suite.html" style="color:#888;">Fox Apps Suite</a>
   &nbsp;·&nbsp; Guide version 1.0
   <div style="margin-top:20px;">
     <a href="https://buymeacoffee.com/foxfw" target="_blank" rel="noopener"><img src="assets/donate/buymeacoffee.png" alt="Buy Me a Coffee" height="40" style="margin:0 6px;vertical-align:middle;"></a>
