@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FoxFW ESP32 — Web Flasher</title>
 <style>
+/* Page-wide 20% shrink (zoom: 80%) so 100% browser zoom matches what this
+   page used to look like at 80% browser zoom - requested 2026-09-16.
+   Note: the CSS zoom property is unsupported in Safari (desktop and iOS) -
+   Safari visitors will still see the page at its original, pre-shrink size. */
+html { zoom: 80%; }
 /* Scrollbars */
 *{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
 *::-webkit-scrollbar{width:9px;height:9px}
@@ -374,7 +379,7 @@
 
   // Current Fox ESP32 Firmware release - keep this in sync with
   // Fox_ESP32_FW/config.h's FOX_FIRMWARE_VERSION whenever you cut a release.
-  const FOX_FIRMWARE_VERSION = "1.3.0";
+  const FOX_FIRMWARE_VERSION = "1.4.0";
 
   const BOARD_MANIFEST = [
     // ── Classic ESP32 family (Xtensa LX6, Bluedroid BLE) ──────────────────
