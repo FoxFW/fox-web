@@ -5,12 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fox ESP32 Firmware — Complete User Guide</title>
 <style>
-/* Page-wide 20% shrink (zoom: 80%) so 100% browser zoom matches what this
-   page used to look like at 80% browser zoom - requested 2026-09-16.
-   Note: the CSS zoom property is unsupported in Safari (desktop and iOS) -
-   Safari visitors will still see the page at its original, pre-shrink size. */
 html { zoom: 80%; }
-/* Scrollbars */
 *{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
 *::-webkit-scrollbar{width:9px;height:9px}
 *::-webkit-scrollbar-track{background-color:transparent}
@@ -18,7 +13,6 @@ html { zoom: 80%; }
 *::-webkit-scrollbar-thumb:hover{background-color:var(--orange,var(--fox))}
 *::-webkit-scrollbar-corner{background-color:transparent}
 
-/* Floating back-to-top button - only shown when the page has a vertical scrollbar */
 #backTop{position:fixed;bottom:24px;right:24px;width:52px;height:52px;background:var(--orange,var(--fox));color:#fff;font-size:1.5rem;line-height:1;border:none;border-radius:50%;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;transition:transform .15s ease,filter .15s ease}
 #backTop.show{display:flex}
 #backTop:hover{filter:brightness(1.12);transform:translateY(-2px)}
@@ -43,7 +37,6 @@ html { zoom: 80%; }
     padding: 0 0 80px;
   }
 
-  /* ── Hero header ─────────────────────────────────────────────────────── */
   .hero {
     background: linear-gradient(135deg, #b85500 0%, var(--orange) 60%, #ff9a3c 100%);
     color: #fff;
@@ -72,10 +65,8 @@ html { zoom: 80%; }
   }
   .hero .support-note a { color: #ffe0b0; }
 
-  /* ── Layout ──────────────────────────────────────────────────────────── */
   .content { max-width: 860px; margin: 0 auto; padding: 48px 24px 0; }
 
-  /* ── Index / TOC ─────────────────────────────────────────────────────── */
   .index {
     background: var(--mid);
     border: 1px solid var(--border);
@@ -103,7 +94,6 @@ html { zoom: 80%; }
   .index .sub { list-style: disc; padding-left: 18px; margin: 4px 0 6px; }
   .index .sub li { font-size: 0.88rem; margin: 3px 0; }
 
-  /* ── Chapter labels ──────────────────────────────────────────────────── */
   .chapter-label {
     font-size: 0.78rem;
     text-transform: uppercase;
@@ -112,7 +102,6 @@ html { zoom: 80%; }
     margin-bottom: 4px;
   }
 
-  /* ── Section ─────────────────────────────────────────────────────────── */
   .section { margin-bottom: 64px; }
   .section h2 {
     font-size: 1.5rem;
@@ -139,7 +128,6 @@ html { zoom: 80%; }
   .section ol { padding-left: 22px; color: #ccc; margin-bottom: 13px; }
   .section ol li { margin: 6px 0; }
 
-  /* ── Setting rows ────────────────────────────────────────────────────── */
   .setting {
     background: var(--mid);
     border-left: 3px solid var(--orange);
@@ -152,7 +140,6 @@ html { zoom: 80%; }
   .setting .values { font-size: 0.88rem; color: #999; margin-top: 6px; }
   .setting .values span { color: #d0d0d0; }
 
-  /* ── Key shortcut chips ──────────────────────────────────────────────── */
   .keys { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
   .key-row {
     background: var(--mid);
@@ -176,7 +163,6 @@ html { zoom: 80%; }
   }
   .key-desc { color: #bbb; font-size: 0.9rem; }
 
-  /* ── Boxes ───────────────────────────────────────────────────────────── */
   .box {
     border-radius: 6px;
     padding: 14px 18px;
@@ -191,7 +177,6 @@ html { zoom: 80%; }
   .box.alert { background: #2d0f0f; border: 1px solid #7a2020; color: #f0a0a0; }
   .box strong { font-weight: 700; }
 
-  /* ── Badge ───────────────────────────────────────────────────────────── */
   .badge {
     display: inline-block;
     background: var(--new);
@@ -207,13 +192,11 @@ html { zoom: 80%; }
   .badge.gated { background: #a05000; }
   .badge.s2 { background: #7a2020; }
 
-  /* ── Tables ──────────────────────────────────────────────────────────── */
   table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.9rem; }
   th { background: #333; color: var(--accent); padding: 9px 12px; text-align: left; }
   td { padding: 8px 12px; border-bottom: 1px solid #333; color: #ccc; }
   tr:last-child td { border-bottom: none; }
 
-  /* ── App/module cards ────────────────────────────────────────────────── */
   .mod-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
@@ -225,7 +208,6 @@ html { zoom: 80%; }
   .mod-card .mtype { font-size: 0.82rem; color: #888; margin-top: 2px; }
   .mod-card .muse  { font-size: 0.85rem; color: #bbb; margin-top: 5px; }
 
-  /* ── Menu tree ───────────────────────────────────────────────────────── */
   .menu-tree {
     background: #111;
     border: 1px solid #444;
@@ -241,7 +223,6 @@ html { zoom: 80%; }
   }
   .menu-tree .hl { color: var(--accent); }
 
-  /* ── Flow steps ──────────────────────────────────────────────────────── */
   .flow { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
   .flow-step {
     background: var(--mid);
@@ -256,7 +237,6 @@ html { zoom: 80%; }
   .flow-step .n { color: var(--accent); font-weight: 700; display: block; font-size: 0.82rem; margin-bottom: 2px; }
   .arrow { align-self: center; color: #555; font-size: 1.2rem; }
 
-  /* ── Code ────────────────────────────────────────────────────────────── */
   code {
     background: #111;
     border: 1px solid #444;
@@ -279,10 +259,8 @@ html { zoom: 80%; }
   pre.cmd-block .c { color: #6a6a6a; }
   pre.cmd-block .r { color: #80c890; }
 
-  /* ── Divider ─────────────────────────────────────────────────────────── */
   .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
 
-  /* ── Back to top ─────────────────────────────────────────────────────── */
   .back-top { text-align: right; margin-top: 32px; }
   .back-top a {
     color: var(--orange);
@@ -297,7 +275,6 @@ html { zoom: 80%; }
 </head>
 <body>
 
-<!-- ══════════════════ HERO ══════════════════ -->
 <header class="hero">
   <div class="hero-inner" style="text-align:center;">
     <div class="version" style="display:inline-block;">🦊 Fox ESP32 Firmware</div>
@@ -319,7 +296,6 @@ html { zoom: 80%; }
 
 <div class="content">
 
-<!-- ══════════════════ TABLE OF CONTENTS ══════════════════ -->
 <nav class="index" id="top">
   <h2>Contents</h2>
   <div class="cols">
@@ -390,8 +366,6 @@ html { zoom: 80%; }
   </div>
 </nav>
 
-
-<!-- ══════════════════ 1 · ABOUT ══════════════════ -->
 <section class="section" id="about">
   <div class="chapter-label">Chapter 1</div>
   <h2>About Fox ESP32 Firmware</h2>
@@ -473,8 +447,6 @@ html { zoom: 80%; }
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 2 · WEB FLASHER ══════════════════ -->
 <section class="section" id="web-flasher">
   <div class="chapter-label">Chapter 2</div>
   <h2>Web Installer</h2>
@@ -611,8 +583,6 @@ html { zoom: 80%; }
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 3 · HARDWARE SETUP ══════════════════ -->
 <section class="section" id="hardware">
   <div class="chapter-label">Chapter 3</div>
   <h2>Hardware Setup</h2>
@@ -718,8 +688,6 @@ html { zoom: 80%; }
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 4 · DETECTOR ══════════════════ -->
 <section class="section" id="detector">
   <div class="chapter-label">Chapter 4</div>
   <h2>Fox ESP32 Detector</h2>
@@ -776,8 +744,6 @@ html { zoom: 80%; }
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 5 · COMMANDER ══════════════════ -->
 <section class="section" id="commander">
   <div class="chapter-label">Chapter 5</div>
   <h2>FoxHub</h2>
@@ -841,7 +807,6 @@ html { zoom: 80%; }
 ├── <span class="hl">Settings</span>
 └── <span class="hl">Terminal</span></div>
 
-  <!-- WIFI MENU -->
   <h3 id="cmd-wifi">WiFi menu</h3>
   <div class="menu-tree">WiFi
 ├── Connect / Connection   <span style="color:#888">(label changes based on live connection state)</span>
@@ -955,7 +920,6 @@ html { zoom: 80%; }
     so rather than doing nothing silently.
   </div>
 
-  <!-- BLUETOOTH MENU -->
   <h3 id="cmd-bluetooth">Bluetooth menu</h3>
   <p>
     This menu is BLE spam only — five gated items, each cycling a
@@ -976,7 +940,6 @@ html { zoom: 80%; }
     from Terminal but don't have a dedicated menu screen in this app.
   </div>
 
-  <!-- TAG DETECTION -->
   <h3 id="cmd-tags">Tag Detection menu</h3>
   <div class="menu-tree">Tag Detection
 ├── AirTag / Find My
@@ -999,7 +962,6 @@ html { zoom: 80%; }
     itself can't distinguish which exact product sent it.
   </div>
 
-  <!-- SCRIPTS -->
   <h3 id="cmd-scripts">Scripts menu</h3>
   <p>
     Lists every script currently saved on the ESP32, plus a trailing
@@ -1016,7 +978,6 @@ html { zoom: 80%; }
     full language reference.
   </div>
 
-  <!-- SETTINGS + TERMINAL -->
   <h3 id="cmd-settings">Settings &amp; Terminal</h3>
   <div class="setting">
     <div class="name">Settings — Attacks: ON/OFF, Expert Mode: ON/OFF</div>
@@ -1047,8 +1008,6 @@ html { zoom: 80%; }
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 6 · FOX CHAT ══════════════════ -->
 <section class="section" id="chat">
   <div class="chapter-label">Chapter 6</div>
   <h2>Fox Chat</h2>
@@ -1111,8 +1070,6 @@ html { zoom: 80%; }
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 7 · FOX AI CHAT ══════════════════ -->
 <section class="section" id="ai-chat">
   <div class="chapter-label">Chapter 7</div>
   <h2>Fox AI Chat</h2>
@@ -1172,8 +1129,6 @@ html { zoom: 80%; }
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 8 · FOX PORTAL ══════════════════ -->
 <section class="section" id="portal">
   <div class="chapter-label">Chapter 8</div>
   <h2>Fox Portal</h2>
@@ -1330,8 +1285,6 @@ html { zoom: 80%; }
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 9 · UPDATE DOWNLOADER ══════════════════ -->
 <section class="section" id="update-downloader">
   <div class="chapter-label">Chapter 9</div>
   <h2>Fox Update Downloader</h2>
@@ -1423,8 +1376,6 @@ html { zoom: 80%; }
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 10 · FOX FILE DOWNLOADER ══════════════════ -->
 <section class="section" id="file-downloader">
   <div class="chapter-label">Chapter 10</div>
   <h2>Fox File Downloader</h2>
@@ -1630,8 +1581,6 @@ html { zoom: 80%; }
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 11 · FOXDEFLOCK ══════════════════ -->
 <section class="section" id="deflock">
   <div class="chapter-label">Chapter 11</div>
   <h2>FoxDeFlock</h2>
@@ -1698,8 +1647,6 @@ html { zoom: 80%; }
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 12 · WIFI ICON ══════════════════ -->
 <section class="section" id="wifi-icon">
   <div class="chapter-label">Chapter 12</div>
   <h2>Status Bar WiFi / CC1101 Icon</h2>
@@ -1744,8 +1691,6 @@ html { zoom: 80%; }
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 13 · FULL COMMAND REFERENCE ══════════════════ -->
 <section class="section" id="commands">
   <div class="chapter-label">Chapter 13</div>
   <h2>Full Command Reference</h2>
@@ -2071,8 +2016,6 @@ repeat (3) {
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 14 · SAFETY, LEGAL, ATTACKS TOGGLE ══════════════════ -->
 <section class="section" id="safety">
   <div class="chapter-label">Chapter 14</div>
   <h2>Safety, Legal &amp; the Attacks Toggle</h2>
@@ -2141,8 +2084,6 @@ repeat (3) {
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 15 · KNOWN LIMITATIONS ══════════════════ -->
 <section class="section" id="limitations">
   <div class="chapter-label">Chapter 15</div>
   <h2>Known Limitations</h2>
@@ -2193,8 +2134,6 @@ repeat (3) {
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 16 · SUPPORT & TROUBLESHOOTING ══════════════════ -->
 <section class="section" id="support">
   <div class="chapter-label">Chapter 16</div>
   <h2>Support &amp; Troubleshooting</h2>
@@ -2280,7 +2219,7 @@ repeat (3) {
   🦊 FoxFW &nbsp;·&nbsp; <a href="https://discord.gg/gZDqCwSGrQ" target="_blank" rel="noopener" style="color:var(--text-dim);">Discord</a>
 </footer>
 
-</div><!-- /content -->
+</div>
 <button id="backTop" aria-label="Back to top">↑</button>
 
 <script>

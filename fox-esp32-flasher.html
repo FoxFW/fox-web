@@ -5,12 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FoxFW ESP32 — Web Flasher</title>
 <style>
-/* Page-wide 20% shrink (zoom: 80%) so 100% browser zoom matches what this
-   page used to look like at 80% browser zoom - requested 2026-09-16.
-   Note: the CSS zoom property is unsupported in Safari (desktop and iOS) -
-   Safari visitors will still see the page at its original, pre-shrink size. */
 html { zoom: 80%; }
-/* Scrollbars */
 *{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
 *::-webkit-scrollbar{width:9px;height:9px}
 *::-webkit-scrollbar-track{background-color:transparent}
@@ -18,7 +13,6 @@ html { zoom: 80%; }
 *::-webkit-scrollbar-thumb:hover{background-color:var(--orange,var(--fox))}
 *::-webkit-scrollbar-corner{background-color:transparent}
 
-/* Floating back-to-top button - only shown when the page has a vertical scrollbar */
 #backTop{position:fixed;bottom:24px;right:24px;width:52px;height:52px;background:var(--orange,var(--fox));color:#fff;font-size:1.5rem;line-height:1;border:none;border-radius:50%;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;transition:transform .15s ease,filter .15s ease}
 #backTop.show{display:flex}
 #backTop:hover{filter:brightness(1.12);transform:translateY(-2px)}
@@ -88,9 +82,6 @@ html { zoom: 80%; }
   .card h2 .ver{ color:var(--fox); text-transform:none; letter-spacing:0; }
   .card h2 .status-pill{ text-transform:none; letter-spacing:0; font-size:11px; }
   #fwHeading{ display:grid; grid-template-columns: 1fr auto 1fr; gap:8px; align-items:center; }
-  /* Pinned to explicit columns (not just source order) so hiding
-     #fetchBtn on the Custom tab doesn't let auto-placement pull
-     .ready-pill into the middle column. */
   #fwHeading .fw-title{ grid-column:1; justify-self:start; }
   #fwHeading #fetchBtn{ grid-column:2; justify-self:center; }
   #fwHeading .ready-pill{ grid-column:3; justify-self:end; }
@@ -181,9 +172,6 @@ html { zoom: 80%; }
   .fi-state.ok{ color:var(--ok); border-color:#1f4a30; }
   .fi-state.err{ color:var(--err); border-color:#4a1f21; }
   .fi-state.pending{ color:var(--warn); border-color:#4a3a10; }
-  /* fi-state-wrap's children become direct grid items of fi-top (columns
-     3 and 4) so the filename and size line up in their own columns across
-     every row, rather than being sized by their own content. */
   .fi-state-wrap{ display:contents; }
   .fi-state-solo{ grid-column:span 2; justify-self:center; }
   .fi-file-link{
@@ -340,50 +328,9 @@ html { zoom: 80%; }
 <script type="module">
   import { ESPLoader, Transport } from "https://unpkg.com/esptool-js@0.5.7/bundle.js";
 
-  /* ============================================================
-     BOARD MANIFEST
-     Add a new object here for every new board.
-
-     Fox Firmware files always load from a firmware_files/ subfolder next
-     to whatever folder is hosting this page (the fox-web repo root, or
-     https://foxfw.github.io/fox-web/ once deployed) via assetUrl() below —
-     nothing here needs a URL filled in, just make sure the named files sit
-     in firmware_files/ next to this html file (that's what
-     scripts/deploy_esp32_boards.py does after every board export).
-
-     address values are hex strings as Arduino/esptool expects them.
-     Typical Arduino-IDE ESP32 export (classic ESP32):
-       bootloader.bin  -> 0x1000
-       partitions.bin  -> 0x8000
-       boot_app0.bin   -> 0xE000
-       *.ino.bin       -> 0x10000
-     ESP32-S2/S3/C3 boards commonly use 0x0 for the bootloader —
-     check the address esptool prints when you flash from Arduino
-     and adjust per-board below.
-
-     `chipFamily` is a short canonical label ("ESP32", "ESP32-S3", etc.)
-     matched against whatever esploader.main() detects on Connect (see
-     detectChipFamily() below) - used both to auto-select a board on
-     Connect and to block Program if the wrong board stays selected for
-     the connected chip. Leave it unset on a board entry to skip both.
-     ============================================================ */
-  // ── Flash-offset quick reference ──────────────────────────────────────────
-  // Classic ESP32 and ESP32-S2 place the second-stage bootloader at 0x1000.
-  // Every S3/C-series chip maps flash differently: the ROM itself is the
-  // first-stage loader and reads the second stage from 0x0.
-  // Partitions, Boot App0, and Firmware offsets are the same across all
-  // variants (0x8000 / 0xE000 / 0x10000).
-  // boot_app0.bin is identical across all boards (verified by md5) and lives
-  // in the firmware_files/ directory next to this file.
-  // ──────────────────────────────────────────────────────────────────────────
-
-  // Current Fox ESP32 Firmware release - keep this in sync with
-  // Fox_ESP32_FW/config.h's FOX_FIRMWARE_VERSION whenever you cut a release.
   const FOX_FIRMWARE_VERSION = "1.4.0";
 
   const BOARD_MANIFEST = [
-    // ── Classic ESP32 family (Xtensa LX6, Bluedroid BLE) ──────────────────
-    // ESP32 Dev Module / Generic ESP32 board
     {
       id: "fox-esp32-classic",
       name: "ESP32 (Classic / Dev Module)",
@@ -395,7 +342,6 @@ html { zoom: 80%; }
         { label: "Firmware",   filename: "firmware-classic.bin",            address: "0x10000" },
       ],
     },
-    // ESP32-WROOM-32 module (same silicon as Classic, different antenna/module)
     {
       id: "fox-esp32-wroom",
       name: "ESP32-WROOM",
@@ -407,7 +353,6 @@ html { zoom: 80%; }
         { label: "Firmware",   filename: "firmware-classic.bin",            address: "0x10000" },
       ],
     },
-    // ESP32-WROVER module (same silicon, adds PSRAM and external antenna)
     {
       id: "fox-esp32-wrover",
       name: "ESP32-WROVER",
@@ -419,7 +364,6 @@ html { zoom: 80%; }
         { label: "Firmware",   filename: "firmware-classic.bin",            address: "0x10000" },
       ],
     },
-    // ESP32-CAM (same classic chip, onboard OV2640 camera, no USB-UART bridge)
     {
       id: "fox-esp32-cam",
       name: "ESP32-CAM",
@@ -431,7 +375,6 @@ html { zoom: 80%; }
         { label: "Firmware",   filename: "firmware-classic.bin",            address: "0x10000" },
       ],
     },
-    // ── ESP32-S2 (Xtensa LX7, no BLE) ────────────────────────────────────
     {
       id: "fox-esp32-s2",
       name: "ESP32-S2",
@@ -443,8 +386,6 @@ html { zoom: 80%; }
         { label: "Firmware",   filename: "firmware-s2.bin",            address: "0x10000" },
       ],
     },
-    // ── ESP32-S3 (Xtensa LX7, NimBLE) ────────────────────────────────────
-    // S3 and all C-series chips boot their second-stage loader from 0x0, not 0x1000.
     {
       id: "fox-esp32-s3",
       name: "ESP32-S3",
@@ -456,7 +397,6 @@ html { zoom: 80%; }
         { label: "Firmware",   filename: "firmware-s3.bin",            address: "0x10000" },
       ],
     },
-    // ── ESP32-C3 (RISC-V, NimBLE, Huge APP 3 MB partition) ───────────────
     {
       id: "fox-esp32-c3",
       name: "ESP32-C3",
@@ -468,7 +408,6 @@ html { zoom: 80%; }
         { label: "Firmware",   filename: "firmware-c3.bin",            address: "0x10000" },
       ],
     },
-    // ── ESP32-C5 (RISC-V, NimBLE, Huge APP 3 MB partition) ───────────────
     {
       id: "fox-esp32-c5",
       name: "ESP32-C5",
@@ -480,7 +419,6 @@ html { zoom: 80%; }
         { label: "Firmware",   filename: "firmware-c5.bin",            address: "0x10000" },
       ],
     },
-    // ── ESP32-C6 (RISC-V, NimBLE, Huge APP 3 MB partition) ───────────────
     {
       id: "fox-esp32-c6",
       name: "ESP32-C6",
@@ -494,32 +432,7 @@ html { zoom: 80%; }
     },
   ];
 
-  // esptool-js's main() returns a free-text chip description straight from
-  // esptool's own detection table, not a clean enum - these are strings
-  // actually seen in the wild (not exhaustive, but covers the vast majority
-  // of boards). "D0WD" = dual-core, "S0WD" = single-core, "-V3" means chip
-  // revision 3 silicon (current production for most modules); "PICO-D4" /
-  // "U4WDH" are SiP variants with flash bonded inside the chip package
-  // itself (e.g. ESP32-PICO-KIT). All classic-family variants below run
-  // identical FoxFW firmware and flash addresses, so auto-select just lands
-  // on "ESP32 (Classic / Dev Module)" as the representative entry - switch
-  // it by hand if you know your exact module and it matters to you.
-  //   ESP32-D0WD (revision 1)        -> ESP32 (Classic / Dev Module)
-  //   ESP32-D0WDQ6 (revision 1)      -> ESP32 (Classic / Dev Module)
-  //   ESP32-D0WD-V3 (revision 3)     -> ESP32 (Classic / Dev Module)
-  //   ESP32-D0WDQ6-V3 (revision 3)   -> ESP32 (Classic / Dev Module)
-  //   ESP32-S0WD (revision 1)        -> ESP32 (Classic / Dev Module)
-  //   ESP32-PICO-D4 (revision 1)     -> ESP32 (Classic / Dev Module)
-  //   ESP32-U4WDH (revision 1)       -> ESP32 (Classic / Dev Module)
-  //   ESP32-S2 (revision x)          -> ESP32-S2
-  //   ESP32-S3 (QFN56) (revision x)  -> ESP32-S3
-  //   ESP32-C3 (QFN32) (revision x)  -> ESP32-C3
-  //   ESP32-C6 (QFN40) (revision x)  -> ESP32-C6
-  //   ESP32-C5 (revision x)          -> ESP32-C5
   function assetUrl(filename) {
-    // Resolve relative to wherever this page itself was loaded from, so the
-    // exact same code works locally and from GitHub Pages. Binary firmware
-    // files live in firmware_files/ next to this html file.
     return new URL('firmware_files/' + filename, document.baseURI).toString();
   }
 
@@ -550,21 +463,10 @@ html { zoom: 80%; }
   let transport = null;
   let esploader = null;
   let slots = [];
-  let lastDetectedChip = null; // raw string from esploader.main()
+  let lastDetectedChip = null;
   let chipMismatch = false;
-  let firmwareMode = "fox"; // "fox" | "custom"
+  let firmwareMode = "fox";
 
-  /* esptool-js's main() returns a descriptive chip string (real
-     examples look like "ESP32-D0WDQ6 (revision 1)" or "ESP32-S3
-     (QFN56) (revision 0.1)"), not a clean short label - and
-     critically, "ESP32" is itself a substring of every variant's
-     name ("ESP32-S3", "ESP32-C3", etc.), so a naive .includes("ESP32")
-     check would match all of them. This checks the more specific
-     variant tokens first and only falls back to plain "ESP32" if none
-     matched, so classic ESP32 doesn't get confused with a variant.
-     Reasonable pattern-match against documented esptool output, not a
-     verified exact API contract - worth confirming against real
-     hardware the first time each chip is actually connected. */
   function detectChipFamily(chipString) {
     if (!chipString) return null;
     const s = chipString.toUpperCase();
@@ -576,14 +478,6 @@ html { zoom: 80%; }
     return null;
   }
 
-  // Compares the currently selected board's declared chipFamily
-  // against whatever was last detected on Connect, and blocks Program
-  // (via the chipMismatch flag, read by updateProgramState()) if they
-  // disagree. Called right after a successful connect, and again if
-  // the board dropdown changes while already connected. Erase is
-  // deliberately left available on a mismatch - it's chip-agnostic,
-  // doesn't write anything board-specific, and can be a legitimate way
-  // to recover from having picked the wrong board.
   function checkChipMismatch() {
     if (!esploader || !lastDetectedChip) { chipMismatch = false; return; }
     const board = BOARD_MANIFEST[parseInt(boardSelect.value, 10)];
@@ -674,11 +568,6 @@ html { zoom: 80%; }
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (ev) => {
-          // Routed through the same chunked conversion the fetch path
-          // uses (arrayBufferToBinaryString), rather than the legacy
-          // FileReader.readAsBinaryString() - keeps both paths
-          // encoding bytes identically and doesn't rely on a method
-          // Chromium no longer documents in the File API spec.
           slots[idx].data = arrayBufferToBinaryString(ev.target.result);
           slots[idx].source = "manual";
           slots[idx].manualName = file.name;
@@ -700,13 +589,6 @@ html { zoom: 80%; }
     renderSlotState(idx);
   }
 
-  // Renders the right-hand side of a file row. A file successfully
-  // fetched from the same directory as this page gets split into two
-  // separate pills - the filename itself is a real link (download the
-  // exact bytes this flasher is about to write), the size is plain text
-  // so it isn't accidentally clickable. Anything else (still loading,
-  // errored, not loaded, or a manually-chosen local file with no stable
-  // URL to link to) falls back to a single plain-text pill.
   function renderSlotState(idx) {
     const s = slots[idx];
     const wrap = fileTable.querySelector(`.fi-state-wrap[data-state="${idx}"]`);
@@ -731,10 +613,6 @@ html { zoom: 80%; }
     updateProgramState();
 
     if (firmwareMode === "fox") {
-      // visibility (not display) so the button keeps reserving its cell's
-      // height/width - toggling display:none shrank the whole #fwHeading
-      // row by a few px whenever the Custom tab hid the button, making the
-      // tabs/file list jump slightly on every tab switch.
       fetchBtn.style.visibility = "visible";
       await fetchBoardFiles(board);
     } else {
@@ -771,7 +649,7 @@ html { zoom: 80%; }
 
   boardSelect.addEventListener("change", async (e) => {
     await loadBoard(parseInt(e.target.value, 10));
-    checkChipMismatch(); // re-validate against whatever's already connected, if anything
+    checkChipMismatch();
   });
   fetchBtn.addEventListener("click", () => loadBoard(parseInt(boardSelect.value, 10)));
 
@@ -817,8 +695,6 @@ html { zoom: 80%; }
       log(`Connected. Detected chip: ${chip}`);
       lastDetectedChip = chip;
 
-      // Auto-select the matching board in the dropdown, if the currently
-      // selected one doesn't already agree with what's actually plugged in.
       const detectedFamily = detectChipFamily(chip);
       const currentBoard = BOARD_MANIFEST[parseInt(boardSelect.value, 10)];
       if (detectedFamily && currentBoard.chipFamily !== detectedFamily) {
@@ -834,7 +710,7 @@ html { zoom: 80%; }
       disconnectBtn.disabled = false;
       eraseBtn.disabled = false;
 
-      checkChipMismatch(); // sets status pill + logs a warning + gates Program if it doesn't match the selected board
+      checkChipMismatch();
     } catch (err) {
       log(`Connection failed: ${err.message || err}`, "e");
       setStatus("error", "Connection failed");
@@ -921,14 +797,6 @@ html { zoom: 80%; }
       await esploader.after("hard_reset");
       log("Device reset. Flash complete.");
 
-      // The device just rebooted into the new firmware - the Web
-      // Serial port object may still look "open" to the browser, but
-      // esploader's own sync state is stale and a second
-      // writeFlash()/eraseFlash() without a fresh handshake is not
-      // reliable. Treat this like a disconnect for Program/Erase
-      // purposes (Disconnect itself stays available so the port gets
-      // closed properly) rather than leaving both looking clickable
-      // when they'd need a real reconnect first.
       esploader = null;
       lastDetectedChip = null;
       chipMismatch = false;
@@ -939,7 +807,7 @@ html { zoom: 80%; }
       progressStage.textContent = "Failed";
     } finally {
       setTimeout(() => progressWrap.classList.remove("active"), 1200);
-      eraseBtn.disabled = !esploader; // stays disabled post-success (see above); re-enabled by a fresh Connect
+      eraseBtn.disabled = !esploader;
       disconnectBtn.disabled = false;
       updateProgramState();
     }

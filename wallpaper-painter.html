@@ -6,12 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FoxFW Wallpaper Painter</title>
 <style>
-/* Page-wide 20% shrink (zoom: 80%) so 100% browser zoom matches what this
-   page used to look like at 80% browser zoom - requested 2026-09-16.
-   Note: the CSS zoom property is unsupported in Safari (desktop and iOS) -
-   Safari visitors will still see the page at its original, pre-shrink size. */
 html { zoom: 80%; }
-/* Scrollbars */
 *{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
 *::-webkit-scrollbar{width:9px;height:9px}
 *::-webkit-scrollbar-track{background-color:transparent}
@@ -19,7 +14,6 @@ html { zoom: 80%; }
 *::-webkit-scrollbar-thumb:hover{background-color:var(--orange,var(--fox))}
 *::-webkit-scrollbar-corner{background-color:transparent}
 
-/* Floating back-to-top button - only shown when the page has a vertical scrollbar */
 #backTop{position:fixed;bottom:24px;right:24px;width:52px;height:52px;background:var(--orange,var(--fox));color:#fff;font-size:1.5rem;line-height:1;border:none;border-radius:50%;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;transition:transform .15s ease,filter .15s ease}
 #backTop.show{display:flex}
 #backTop:hover{filter:brightness(1.12);transform:translateY(-2px)}
@@ -173,17 +167,10 @@ html { zoom: 80%; }
   .btn.danger:hover:not(:disabled){ background:#2a1013; }
   .btn.full{ flex:1; text-align:center; }
 
-  /* Always-visible orange border; the label itself only lights up orange
-     on hover. Disabled state keeps the border lit and brightens the text
-     instead of the usual uniform opacity dim, so it stays readable. */
   .btn.accent{ border-color:var(--fox-dim); }
   .btn.accent:hover:not(:disabled){ color:var(--fox); }
   .btn.accent:disabled{ opacity:1; border-color:var(--fox-dim); color:#d8d9db; cursor:default; }
 
-  /* Save to SD Card is a danger button underneath, but while it's actually
-     usable (device connected) it should read as fully "ready to go" - the
-     same solid lit-orange fill as the primary Download button - not just
-     a dark tint. Disabled/no-device keeps the muted outline-only look. */
   .btn.danger.accent:not(:disabled){
     background:var(--fox); border-color:var(--fox); color:#1a0f00; font-weight:700;
   }
@@ -401,15 +388,6 @@ html { zoom: 80%; }
 (() => {
   "use strict";
 
-  // ── Template artwork (border + status bar chrome) ────────────────
-  // 128x64, 1bpp, row-major, standard XBM bit order (bit N of byte = pixel
-  // x = byteIndex*8+N within that row). bit=1 -> black, derived pixel-for-
-  // pixel from the FoxFW wallpaper template. Identical layout to what
-  // canvas_draw_xbm() in FoxFW2.0's desktop.c actually renders, and to the
-  // default wallpaper.xbm the firmware auto-creates on first boot. This is
-  // just the ARTWORK to render/bake into the locked band below — which
-  // pixels are actually off-limits to the user is decided by isLocked(),
-  // not by which of these bits happen to be black or white.
   const W = 128, H = 64, ROW_BYTES = 16, SIZE = 1024;
   const TEMPLATE_BITS = new Uint8Array([
   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -478,7 +456,6 @@ html { zoom: 80%; }
   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
   ]);
 
-  // ── Pixel-layer helpers ──────────────────────────────────────────
   function getBit(arr, x, y) {
     return (arr[y * ROW_BYTES + (x >> 3)] >> (x & 7)) & 1;
   }
@@ -488,17 +465,9 @@ html { zoom: 80%; }
     if (v) arr[idx] |= bit; else arr[idx] &= ~bit;
   }
 
-  // ── Locked region (whole bands, not just the template's black pixels) ──
-  // The device's status bar overdraws the full top strip regardless of
-  // what's underneath it, and the border frame is a full-width/height
-  // band too — so the WHOLE band has to be off-limits, not just the exact
-  // pixels that happen to be black in the template artwork. Drawing in
-  // the gap between the double border lines, or in the blank space next
-  // to "2.0", used to slip through when this was matched to the template
-  // pixel-for-pixel; it doesn't anymore.
-  const TOP_BAND = 11;   // status bar, full width
-  const SIDE_BAND = 3;   // double border, left/right, full height
-  const BOTTOM_BAND = 3; // double border, bottom, full width
+  const TOP_BAND = 11;
+  const SIDE_BAND = 3;
+  const BOTTOM_BAND = 3;
   function isLocked(x, y) {
     return y < TOP_BAND || y >= H - BOTTOM_BAND || x < SIDE_BAND || x >= W - SIDE_BAND;
   }
@@ -516,7 +485,6 @@ html { zoom: 80%; }
     return out;
   }
 
-  // ── Undo / redo ──────────────────────────────────────────────────
   const undoStack = [];
   const redoStack = [];
   const MAX_UNDO = 50;
@@ -547,7 +515,6 @@ html { zoom: 80%; }
     $("toolRedo").disabled = redoStack.length === 0;
   }
 
-  // ── XBM text export (same textual format FoxFW2.0 ships/reads) ───
   function toXbmText(bits) {
     let out = "#define wallpaper_width 128\n#define wallpaper_height 64\nstatic unsigned char wallpaper_bits[] = {\n";
     const lines = [];
@@ -559,8 +526,6 @@ html { zoom: 80%; }
     return out;
   }
 
-  // ── XBM text import (parses what toXbmText() above produces, plus the
-  // same format FoxFW2.0 and the standalone Wallpaper Converter both read)
   function parseXbmText(text) {
     const widthMatch = /#define\s+\S+_width\s+(\d+)/.exec(text);
     const heightMatch = /#define\s+\S+_height\s+(\d+)/.exec(text);
@@ -576,8 +541,6 @@ html { zoom: 80%; }
     return bits;
   }
 
-  // Strips characters that don't survive well as a FAT filesystem filename,
-  // same rule of thumb the Showcase's generated batch uses.
   function sanitizeWallpaperName(raw) {
     const cleaned = raw.trim().replace(/[\\/:*?"<>|]+/g, "").slice(0, 40);
     return cleaned || "MyWallpaper";
@@ -600,7 +563,6 @@ html { zoom: 80%; }
     URL.revokeObjectURL(url);
   }
 
-  // ── Canvas rendering ───────────────────────────────────────────
   const canvas = document.getElementById("paintCanvas");
   const ctx = canvas.getContext("2d");
   let zoom = 6;
@@ -612,10 +574,6 @@ html { zoom: 80%; }
     render();
   }
 
-  // Colors match how this actually looks on the Flipper's screen: white/
-  // light for an unset pixel, black/dark for a set one. The locked band
-  // uses muted grays in the same light/dark sense so it still reads as
-  // "paper" vs "ink" at a glance, just visibly grayed-out/non-editable.
   const COLOR_OPEN_OFF = "#eceef1";
   const COLOR_OPEN_ON = "#0c0d10";
   const COLOR_LOCKED_INK = "#45484d";
@@ -640,7 +598,6 @@ html { zoom: 80%; }
     if (linePreview) drawLinePreviewOverlay();
   }
 
-  // ── Tools ──────────────────────────────────────────────────────
   let currentTool = "pencil";
   const toolButtons = {
     pencil: $("toolPencil"),
@@ -725,10 +682,9 @@ html { zoom: 80%; }
     return changed;
   }
 
-  // ── Pointer interaction ──────────────────────────────────────────
   let isDrawing = false;
   let lastPixel = null;
-  let linePreview = null; // {x0,y0,x1,y1}
+  let linePreview = null;
   let strokeChanged = false;
 
   function drawLinePreviewOverlay() {
@@ -809,12 +765,8 @@ html { zoom: 80%; }
   canvas.addEventListener("pointercancel", endStroke);
   canvas.addEventListener("pointerleave", () => { if (currentTool !== "line") endStroke(); });
 
-  // ── Import image ──────────────────────────────────────────────
   $("toolImport").addEventListener("click", () => $("importFileInput").click());
 
-  // Shared by both import paths (file picker .xbm and "Import Current
-  // Wallpaper" from a connected Flipper) - both end up with a parsed
-  // SIZE-byte bit array and need to apply it the same way.
   function applyImportedBits(bits) {
     pushUndo();
     userLayer.fill(0);
@@ -904,7 +856,6 @@ html { zoom: 80%; }
     consoleEl.scrollTop = consoleEl.scrollHeight;
   }
 
-  // ── Collapsible Device Log ───────────────────────────────────────
   const logToggleBtn = $("logToggleBtn");
   logToggleBtn.addEventListener("click", () => {
     const open = consoleEl.style.display !== "none";
@@ -913,7 +864,6 @@ html { zoom: 80%; }
     if (!open) consoleEl.scrollTop = consoleEl.scrollHeight;
   });
 
-  // ── Help popovers (hover on desktop, click/tap anywhere else) ────
   document.querySelectorAll(".help-btn").forEach((btn) => {
     btn.addEventListener("click", (evt) => {
       evt.stopPropagation();
@@ -926,17 +876,10 @@ html { zoom: 80%; }
     document.querySelectorAll(".help-btn.open").forEach((b) => b.classList.remove("open"));
   });
 
-  // ── Flipper RPC over Web Serial ──────────────────────────────────
-  // FlipperRPC class lives in assets/js/flipper-rpc.js (shared with
-  // wallpaper-showcase.html and foxfw-lab.html) - this page only wires it
-  // to its own log console.
-  // When embedded in the Lab, reuse its already-open connection instead of
-  // constructing our own - see the sharedFlipper handling further below,
-  // which polls flipper.connected rather than owning its callbacks.
   const embedded = window.self !== window.top;
   let sharedFlipper = null;
   if (embedded) {
-    try { sharedFlipper = window.parent.foxfwLabFlipper || null; } catch (e) { /* cross-origin, shouldn't happen same-site */ }
+    try { sharedFlipper = window.parent.foxfwLabFlipper || null; } catch (e) {   }
   }
   const flipper = sharedFlipper || new FlipperRPC({
     onLog: (msg, cls) => logLine(msg, cls),
@@ -951,7 +894,6 @@ html { zoom: 80%; }
     },
   });
 
-  // ── Device UI wiring ──────────────────────────────────────────
   const devicePill = $("devicePill");
   const devicePillText = $("devicePillText");
   function setDeviceStatus(state, text) {
@@ -959,12 +901,7 @@ html { zoom: 80%; }
     devicePillText.textContent = text;
   }
 
-  // /ext/wallpapers (and the multi-wallpaper .activate mechanism this page
-  // saves through) only exists from FoxFW v2.0.4 onward - older firmware
-  // used a single /ext/wallpaper.xbm path instead.
   const MIN_WALLPAPERS_FIRMWARE = { major: 2, minor: 0, patch: 4 };
-  // wallpapers/.current (the marker this button reads) is written by
-  // desktop.c only from v2.0.5 onward.
   const MIN_CURRENT_WALLPAPER_FIRMWARE = { major: 2, minor: 0, patch: 5 };
   function parseFoxfwVersion(str) {
     const m = /^foxfw-v(\d+)\.(\d+)\.(\d+)/.exec(str || "");
@@ -991,10 +928,6 @@ html { zoom: 80%; }
     connectToggleBtn.disabled = true;
   }
 
-  // Everything that needs to happen once the Flipper is actually connected -
-  // firmware check, enabling the buttons/toggles that need a live device.
-  // Called from the Connect button handler below, and (when embedded with a
-  // shared connection) from the polling handler further down.
   async function onFlipperReady() {
     connectToggleBtn.textContent = "Disconnect";
     $("liveToggle").disabled = false;
@@ -1092,7 +1025,6 @@ html { zoom: 80%; }
     }
   });
 
-  // ── Import Current Wallpaper (from a connected Flipper) ──────────
   $("toolImportCurrent").addEventListener("click", async () => {
     if (!flipper.connected) return;
     const btn = $("toolImportCurrent");
@@ -1150,7 +1082,6 @@ html { zoom: 80%; }
     }, 60);
   }
 
-  // ── Save to SD card (with confirmation) ─────────────────────────
   const sdModalBackdrop = $("sdModalBackdrop");
   $("saveToSdBtn").addEventListener("click", () => {
     sdModalBackdrop.classList.add("show");
@@ -1158,9 +1089,6 @@ html { zoom: 80%; }
   $("sdModalCancel").addEventListener("click", () => sdModalBackdrop.classList.remove("show"));
   const WALLPAPERS_DIR = "/ext/wallpapers";
 
-  // Finds a free filename in /ext/wallpapers for this name, appending
-  // "(2)", "(3)", etc. if a file by that name already exists - never
-  // overwrites an existing wallpaper.
   async function findAvailableWallpaperFilename(baseName) {
     let candidate = `${baseName}.xbm`;
     for (let n = 2; await flipper.fileExists(`${WALLPAPERS_DIR}/${candidate}`); n++) {
@@ -1202,7 +1130,6 @@ html { zoom: 80%; }
     if (!sharedFlipper && flipper.connected) flipper.disconnect();
   });
 
-  // ── Init ──────────────────────────────────────────────────────
   updateUndoRedoButtons();
   applyZoom();
 })();

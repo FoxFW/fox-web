@@ -5,12 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FoxFW v2.0 — Complete User Guide</title>
 <style>
-/* Page-wide 20% shrink (zoom: 80%) so 100% browser zoom matches what this
-   page used to look like at 80% browser zoom - requested 2026-09-16.
-   Note: the CSS zoom property is unsupported in Safari (desktop and iOS) -
-   Safari visitors will still see the page at its original, pre-shrink size. */
 html { zoom: 80%; }
-/* Scrollbars */
 *{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
 *::-webkit-scrollbar{width:9px;height:9px}
 *::-webkit-scrollbar-track{background-color:transparent}
@@ -38,7 +33,6 @@ html { zoom: 80%; }
     padding: 0 0 80px;
   }
 
-  /* ── Hero header ─────────────────────────────────────────────────────── */
   .hero {
     background: linear-gradient(135deg, #b85500 0%, var(--orange) 60%, #ff9a3c 100%);
     color: #fff;
@@ -67,10 +61,8 @@ html { zoom: 80%; }
   }
   .hero .support-note a { color: #ffe0b0; }
 
-  /* ── Layout ──────────────────────────────────────────────────────────── */
   .content { max-width: 860px; margin: 0 auto; padding: 48px 24px 0; }
 
-  /* ── Index / TOC ─────────────────────────────────────────────────────── */
   .index {
     background: var(--mid);
     border: 1px solid var(--border);
@@ -98,7 +90,6 @@ html { zoom: 80%; }
   .index .sub { list-style: disc; padding-left: 18px; margin: 4px 0 6px; }
   .index .sub li { font-size: 0.88rem; margin: 3px 0; }
 
-  /* ── Chapter labels ──────────────────────────────────────────────────── */
   .chapter-label {
     font-size: 0.78rem;
     text-transform: uppercase;
@@ -107,7 +98,6 @@ html { zoom: 80%; }
     margin-bottom: 4px;
   }
 
-  /* ── Section ─────────────────────────────────────────────────────────── */
   .section { margin-bottom: 64px; }
   .section h2 {
     font-size: 1.5rem;
@@ -129,7 +119,6 @@ html { zoom: 80%; }
   .section ol { padding-left: 22px; color: #ccc; margin-bottom: 13px; }
   .section ol li { margin: 6px 0; }
 
-  /* ── Setting rows ────────────────────────────────────────────────────── */
   .setting {
     background: var(--mid);
     border-left: 3px solid var(--orange);
@@ -142,7 +131,6 @@ html { zoom: 80%; }
   .setting .values { font-size: 0.88rem; color: #999; margin-top: 6px; }
   .setting .values span { color: #d0d0d0; }
 
-  /* ── Key shortcut chips ──────────────────────────────────────────────── */
   .keys { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
   .key-row {
     background: var(--mid);
@@ -166,7 +154,6 @@ html { zoom: 80%; }
   }
   .key-desc { color: #bbb; font-size: 0.9rem; }
 
-  /* ── Boxes ───────────────────────────────────────────────────────────── */
   .box {
     border-radius: 6px;
     padding: 14px 18px;
@@ -181,7 +168,6 @@ html { zoom: 80%; }
   .box.alert { background: #2d0f0f; border: 1px solid #7a2020; color: #f0a0a0; }
   .box strong { font-weight: 700; }
 
-  /* ── Badge ───────────────────────────────────────────────────────────── */
   .badge {
     display: inline-block;
     background: var(--new);
@@ -195,13 +181,11 @@ html { zoom: 80%; }
     margin-left: 6px;
   }
 
-  /* ── Tables ──────────────────────────────────────────────────────────── */
   table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.9rem; }
   th { background: #333; color: var(--accent); padding: 9px 12px; text-align: left; }
   td { padding: 8px 12px; border-bottom: 1px solid #333; color: #ccc; }
   tr:last-child td { border-bottom: none; }
 
-  /* ── Modulation grid ─────────────────────────────────────────────────── */
   .mod-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
@@ -213,7 +197,6 @@ html { zoom: 80%; }
   .mod-card .mtype { font-size: 0.82rem; color: #888; margin-top: 2px; }
   .mod-card .muse  { font-size: 0.85rem; color: #bbb; margin-top: 5px; }
 
-  /* ── Flow steps ──────────────────────────────────────────────────────── */
   .flow { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
   .flow-step {
     background: var(--mid);
@@ -228,7 +211,6 @@ html { zoom: 80%; }
   .flow-step .n { color: var(--accent); font-weight: 700; display: block; font-size: 0.82rem; margin-bottom: 2px; }
   .arrow { align-self: center; color: #555; font-size: 1.2rem; }
 
-  /* ── Code ────────────────────────────────────────────────────────────── */
   code {
     background: #111;
     border: 1px solid #444;
@@ -238,10 +220,8 @@ html { zoom: 80%; }
     color: #ffa040;
   }
 
-  /* ── Divider ─────────────────────────────────────────────────────────── */
   .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
 
-  /* ── Floating back-to-top button ─────────────────────────────────────── */
   #backTop {
     position: fixed;
     bottom: 24px;
@@ -261,14 +241,12 @@ html { zoom: 80%; }
   }
   #backTop:hover { background: var(--accent); transform: translateY(-2px); }
 
-  /* ── Shortcut table colours ──────────────────────────────────────────── */
   .fixed { color: #88ccff; font-style: italic; }
   .cfg   { color: var(--accent); }
 </style>
 </head>
 <body>
 
-<!-- ══════════════════ HERO ══════════════════ -->
 <header class="hero">
   <div class="hero-inner" style="text-align:center;">
     <a href="https://github.com/FoxFW/2.0" target="_blank" rel="noopener"
@@ -288,7 +266,6 @@ html { zoom: 80%; }
 
 <div class="content">
 
-<!-- ══════════════════ TABLE OF CONTENTS ══════════════════ -->
 <nav class="index" id="top">
   <h2>Contents</h2>
   <div class="cols">
@@ -359,8 +336,6 @@ html { zoom: 80%; }
   </div>
 </nav>
 
-
-<!-- ══════════════════ 1 · ABOUT ══════════════════ -->
 <section class="section" id="about">
   <div class="chapter-label">Chapter 1</div>
   <h2>About FoxFW</h2>
@@ -399,8 +374,6 @@ html { zoom: 80%; }
   </ul>
 </section>
 
-
-<!-- ══════════════════ 2 · WEB FLASHER ══════════════════ -->
 <section class="section" id="web-flasher">
   <div class="chapter-label">Chapter 2</div>
   <h2>Web Installer <span class="badge">New</span></h2>
@@ -448,8 +421,6 @@ html { zoom: 80%; }
 
 </section>
 
-
-<!-- ══════════════════ 3 · FOXFW LAB ══════════════════ -->
 <section class="section" id="foxfw-lab-info">
   <div class="chapter-label">Chapter 3</div>
   <h2>FoxFW Lab <span class="badge">New</span></h2>
@@ -492,8 +463,6 @@ html { zoom: 80%; }
 
 </section>
 
-
-<!-- ══════════════════ 4 · FAP COMPILER ══════════════════ -->
 <section class="section" id="fap-compiler-info">
   <div class="chapter-label">Chapter 4</div>
   <h2>FAP Compiler <span class="badge">New</span></h2>
@@ -533,7 +502,6 @@ html { zoom: 80%; }
 
 </section>
 
-<!-- ══════════════════ 5 · WALLPAPER PAINTER ══════════════════ -->
 <section class="section" id="wallpaper-painter-info">
   <div class="chapter-label">Chapter 5</div>
   <h2>Wallpaper Painter <span class="badge">New</span></h2>
@@ -580,8 +548,6 @@ html { zoom: 80%; }
 
 </section>
 
-
-<!-- ══════════════════ 6 · WALLPAPER SHOWCASE ══════════════════ -->
 <section class="section" id="wallpaper-showcase-info">
   <div class="chapter-label">Chapter 6</div>
   <h2>Wallpaper Showcase <span class="badge">New</span></h2>
@@ -624,8 +590,6 @@ html { zoom: 80%; }
 
 </section>
 
-
-<!-- ══════════════════ 7 · FOX ESP32 FIRMWARE ══════════════════ -->
 <section class="section" id="esp32-firmware-info">
   <div class="chapter-label">Chapter 7</div>
   <h2>Fox ESP32 Firmware</h2>
@@ -664,8 +628,6 @@ html { zoom: 80%; }
 
 </section>
 
-
-<!-- ══════════════════ 8 · FIRST BOOT ══════════════════ -->
 <section class="section" id="first-boot">
   <div class="chapter-label">Chapter 8</div>
   <h2>First Boot — Fox Setup Wizard</h2>
@@ -722,8 +684,6 @@ html { zoom: 80%; }
 
 </section>
 
-
-<!-- ══════════════════ 9 · DESKTOP ══════════════════ -->
 <section class="section" id="desktop">
   <div class="chapter-label">Chapter 9</div>
   <h2>Desktop Overview</h2>
@@ -906,8 +866,6 @@ html { zoom: 80%; }
 
 </section>
 
-
-<!-- ══════════════════ 10 · FFB ══════════════════ -->
 <section class="section" id="ffb">
   <div class="chapter-label">Chapter 10</div>
   <h2>Fox File Browser <span class="badge">FoxFW Exclusive</span></h2>
@@ -1029,8 +987,6 @@ html { zoom: 80%; }
 
 </section>
 
-
-<!-- ══════════════════ 11 · FOX SETTINGS ══════════════════ -->
 <section class="section" id="fox-settings">
   <div class="chapter-label">Chapter 11</div>
   <h2>Fox Settings</h2>
@@ -1041,7 +997,6 @@ html { zoom: 80%; }
     exit the app entirely.
   </p>
 
-  <!-- ── SECURITY ── -->
   <h3 id="security">Security &amp; Privacy</h3>
   <p>
     The Security &amp; Privacy screen is the heart of FoxFW's protection system.
@@ -1157,7 +1112,6 @@ html { zoom: 80%; }
     <div class="values">Options: <span>OFF · ON</span></div>
   </div>
 
-  <!-- ── USB MODE ── -->
   <h3 id="usb-mode">USB Mode <span class="badge">New</span></h3>
   <p>
     Fox Settings &rarr; <em>USB Mode</em> chooses what the Flipper's USB port is for.
@@ -1183,7 +1137,6 @@ html { zoom: 80%; }
     <div class="key-row"><span class="key-badge">Back</span><span class="key-desc">Return to Fox Settings</span></div>
   </div>
 
-  <!-- ── WALLPAPER ── -->
   <h3 id="wallpaper">Custom Wallpaper</h3>
   <p>
     Replaces the desktop background with a custom <strong>128 × 64 pixel</strong>
@@ -1284,7 +1237,6 @@ html { zoom: 80%; }
     of the methods above and ensure the output dimensions are exactly 128×64 pixels.
   </div>
 
-  <!-- ── NAME ── -->
   <h3 id="name">Change Flipper Name</h3>
   <p>
     Changes the device's display name. The name appears on the lock screen
@@ -1301,7 +1253,6 @@ html { zoom: 80%; }
     qFlipper and when nearby Flippers exchange information.
   </div>
 
-  <!-- ── MENU STYLE ── -->
   <h3 id="menu-style">Menu Style</h3>
   <div class="setting">
     <div class="name">Menu Style</div>
@@ -1336,7 +1287,6 @@ html { zoom: 80%; }
     <div class="values">Options: <span>Classic · Fox Theme · Carousel · Slider</span></div>
   </div>
 
-  <!-- ── BATTERY ── -->
   <h3 id="battery">Battery View</h3>
   <p>
     Controls the battery level indicator in the status bar. Changes take effect
@@ -1355,7 +1305,6 @@ html { zoom: 80%; }
   <div class="setting"><div class="name">Bar + Percent</div>
     <div class="desc">Segmented bar combined with a percentage number.</div></div>
 
-  <!-- ── CLOCK ── -->
   <h3 id="clock">Show Clock</h3>
   <div class="setting">
     <div class="name">Show Clock</div>
@@ -1367,7 +1316,6 @@ html { zoom: 80%; }
     <div class="values">Options: <span>OFF · ON</span></div>
   </div>
 
-  <!-- ── FAVORITES ── -->
   <h3 id="fav-apps">Favorite Apps</h3>
   <p>
     Assigns apps to four configurable desktop button shortcuts. Each slot
@@ -1402,8 +1350,6 @@ html { zoom: 80%; }
 
 </section>
 
-
-<!-- ══════════════════ 12 · FOX ESP32 APPS ══════════════════ -->
 <section class="section" id="fox-esp32-apps">
   <div class="chapter-label">Chapter 12</div>
   <h2>Fox ESP32 Apps <span class="badge">FoxFW Exclusive</span></h2>
@@ -1546,8 +1492,6 @@ html { zoom: 80%; }
 
 </section>
 
-
-<!-- ══════════ 13 · FOX USB DRIVE APPS ══════════ -->
 <section class="section" id="fox-usb-apps">
   <div class="chapter-label">Chapter 13</div>
   <h2>Fox USB Drive Apps — MP3 &amp; Media <span class="badge">New</span></h2>
@@ -1597,8 +1541,6 @@ html { zoom: 80%; }
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 14 · SUBGHZ ══════════════════ -->
 <section class="section" id="subghz">
   <div class="chapter-label">Chapter 14</div>
   <h2>Sub-GHz</h2>
@@ -1615,7 +1557,6 @@ html { zoom: 80%; }
     frequencies without authorization is not. Know your local regulations.
   </div>
 
-  <!-- READ -->
   <h3 id="read">Read <span class="badge">Enhanced</span></h3>
   <p>
     Opens on a Start screen — press OK to begin listening for an incoming
@@ -1671,7 +1612,6 @@ html { zoom: 80%; }
     mirror resumes on its own.
   </div>
 
-  <!-- READ RAW -->
   <h3 id="read-raw">Read RAW <span class="badge">Enhanced</span></h3>
   <p>
     Records everything the radio receives as a timed sequence of high/low edges
@@ -1706,7 +1646,6 @@ html { zoom: 80%; }
     RAW editor afterwards.
   </div>
 
-  <!-- SAVED FILES -->
   <h3 id="saved">Saved Files &amp; RAW Editor <span class="badge">NEW</span></h3>
   <p>
     The Saved menu lists all <code>.sub</code> files under <code>/ext/subghz/</code>.
@@ -1768,7 +1707,6 @@ html { zoom: 80%; }
     OK hold → Cut → Save. Clean, trimmed capture with no leading or trailing noise.
   </div>
 
-  <!-- VISUALIZER -->
   <h3 id="visualizer">Signal Display — Bar &amp; Line <span class="badge">NEW</span></h3>
   <p>
     Change between display styles in <strong>Radio Settings → Visualizer</strong>.
@@ -1791,7 +1729,6 @@ html { zoom: 80%; }
     <div class="values">Best for: <span>Reading fine RSSI shape and burst edges</span></div>
   </div>
 
-  <!-- FREQUENCY ANALYZER -->
   <h3 id="freq-analyzer">Frequency Analyzer</h3>
   <p>
     Sweeps a wide frequency range looking for any signal above the noise floor.
@@ -1808,7 +1745,6 @@ html { zoom: 80%; }
     finds the transmission frequency automatically.
   </div>
 
-  <!-- MODULATION ANALYZER -->
   <h3 id="mod-analyzer">Modulation Analyzer <span class="badge">FoxFW Exclusive</span></h3>
   <div class="box new">
     <strong>New in FoxFW.</strong> The Modulation Analyzer does not exist in stock Flipper firmware.
@@ -2031,7 +1967,6 @@ html { zoom: 80%; }
     Always confirm in the Receiver.
   </div>
 
-  <!-- PROTOCOL LIST -->
   <h3 id="protocol-list">Protocol List &amp; Filters <span class="badge">NEW</span></h3>
   <p>
     <strong>Automotive mode</strong> lists every protocol grouped by
@@ -2073,7 +2008,6 @@ html { zoom: 80%; }
     you're not interested in.
   </p>
 
-  <!-- MODE PICKER -->
   <h3 id="mode-picker">Sub-Ghz Mode Picker <span class="badge">New</span></h3>
   <p>
     Opening Sub-GHz first shows a <strong>Sub-Ghz Mode</strong> screen —
@@ -2122,8 +2056,6 @@ html { zoom: 80%; }
     automatically once it's done.
   </p>
 
-
-  <!-- SUPPORTED SYSTEMS -->
   <h3 id="supported-systems">Supported Systems <span class="badge">Reference</span></h3>
   <p>
     FoxFW includes protocol decoders and encoders across two groups, matching
@@ -2331,7 +2263,6 @@ html { zoom: 80%; }
     <strong>CRC</strong> — Protocol includes a checksum; decoded frames are validated (✓) or not (—)
   </div>
 
-  <!-- RADIO SETTINGS -->
   <h3 id="radio-settings">Radio Settings</h3>
   <div class="setting">
     <div class="name">Frequency</div>
@@ -2365,8 +2296,6 @@ html { zoom: 80%; }
 
 </section>
 
-
-<!-- ══════════════════ 15 · UX ══════════════════ -->
 <section class="section" id="ux">
   <div class="chapter-label">Chapter 15</div>
   <h2>System UX — Bounce Scroll &amp; Text Rendering <span class="badge">FoxFW Exclusive</span></h2>
@@ -2395,8 +2324,6 @@ html { zoom: 80%; }
   </ul>
 </section>
 
-
-<!-- ══════════════════ 16 · SCREENSHOT TOOL ══════════════════ -->
 <section class="section" id="screenshot">
   <div class="chapter-label">Chapter 16</div>
   <h2>Screenshot Tool <span class="badge">FoxFW Exclusive</span></h2>
@@ -2427,8 +2354,6 @@ html { zoom: 80%; }
   </div>
 </section>
 
-
-<!-- ══════════════════ 17 · FIRMWARE UPDATE ══════════════════ -->
 <section class="section" id="firmware-update">
   <div class="chapter-label">Chapter 17</div>
   <h2>Installing Firmware Updates</h2>
@@ -2511,8 +2436,6 @@ html { zoom: 80%; }
 
 </section>
 
-
-<!-- ══════════════════ 18 · LOCKOUT ══════════════════ -->
 <section class="section" id="lockout">
   <div class="chapter-label">Chapter 18</div>
   <h2>Lockout &amp; Recovery</h2>
@@ -2556,7 +2479,7 @@ html { zoom: 80%; }
 
 </section>
 
-</div><!-- /content -->
+</div>
 
 <footer style="text-align:center;color:#555;font-size:0.85rem;padding:40px 24px 20px;">
   FoxFW v2.0 &nbsp;·&nbsp; foxcustomfirmware@gmail.com &nbsp;·&nbsp;

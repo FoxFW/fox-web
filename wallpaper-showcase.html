@@ -6,12 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FoxFW Wallpaper Showcase</title>
 <style>
-/* Page-wide 20% shrink (zoom: 80%) so 100% browser zoom matches what this
-   page used to look like at 80% browser zoom - requested 2026-09-16.
-   Note: the CSS zoom property is unsupported in Safari (desktop and iOS) -
-   Safari visitors will still see the page at its original, pre-shrink size. */
 html { zoom: 80%; }
-/* Scrollbars */
 *{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
 *::-webkit-scrollbar{width:9px;height:9px}
 *::-webkit-scrollbar-track{background-color:transparent}
@@ -19,7 +14,6 @@ html { zoom: 80%; }
 *::-webkit-scrollbar-thumb:hover{background-color:var(--orange,var(--fox))}
 *::-webkit-scrollbar-corner{background-color:transparent}
 
-/* Floating back-to-top button - only shown when the page has a vertical scrollbar */
 #backTop{position:fixed;bottom:24px;right:24px;width:52px;height:52px;background:var(--orange,var(--fox));color:#fff;font-size:1.5rem;line-height:1;border:none;border-radius:50%;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;transition:transform .15s ease,filter .15s ease}
 #backTop.show{display:flex}
 #backTop:hover{filter:brightness(1.12);transform:translateY(-2px)}
@@ -120,11 +114,6 @@ html { zoom: 80%; }
   .btn.danger.accent:hover:not(:disabled){ background:var(--fox-dim); border-color:var(--fox-dim); color:#fff; }
   .btn.danger.accent:disabled{ background:transparent; }
 
-  /* Install buttons stay clickable even with no device connected (so
-     clicking shows the "connect first" toast below) - .not-connected is
-     the same dimmed look as :disabled, applied via class instead so the
-     click handler still fires. Real :disabled is reserved for while an
-     install is actually in progress. */
   .btn.danger.accent.not-connected{
     background:transparent; border-color:var(--fox-dim); color:#d8d9db;
   }
@@ -405,13 +394,9 @@ html { zoom: 80%; }
   function $(id) { return document.getElementById(id); }
 
   function urlFor(relPath) {
-    // Encode each path segment on its own so spaces/unicode in wallpaper
-    // names survive both <img src>/<a href> and fetch(), while the '/'
-    // separators between wallpapers/ and the filename stay intact.
     return relPath.split("/").map(encodeURIComponent).join("/");
   }
 
-  // ── Device Log ──────────────────────────────────────────────────
   const consoleEl = $("consoleEl");
   function logLine(msg, cls) {
     const div = document.createElement("div");
@@ -429,14 +414,10 @@ html { zoom: 80%; }
     if (!open) consoleEl.scrollTop = consoleEl.scrollHeight;
   });
 
-  // ── Flipper RPC over Web Serial (shared client - assets/js/flipper-rpc.js) ──
-  // When embedded in the Lab, reuse its already-open connection instead of
-  // constructing our own - see the sharedFlipper handling further below,
-  // which polls flipper.connected rather than owning its callbacks.
   const embedded = window.self !== window.top;
   let sharedFlipper = null;
   if (embedded) {
-    try { sharedFlipper = window.parent.foxfwLabFlipper || null; } catch (e) { /* cross-origin, shouldn't happen same-site */ }
+    try { sharedFlipper = window.parent.foxfwLabFlipper || null; } catch (e) {   }
   }
   const flipper = sharedFlipper || new FlipperRPC({
     onLog: (msg, cls) => logLine(msg, cls),
@@ -451,7 +432,6 @@ html { zoom: 80%; }
     },
   });
 
-  // ── Connect / disconnect UI ────────────────────────────────────
   const devicePill = $("devicePill");
   const devicePillText = $("devicePillText");
   function setDeviceStatus(state, text) {
@@ -459,9 +439,6 @@ html { zoom: 80%; }
     devicePillText.textContent = text;
   }
 
-  // /ext/wallpapers (and the multi-wallpaper .activate mechanism Install
-  // writes through) only exists from FoxFW v2.0.4 onward - older firmware
-  // used a single /ext/wallpaper.xbm path instead.
   const MIN_WALLPAPERS_FIRMWARE = { major: 2, minor: 0, patch: 4 };
   function parseFoxfwVersion(str) {
     const m = /^foxfw-v(\d+)\.(\d+)\.(\d+)/.exec(str || "");
@@ -489,10 +466,6 @@ html { zoom: 80%; }
     connectToggleBtn.disabled = true;
   }
 
-  // Install buttons stay clickable regardless of connection state - a click
-  // while disconnected shows a toast instead of being silently swallowed by
-  // a disabled attribute. .not-connected is purely visual. setInstallButtonsBusy
-  // uses a real disabled attribute, for while an install is actively running.
   function setInstallButtonsConnected(connected) {
     document.querySelectorAll(".install-btn").forEach((btn) => {
       btn.classList.toggle("not-connected", !connected);
@@ -511,10 +484,6 @@ html { zoom: 80%; }
     toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
   }
 
-  // Everything that needs to happen once the Flipper is actually connected -
-  // firmware check, enabling Install. Called from the Connect button handler
-  // below, and (when embedded with a shared connection) from the polling
-  // handler further down.
   async function onFlipperReady() {
     connectToggleBtn.textContent = "Disconnect";
 
@@ -609,7 +578,6 @@ html { zoom: 80%; }
     if (!sharedFlipper && flipper.connected) flipper.disconnect();
   });
 
-  // ── Gallery: load index.json, sort, paginate, render ─────────────
   const ITEMS_PER_PAGE = 32;
   let allWallpapers = [];
   let currentPage = 1;
@@ -627,16 +595,10 @@ html { zoom: 80%; }
     return list;
   }
 
-  // Strips everything but letters/digits and lowercases, so "aa", "AA",
-  // and "A.A" all normalize to the same "aa" - typing without the dot
-  // still finds two-letter initials, and search is never case-sensitive.
   function normalizeSearch(s) {
     return s.toLowerCase().replace(/[^a-z0-9]/g, "");
   }
 
-  // Matches single letters (A, B, ...) and two-letter initials (A.A, A.B,
-  // ..., Z.Z) - the auto-generated alphabet/initials batch - but not
-  // NumberOne or the emoji/symbol set, so "Hide Letters" only hides those.
   function isLetterWallpaper(name) {
     return /^[A-Za-z]$/.test(name) || /^[A-Za-z]\.[A-Za-z]$/.test(name);
   }
@@ -796,7 +758,6 @@ html { zoom: 80%; }
     renderGrid();
   }
 
-  // ── Download flow: browser downloads the zip, we just show the follow-up ──
   const downloadModalBackdrop = $("downloadModalBackdrop");
   function showDownloadModal(wp) {
     $("downloadWpName").textContent = wp.name;
@@ -806,7 +767,6 @@ html { zoom: 80%; }
     downloadModalBackdrop.classList.remove("show");
   });
 
-  // ── Install flow: confirm -> unzip -> write to SD card -> success ──
   const confirmModalBackdrop = $("confirmModalBackdrop");
   const successModalBackdrop = $("successModalBackdrop");
   let pendingInstall = null;
@@ -827,9 +787,6 @@ html { zoom: 80%; }
 
   const WALLPAPERS_DIR = "/ext/wallpapers";
 
-  // Finds a free filename in /ext/wallpapers for this wallpaper's name,
-  // appending "(2)", "(3)", etc. if a file by that name already exists -
-  // never overwrites an existing wallpaper.
   async function findAvailableWallpaperFilename(baseName) {
     let candidate = `${baseName}.xbm`;
     for (let n = 2; await flipper.fileExists(`${WALLPAPERS_DIR}/${candidate}`); n++) {
@@ -886,7 +843,6 @@ html { zoom: 80%; }
     }
   });
 
-  // ── Init ──────────────────────────────────────────────────────
   loadIndex();
 })();
 </script>

@@ -5,12 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>FoxFW v2.0 — Web Installer [v56]</title>
 <style>
-/* Page-wide 20% shrink (zoom: 80%) so 100% browser zoom matches what this
-   page used to look like at 80% browser zoom - requested 2026-09-16.
-   Note: the CSS zoom property is unsupported in Safari (desktop and iOS) -
-   Safari visitors will still see the page at its original, pre-shrink size. */
 html { zoom: 80%; }
-/* Scrollbars */
 *{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
 *::-webkit-scrollbar{width:9px;height:9px}
 *::-webkit-scrollbar-track{background-color:transparent}
@@ -18,7 +13,6 @@ html { zoom: 80%; }
 *::-webkit-scrollbar-thumb:hover{background-color:var(--orange,var(--fox))}
 *::-webkit-scrollbar-corner{background-color:transparent}
 
-/* Floating back-to-top button - only shown when the page has a vertical scrollbar */
 #backTop{position:fixed;bottom:24px;right:24px;width:52px;height:52px;background:var(--orange,var(--fox));color:#fff;font-size:1.5rem;line-height:1;border:none;border-radius:50%;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;transition:transform .15s ease,filter .15s ease}
 #backTop.show{display:flex}
 #backTop:hover{filter:brightness(1.12);transform:translateY(-2px)}
@@ -167,35 +161,18 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
-<!-- protobufjs for correct Flipper RPC message encoding -->
 <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.4.0/dist/protobuf.min.js"></script>
 
 <script>
 'use strict';
 
-// ── CONFIG ──────────────────────────────────────────────────────
 const TGZ_URL  = 'firmware_files/flipper-z-f7-update-local.tgz';
 const DFU_URL  = 'firmware_files/flipper-z-f7-full-local.dfu';
-const CHUNK    = 512;   // matches lab.flipper.net (Momentum/Unleashed's shared base) exactly
-let DFU_BLK    = 1024; // matches XFER in the proven Fantasi reference implementation exactly
+const CHUNK    = 512;
+let DFU_BLK    = 1024;
 const VID      = 0x0483;
 const PID_DFU  = 0xDF11;
 
-// ── FLIPPER PROTOBUF SCHEMA ──────────────────────────────────────
-// CORRECTED against the real flipperzero-protobuf source (flipper.proto,
-// storage.proto, system.proto). The previous version of this schema had
-// WRONG field numbers for nearly everything below — hasNext and
-// commandStatus were swapped (2↔3 instead of 3/2), every oneof field in
-// Main was off (e.g. storageWriteRequest was tagged 24, but real field
-// 24 is actually storage_stat_request — a completely different command),
-// and Storage.File.data was tagged field 1 instead of the real field 4.
-// Since protobuf fields are just numbered tags on the wire, this meant:
-// hasNext was NEVER actually being set on the real has_next field (3) —
-// every message looked like a complete, non-continuing write to the
-// device — while our storageWriteRequest was being decoded by the real
-// firmware as an entirely different message type. This — not a firmware
-// bug — is almost certainly what caused every "device has been lost"
-// crash whenever a write needed more than one message.
 const PROTO_JSON = {
   nested: {
     PB: {
@@ -254,28 +231,16 @@ function initProto() {
   Main = PBRoot.lookupType('PB.Main');
 }
 
-// Encode a PB.Main message and return length-delimited (varint-prefixed) bytes
 function encodeMain(obj) {
   const err = Main.verify(obj);
   if (err) throw new Error('Protobuf encode error: ' + err);
-  // encodeDelimited writes varint(length) + message bytes
   return Main.encodeDelimited(obj).finish();
 }
 
-// ── STATE ────────────────────────────────────────────────────────
 let method = 'tgz', cmdId = 1, busy = false, connected = false;
-let customFile = null; // user-picked file overriding the online download
+let customFile = null;
 let serialPort = null, serialWriter = null, serialReader = null;
 
-// Single continuous background reader ("pump"). Only ONE thing may ever
-// call serialReader.read() for the life of the connection — every other
-// part of the code (banner detection, ping search, RPC response parsing)
-// consumes from this shared byte queue instead. Repeatedly releasing and
-// re-acquiring the reader lock (the old approach) can abandon a read()
-// call that's still in flight; if bytes arrive in that gap they're
-// delivered to a dangling promise nobody is listening to anymore, and
-// silently vanish. This is why we saw 0 bytes after switching to a
-// faster polling loop — it made that race far more likely to hit.
 let rxQueue = [];
 let pumpActive = false;
 let pumpTask = null;
@@ -293,7 +258,7 @@ function startPump() {
           if (rxQueue.length > 200000) rxQueue.splice(0, rxQueue.length - 200000);
         }
       }
-    } catch (e) { /* reader cancelled on disconnect — expected */ }
+    } catch (e) {   }
   })();
 }
 
@@ -303,8 +268,6 @@ async function stopPump() {
   try { await pumpTask; } catch {}
 }
 
-// Wait until the shared queue has been quiet (no new bytes) for idleMs,
-// then drop whatever accumulated (banner text, stray prompts, etc).
 async function waitForQuiet(idleMs, maxMs) {
   const deadline = Date.now() + maxMs;
   let lastLen = rxQueue.length;
@@ -317,9 +280,6 @@ async function waitForQuiet(idleMs, maxMs) {
   if (rxQueue.length) { rxQueue.length = 0; }
 }
 
-// Wait until a specific byte value shows up anywhere in the queue (used to
-// detect the single \n the Flipper sends to confirm start_rpc_session was
-// accepted). Consumes everything up to and including that byte.
 async function waitForByte(byteVal, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
@@ -330,10 +290,6 @@ async function waitForByte(byteVal, timeoutMs) {
   return false;
 }
 
-// Scan the shared queue for a complete varint-length-delimited protobuf
-// frame, consuming bytes off the front as it goes. If expectCmdId is
-// given, frames with a different commandId are discarded (treated as
-// banner/keepalive noise) instead of being returned.
 async function readResp(timeoutMs, expectCmdId = -1) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
@@ -345,18 +301,18 @@ async function readResp(timeoutMs, expectCmdId = -1) {
         shift += 7;
         if ((b & 0x80) === 0) break;
       }
-      if (pos === 0) break; // not even a full length-prefix yet
-      if (msgLen === 0 || msgLen > 65535) { rxQueue.shift(); continue; } // bogus, resync by 1 byte
-      if (rxQueue.length < pos + msgLen) break; // wait for more bytes
+      if (pos === 0) break;
+      if (msgLen === 0 || msgLen > 65535) { rxQueue.shift(); continue; }
+      if (rxQueue.length < pos + msgLen) break;
       const payload = rxQueue.slice(pos, pos + msgLen);
       try {
         const msg = Main.decode(new Uint8Array(payload));
-        rxQueue.splice(0, pos + msgLen); // consume the whole frame
+        rxQueue.splice(0, pos + msgLen);
         log('  [decoded] cmdId='+msg.commandId+' status='+msg.commandStatus,'dm');
-        if (expectCmdId >= 0 && msg.commandId !== expectCmdId) continue; // not ours — keep scanning
+        if (expectCmdId >= 0 && msg.commandId !== expectCmdId) continue;
         return msg;
       } catch {
-        rxQueue.shift(); // resync by one byte and retry
+        rxQueue.shift();
         continue;
       }
     }
@@ -365,7 +321,6 @@ async function readResp(timeoutMs, expectCmdId = -1) {
   return null;
 }
 
-// ── UI HELPERS ───────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -376,12 +331,8 @@ function log(msg, cls) {
   el.textContent = '> ' + msg;
   $('log').appendChild(el);
   $('log').scrollTop = 9e9;
-  lastProgressEl = null; // any normal log line ends the current in-place-update run
+  lastProgressEl = null;
 }
-// Like log(), but repeated calls update the SAME line instead of adding a
-// new one each time — used for rapid, evolving status like upload %.
-// The moment a normal log() call happens, the next logProgress() starts a
-// fresh line rather than overwriting an unrelated entry.
 function logProgress(msg, cls) {
   if (lastProgressEl) {
     lastProgressEl.textContent = '> ' + msg;
@@ -430,7 +381,7 @@ function selMethod(m) {
     $('mc-dfu').classList.toggle('sel', m==='dfu');
   }
   $('fw-method').textContent = m==='tgz' ? 'RPC over USB Serial → SD card' : 'WebUSB DFU → internal flash';
-  clearCustomFile(); // switching method invalidates any previously picked file
+  clearCustomFile();
 }
 
 function updateFileButtonState() {
@@ -460,14 +411,11 @@ function clearCustomFile() {
 }
 
 function setConnectButtons(state) {
-  // state: 'idle' (nothing connected, both enabled), 'busy' (connecting, both disabled),
-  // 'connected' (one method active, both disabled — must disconnect first)
   const tgz = $('bcon-tgz'), dfu = $('bcon-dfu');
   tgz.disabled = state !== 'idle';
   dfu.disabled = state !== 'idle';
 }
 
-// ── FLASH DISPATCHER ─────────────────────────────────────────────
 async function doFlash() {
   log('Install clicked — busy='+busy+' connected='+connected,'in');
   if (busy || !connected) return;
@@ -535,9 +483,7 @@ async function wMsg(bytes) {
   ]);
 }
 
-// ── TGZ / RPC FLASH ──────────────────────────────────────────────
 async function doFlashTGZ() {
-  // 1. Download + decompress + parse FIRST (before starting RPC session)
   let tgz;
   if (customFile) {
     log('Using local file: '+customFile.name,'in'); pgFile(0.5,'Reading local file…');
@@ -560,18 +506,13 @@ async function doFlashTGZ() {
   const manifestSD = `/ext/update/${manifest.name}`;
   log(`Update directory: ${sdBase}`,'in');
 
-  // 2. Start RPC session NOW (right before upload — avoids pipe_receive timeout)
   pgTotal(0.30); pgFile(0,'Starting RPC session…');
   await startRpcSession();
 
-  // 3. Create update directories
   log('Creating directories on SD card…','in');
   await rpcMkdir('/ext/update');
   await rpcMkdir(sdBase);
 
-  // 3b. Preflight #1: a single-message write (hasNext:false immediately).
-  // Isolates whether ANY data-bearing Storage.WriteRequest crashes the
-  // firmware, independent of size/throughput.
   log('Preflight 1/3: single-chunk write…','in');
   try {
     await rpcWriteFile(`${sdBase}/.foxfw_preflight1`, new Uint8Array([0xDE,0xAD,0xBE,0xEF]), null);
@@ -580,12 +521,6 @@ async function doFlashTGZ() {
     throw new Error('Preflight 1 (single-chunk write) failed — this points to a firmware-side RPC storage bug on ANY data write, not a size/throughput issue. Original error: ' + e.message);
   }
 
-  // 3c. Preflight #2: a write spanning exactly 2 chunks, so the FIRST
-  // message has hasNext:true (a real continuation) instead of jumping
-  // straight to the false-positive-prone 841KB transfer. Cheap (a couple
-  // KB) but exercises the exact code path (continuation handling) that
-  // the real upload crashes on almost immediately — narrows the bug to
-  // "any multi-chunk write" vs. "something specific to this large file."
   log('Preflight 2/3: multi-chunk write (tests hasNext continuation)…','in');
   try {
     const twoChunkData = new Uint8Array(CHUNK + 16).fill(0x42);
@@ -595,18 +530,8 @@ async function doFlashTGZ() {
     throw new Error('Preflight 2 (multi-chunk / hasNext continuation write) failed — the firmware crashes specifically on chunked writes (hasNext:true), not on data writes in general. Look at your RPC storage handler\'s continuation-message code path. Original error: ' + e.message);
   }
 
-  // 3d. Preflight 3: bisect on NUMBER of continuation (hasNext:true)
-  // chunks per command, since that's the variable that actually lines up
-  // with our results so far — not length, not alignment, not framing:
-  //   Preflight 2 (1 continuation chunk, then 1 final)      → OK
-  //   length=1536, CHUNK=512 (2 continuations, then 1 final) → CRASHED
-  //   length=1537, CHUNK=512 (3 continuations, then 1 final) → CRASHED
-  // We've never actually tested exactly 2 continuation chunks in
-  // isolation — this does, to find out if the failure threshold is
-  // between 1 and 2, or somewhere higher.
   log('Preflight 3: exactly 2 continuation chunks (3 messages total)…','in');
   try {
-    // 512(T), 512(T), 1(F) — 3 messages total for one commandId.
     const d = new Uint8Array(1025).fill(0x33);
     await rpcWriteFile(`${sdBase}/.foxfw_pf3b`, d, null);
     log('Preflight 3 OK (2 continuations / 3 messages total)','ok');
@@ -614,7 +539,6 @@ async function doFlashTGZ() {
     throw new Error('Preflight 3 (exactly 2 continuation chunks, 3 messages total for one commandId) failed — the firmware breaks after the SECOND continuation message reusing the same commandId. This points at a fixed-size buffer/array in the RPC storage handler sized for only ~1 continuation. Original error: ' + e.message);
   }
 
-  // 4. Upload each file
   for (let fi=0; fi<files.length; fi++) {
     const f = files[fi];
     const sdPath = `/ext/update/${f.name}`;
@@ -626,13 +550,6 @@ async function doFlashTGZ() {
     log(`✓ ${f.name}`,'ok');
   }
 
-  // 5. Trigger update — this is a TWO-step sequence per the reference
-  // implementation (Update.vue): systemUpdateRequest only validates the
-  // manifest path and returns a result code; it does NOT reboot the
-  // device by itself. The actual physical reboot-into-update only
-  // happens after a SEPARATE systemRebootRequest with mode:UPDATE (2).
-  // We were only sending the first half, which is why everything
-  // reported success but the Flipper never actually restarted.
   log('Validating update manifest…','in'); pgTotal(0.90); pgFile(1,'Validating manifest…');
   const updateCmdId = cmdId++;
   const updateBytes = encodeMain({
@@ -651,7 +568,7 @@ async function doFlashTGZ() {
   log('Triggering reboot into update mode…','in'); pgTotal(0.95); pgFile(1,'Rebooting into update…');
   const rebootBytes = encodeMain({
     commandId:cmdId++,
-    systemRebootRequest:{ mode: 2 } // 2 = UPDATE (see System.RebootRequest.RebootMode)
+    systemRebootRequest:{ mode: 2 }
   });
   await serialWriter.write(rebootBytes);
   await sleep(1000);
@@ -660,10 +577,9 @@ async function doFlashTGZ() {
   try { await doDisconnect(); } catch {}
 }
 
-// ── CONNECT ──────────────────────────────────────────────────────
 async function doConnect(m) {
   if (busy) return;
-  if (m) selMethod(m); // clicking a card's own Connect button also selects that method
+  if (m) selMethod(m);
   clearNotices();
   busy = true; setConnectButtons('busy');
   connUI('busy','Connecting…','Select your Flipper from the browser dialog');
@@ -694,7 +610,6 @@ async function doConnect(m) {
 
 let keepAliveTimer = null;
 
-// Warn the user if the tab loses focus mid-upload (Windows pauses WebUSB/Serial in background)
 const pageTitle = document.title;
 let titleFlashTimer = null, toastTimer = null;
 function showFocusToast() {
@@ -719,10 +634,6 @@ async function connectSerial() {
   if (!('serial' in navigator)) throw new Error('Web Serial not supported — use Chrome or Edge');
   log('Requesting serial port…','in');
   serialPort = await navigator.serial.requestPort({ filters:[{ usbVendorId:VID }] });
-  // Try hardware flow control (RTS/CTS) first. If the Flipper's CDC driver
-  // honors it, the OS/browser will pause transmission whenever the device
-  // signals its buffer is full, instead of us guessing a safe send rate in
-  // JS. Not all adapters support this option, so fall back cleanly.
   try {
     await serialPort.open({ baudRate:115200, flowControl:'hardware' });
     log('Port opened with hardware flow control (RTS/CTS)','ok');
@@ -730,15 +641,11 @@ async function connectSerial() {
     log('Hardware flow control unsupported, falling back ('+e.message+')','dm');
     await serialPort.open({ baudRate:115200 });
   }
-  // Assert DTR (Data Terminal Ready) and RTS — the Flipper's USB CDC driver
-  // only processes incoming data when DTR is asserted. Without this, the
-  // Flipper sends the banner unconditionally but ignores all our writes.
-  // Chrome does NOT set DTR automatically on port.open().
   await serialPort.setSignals({ dataTerminalReady: true, requestToSend: true });
   serialWriter = serialPort.writable.getWriter();
   serialReader = serialPort.readable.getReader();
   cmdId = 1;
-  startPump(); // single continuous reader for the life of this connection
+  startPump();
   log('Port opened + DTR asserted — waiting for boot banner to finish…','ok');
 
   const wLog = async (lbl, data) => {
@@ -746,20 +653,12 @@ async function connectSerial() {
     catch(e) { log('[write FAIL] '+lbl+': '+e.message,'er'); throw e; }
   };
 
-  // The Flipper CLI prints its ASCII logo + help banner with a deliberate
-  // typewriter-style delay. Sending commands before it finishes means the
-  // CLI is still busy rendering text and never processes start_rpc_session.
-  // Wait until the line goes quiet instead of racing it with fixed sleeps.
-  await waitForQuiet(300, 5000); // let the boot banner finish printing
+  await waitForQuiet(300, 5000);
   await wLog('CR LF', new TextEncoder().encode('\r\n'));
-  await waitForQuiet(200, 2000); // let the CLI print its fresh prompt
+  await waitForQuiet(200, 2000);
 
-  // IMPORTANT: this command must be terminated with a bare \r, NOT \r\n —
-  // sending \r\n here causes the CLI to not process it at all (silently
-  // ignored, no error). On success the Flipper sends back a single \n to
-  // confirm it accepted the command and has switched into binary RPC mode.
   await wLog('start_rpc_session', new TextEncoder().encode('start_rpc_session\r'));
-  const gotAck = await waitForByte(0x0A, 3000); // wait for the \n acceptance byte
+  const gotAck = await waitForByte(0x0A, 3000);
   if (!gotAck) throw new Error('start_rpc_session not acknowledged — Flipper never sent the \\n confirmation byte');
   log('start_rpc_session acknowledged ✓','ok');
 
@@ -779,7 +678,6 @@ function startKeepAlive() {
   stopKeepAlive();
   keepAliveTimer = setInterval(async () => {
     try {
-      // Ping the Flipper every 1.5s to prevent pipe_receive from timing out
       await serialWriter.write(encodeMain({ commandId:cmdId++, systemPingRequest:{} }));
     } catch {}
   }, 1500);
@@ -791,16 +689,12 @@ function stopKeepAlive() {
 }
 
 async function startRpcSession() {
-  // The RPC session (and its pump) has been running since connectSerial().
-  // Just stop the keepalive timer before we start writing real commands,
-  // so its pings don't interleave with our write-response matching.
   log('Stopping keepalive, preparing for upload…','dm');
   stopKeepAlive();
-  cmdId = Math.max(cmdId, 10); // ensure cmdId is ahead of keepalive pings
+  cmdId = Math.max(cmdId, 10);
   log('Ready for upload','ok');
 }
 
-// ── RPC HELPERS ──────────────────────────────────────────────────
 async function rpcMkdir(path) {
   const id = cmdId++;
   const bytes = encodeMain({ commandId:id, storageMkdirRequest:{ path } });
@@ -813,7 +707,7 @@ async function rpcMkdir(path) {
 async function rpcWriteFile(path, data, onProgress, chunkSizeOverride) {
   const id = cmdId++;
   const CHUNK_SIZE = chunkSizeOverride || CHUNK;
-  const CHUNK_GAP_MS = 7; // matches lab.flipper.net exactly: flat, unconditional gap per chunk
+  const CHUNK_GAP_MS = 7;
 
   for (let i = 0; i < data.length; i += CHUNK_SIZE) {
     const chunk   = data.slice(i, i + CHUNK_SIZE);
@@ -823,19 +717,11 @@ async function rpcWriteFile(path, data, onProgress, chunkSizeOverride) {
       commandId: id,
       hasNext,
       storageWriteRequest: {
-        path, // sent on EVERY chunk, matching the reference implementation —
-              // our old "path on first chunk only" assumption was wrong and
-              // is almost certainly why continuation writes got
-              // ERROR_STORAGE_INVALID_NAME (status 10) on the closing message
+        path,
         file: { data: chunk }
       }
     }));
 
-    // Flat, unconditional gap between every chunk — no average-rate
-    // catch-up logic. Our previous "target bytes/sec" pacing could let
-    // several chunks fire back-to-back with zero gap after any slow
-    // write, to catch up to the average — this guarantees every chunk
-    // gets the same minimum spacing no matter what happened before it.
     await sleep(CHUNK_GAP_MS);
 
     if (onProgress) onProgress(Math.min(i + CHUNK_SIZE, data.length) / data.length);
@@ -859,7 +745,6 @@ async function rpcWriteFile(path, data, onProgress, chunkSizeOverride) {
   }
 }
 
-// ── DFU FLASH ────────────────────────────────────────────────────
 async function doFlashDFU() {
   let dfuData;
   if (customFile) {
@@ -883,27 +768,17 @@ async function doFlashDFU() {
   const targets=parseDFU(dfuData);
   let tot=0,done=0;
   for(const t of targets) for(const e of t.elements) tot+=Math.ceil(e.data.length/DFU_BLK);
-  // Internal flash is always alt-setting 0 for ST's DfuSe bootloaders —
-  // select it explicitly rather than relying on whatever the OS left
-  // active, in case a prior session/negotiation left a different
-  // alt-setting (e.g. Option Bytes) selected.
   try { await dev.selectAlternateInterface(ifn, 0); } catch(e) { log('selectAlternateInterface skipped: '+e.message,'dm'); }
   for(const target of targets){
     for(const el of target.elements){
       log(`Flash @ 0x${el.address.toString(16).toUpperCase()} (${(el.data.length/1024).toFixed(0)} KB)…`);
 
-      // DfuSe bootloaders do NOT auto-erase flash before writing — the
-      // host must explicitly erase each page first (command 0x41 + page
-      // address), or writes can fail/corrupt. This was missing entirely,
-      // which very plausibly explains the raw USB transfer error partway
-      // through the write (not a DFU-status error, a lower-level one —
-      // consistent with writing to an unerased page).
-      const PAGE = 4096; // STM32WB55 internal flash page size
+      const PAGE = 4096;
       const startPage = Math.floor(el.address / PAGE) * PAGE;
       const endAddr    = el.address + el.data.length;
       let pagesErased = 0;
       for (let pageAddr = startPage; pageAddr < endAddr; pageAddr += PAGE) {
-        await dfuPrepare(dev,ifn); // verify/recover idle state before EVERY erase — not just once at the start
+        await dfuPrepare(dev,ifn);
         const erCmd = new Uint8Array([0x41, pageAddr&0xFF, (pageAddr>>8)&0xFF, (pageAddr>>16)&0xFF, (pageAddr>>24)&0xFF]);
         await dfuDnload(dev,ifn,0,erCmd);
         await dfuPoll(dev,ifn);
@@ -911,7 +786,7 @@ async function doFlashDFU() {
       }
       log(`  Erased ${pagesErased} flash page(s)`,'dm');
 
-      await dfuPrepare(dev,ifn); // verify/recover idle state before setAddr, same as the reference
+      await dfuPrepare(dev,ifn);
       const ac=new Uint8Array([0x21,el.address&0xFF,(el.address>>8)&0xFF,(el.address>>16)&0xFF,(el.address>>24)&0xFF]);
       await dfuDnload(dev,ifn,0,ac); await dfuPoll(dev,ifn);
       const nb=Math.ceil(el.data.length/DFU_BLK);
@@ -943,12 +818,6 @@ function parseDFU(buf){
   }
   return ts;
 }
-// Both dnload and getStatus can hit an isolated, transient "transfer
-// error" on real hardware even when the overall sequence is correct —
-// this got much further (hundreds of blocks) before failing than any
-// previous attempt, and failed on an ordinary status *read*, which looks
-// more like a one-off USB/driver hiccup than a protocol mismatch. Retry
-// a couple of times with a short backoff before giving up for good.
 async function withRetry(fn, attempts=3, delayMs=30) {
   let lastErr;
   for (let i=0; i<attempts; i++) {
@@ -975,20 +844,11 @@ async function dfuClrSt(d,i){
 async function dfuAbort(d,i){
   await withRetry(async () => { await d.controlTransferOut({requestType:'class',recipient:'interface',request:6,value:0,index:i}); });
 }
-// Ported from a working reference implementation (Fantasi firmware's web
-// flasher). Actively verifies the device is in dfuIDLE (state 2) before a
-// critical operation, and recovers via CLRSTATUS (if bStatus indicates an
-// error) or ABORT (if it's just mid-operation) rather than assuming the
-// device is already in a good state. Our version only ever checked this
-// ONCE at the very start of the whole flash — this checks before every
-// erase and before setAddr, which is very plausibly why our failures got
-// progressively further before an eventual disconnect: state drift
-// accumulating across hundreds of transfers with nothing to correct it.
 async function dfuPrepare(d,i){
   for (let n=0; n<6; n++) {
     let st;
     try { st = await dfuGetSt(d,i); } catch(e) { await dfuClrSt(d,i); continue; }
-    if (st.bState === 2) return true; // dfuIDLE
+    if (st.bState === 2) return true;
     if (st.bStatus !== 0) await dfuClrSt(d,i);
     else await dfuAbort(d,i);
   }
@@ -996,7 +856,6 @@ async function dfuPrepare(d,i){
 }
 async function dfuPoll(d,i){for(let n=0;n<200;n++){const s=await dfuGetSt(d,i);if(s.bState===10){await dfuClrSt(d,i);throw new Error(`DFU error bStatus=${s.bStatus}`);}if(s.bState!==4)return s;await sleep(Math.max(s.bwPollTimeout,10));}throw new Error('DFU poll timeout');}
 
-// ── TAR PARSER ───────────────────────────────────────────────────
 function parseTar(buf){
   const bytes=new Uint8Array(buf),td=new TextDecoder(),files=[];
   let off=0;
@@ -1011,7 +870,6 @@ function parseTar(buf){
   return files;
 }
 
-// ── XHR DOWNLOAD ─────────────────────────────────────────────────
 function fetchXHR(url,onProg){
   return new Promise((ok,fail)=>{
     const x=new XMLHttpRequest();x.open('GET',url,true);x.responseType='arraybuffer';x.timeout=180000;
@@ -1021,7 +879,6 @@ function fetchXHR(url,onProg){
   });
 }
 
-// ── INIT ─────────────────────────────────────────────────────────
 (function init(){
   if(!('serial' in navigator)||!('usb' in navigator)){
     const n=$('n-compat');
@@ -1029,7 +886,6 @@ function fetchXHR(url,onProg){
     n.classList.add('show'); n.style.display='';
     $('bcon-tgz').disabled=true; $('bcon-dfu').disabled=true; $('bflash').disabled=true;
   }
-  // protobufjs loaded from CDN — init when ready
   if(typeof protobuf!=='undefined') initProto();
   else setTimeout(()=>{if(typeof protobuf!=='undefined')initProto();},500);
   selMethod('tgz');
