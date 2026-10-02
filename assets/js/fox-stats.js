@@ -485,7 +485,7 @@
       data.totals.countries ? 'from ' + num(data.totals.countries) + (data.totals.countries === 1 ? ' country' : ' countries') : '');
     tile(tiles, 'Success rate', ok + hard ? Math.round((ok / (ok + hard)) * 100) + '%' : '—',
       hard ? num(hard) + ' did not finish' : (ok ? 'none failed' : ''));
-    if (cfg.softStages.length) tile(tiles, 'Could not connect', num(soft), 'attempts this month');
+    if (cfg.softStages.length) tile(tiles, 'Could not connect', num(soft), soft === 1 ? 'attempt this month' : 'attempts this month');
     tile(tiles, 'All time', num(data.allTime.ok),
       data.allTime.firstDay ? 'since ' + monthLabel(data.allTime.firstDay.slice(0, 7), true) + ' · ' + num(data.allTime.countries) + (data.allTime.countries === 1 ? ' country' : ' countries') : '');
     view.appendChild(tiles);
