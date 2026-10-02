@@ -226,6 +226,7 @@ html { zoom: 80%; }
     border:1px dashed var(--line); border-radius:8px; padding:18px 14px; margin-top:8px;
     text-align:center; font-size:12.5px; line-height:1.55; color:var(--text-dim);
   }
+  .stats-host{ width:100%; max-width:560px; margin-top:14px; }
   .ready-pill.waiting{ color:var(--text-dim); }
   .ready-pill.waiting .rdot{ background:var(--text-dim); }
   .tab-btn:disabled{ opacity:.5; cursor:not-allowed; }
@@ -351,12 +352,16 @@ html { zoom: 80%; }
     <div class="console" id="console"></div>
   </div>
 
+  <div class="stats-host" id="statsMount"></div>
+
   <div class="footnote">
     Want to run a third-party Flipper app that isn't bundled with FoxFW? Try the <a href="https://foxfw.github.io/fox-web/fap-compiler.html">FAP Compiler</a> — paste a GitHub URL, no toolchain install needed.<br><br>
     - FoxFW and its affiliated contributors disclaim any liability for damages, misuse, or unintended consequences resulting from the use of this firmware tool or the flashing of firmware onto your device.<br><br>
+    This page keeps an anonymous count of installs (chip, firmware version, country) and shows it under Statistics above. No IP addresses or personal data are stored.<br><br>
     Built on <a href="https://github.com/espressif/esptool-js" target="_blank" rel="noopener">esptool-js</a> (Apache-2.0, Espressif Systems). Requires a browser with <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API" target="_blank" rel="noopener">Web Serial</a> support (Chrome/Edge).
   </div>
 
+<script src="assets/js/fox-stats.js"></script>
 <script type="module">
   import { ESPLoader, Transport } from "https://unpkg.com/esptool-js@0.7.0/bundle.js";
 
@@ -463,6 +468,20 @@ html { zoom: 80%; }
   }
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const STAT_CHIPS = ["ESP32", "ESP32-S2", "ESP32-S3", "ESP32-C3", "ESP32-C5", "ESP32-C6", "ESP32-C2", "ESP32-C61", "ESP32-H2", "ESP32-P4", "ESP8266"];
+
+  function reportStat(result, stage, family, link) {
+    if (!window.FoxStats) return;
+    window.FoxStats.report({
+      app: "esp32",
+      target: STAT_CHIPS.includes(family) ? family : "unknown",
+      fw: firmwareMode === "fox" ? FOX_FIRMWARE_VERSION : "custom",
+      result,
+      stage,
+      link: link || "",
+    });
+  }
 
   function withTimeout(promise, ms) {
     return Promise.race([
@@ -994,6 +1013,7 @@ html { zoom: 80%; }
       }
     } else {
       log(`This board is an ${detectedFamily || "unknown chip"}. Fox ESP32 firmware is built for ESP32, ESP32-S2, ESP32-S3, ESP32-C3, ESP32-C5 and ESP32-C6.`, "e");
+      reportStat("fail", "unsupported", detectedFamily, profile.kind);
     }
     await refreshBoard();
   }
@@ -1070,6 +1090,7 @@ html { zoom: 80%; }
     } else {
       lockUi(false);
       showConnectHelp(profile, lastErr, lost);
+      reportStat("fail", "connect", profile.romFamily, profile.kind);
     }
   }
 
@@ -1242,6 +1263,8 @@ html { zoom: 80%; }
     if (esploader.IS_STUB) flashOptions.calculateMD5Hash = (image) => md5Hex(image);
 
     const fox = firmwareMode === "fox";
+    const statFamily = detectedFamily;
+    const statLink = portProfile ? portProfile.kind : "";
     const boardName = activeBoardIndex !== null ? BOARD_MANIFEST[activeBoardIndex].name : detectedFamily;
     let ok = false, restarted = false, failure = null;
     lockUi(true);
@@ -1265,6 +1288,8 @@ html { zoom: 80%; }
 
     setTimeout(() => progressWrap.classList.remove("active"), 1200);
     busy = false;
+    if (ok) reportStat("ok", "", statFamily, statLink);
+    else reportStat("fail", /md5/i.test(errText(failure)) ? "verify" : "flash", statFamily, statLink);
     await teardown();
     if (ok) {
       setStatus(null, "Flash complete");
@@ -1290,6 +1315,7 @@ html { zoom: 80%; }
   setActiveTab("fox");
   log("Ready. Plug in your ESP32 and click Connect — the board is detected automatically.");
   loadBoard(null);
+  if (window.FoxStats) window.FoxStats.init({ app: "esp32", mount: "#statsMount" });
 </script>
 <button id="backTop" aria-label="Back to top">↑</button>
 

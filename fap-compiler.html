@@ -144,7 +144,10 @@ code{background:#111;border:1px solid #444;border-radius:3px;padding:1px 6px;fon
   </div>
 
   <div class="log" id="log"></div>
+  <div id="statsMount" style="margin-top:18px"></div>
 </div>
+
+<script src="assets/js/fox-stats.js"></script>
 
 <script>
 'use strict';
@@ -222,6 +225,16 @@ async function api(path, opts = {}) {
   return j;
 }
 
+function repoSlug(url) {
+  const m = String(url).match(/github\.com\/([A-Za-z0-9-]+)\/([A-Za-z0-9._-]+)/i);
+  return m ? m[1] + '/' + m[2].replace(/\.git$/i, '') : '';
+}
+
+function reportStat(result, stage, repoUrl) {
+  if (!window.FoxStats) return;
+  window.FoxStats.report({ app: 'fap', target: 'fap', fw: '', result: result, stage: stage, link: '', repo: repoSlug(repoUrl) });
+}
+
 async function startCompile() {
   if (busy) return;
   const repoUrl = $('repoUrl').value.trim();
@@ -242,6 +255,7 @@ async function startCompile() {
 
   const refVal = $('refInput').value.trim();
   const subdirVal = $('subdirInput').value.trim();
+  let statStage = 'dispatch';
 
   try {
     log('Requesting a build for ' + repoUrl + '…', 'in');
@@ -251,6 +265,7 @@ async function startCompile() {
     });
     log('Build requested ✓ — waiting for it to start…', 'ok');
     pgTotal(6);
+    statStage = 'build';
 
     const run = await findRun(dispatchedAt);
     log('Build started: ' + run.html_url, 'ok');
@@ -260,6 +275,7 @@ async function startCompile() {
       throw new Error('Build finished with status "' + finished.conclusion + '". Full log: ' + finished.html_url);
     }
 
+    statStage = 'download';
     pgStep(90, 'Fetching your .fap…'); pgTotal(90);
     log('Build succeeded — fetching your .fap…', 'ok');
     const file = await api('/artifact?run_id=' + finished.id, { binary: true });
@@ -273,7 +289,9 @@ async function startCompile() {
     $('smsg').textContent = fapName + ' is ready — built against FoxFW v2.0.';
     $('runlink').innerHTML = '<a href="' + run.html_url + '" target="_blank" rel="noopener">View build log on GitHub →</a>';
     connUI('on', 'Compiled ✓', fapName);
+    reportStat('ok', '', repoUrl);
   } catch (err) {
+    reportStat('fail', statStage, repoUrl);
     showErr(err.message);
     log('FAILED: ' + err.message, 'er');
     pgTotal(0); $('pgfill-step').classList.remove('pulse'); $('pgfill-total').classList.remove('pulse');
@@ -339,6 +357,8 @@ function downloadFap() {
   a.download = fapName;
   document.body.appendChild(a); a.click(); a.remove();
 }
+
+if (window.FoxStats) window.FoxStats.init({ app: 'fap', mount: '#statsMount' });
 </script>
 <button id="backTop" aria-label="Back to top">↑</button>
 

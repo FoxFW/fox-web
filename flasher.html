@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>FoxFW v2.0 — Web Installer [v56]</title>
+<title>FoxFW v2.0 — Web Installer [v57]</title>
 <style>
 html { zoom: 80%; }
 *{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
@@ -102,7 +102,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
   <div class="tb-left">
     <div class="logo">🦊 <span>FoxFW</span> v2.0</div>
     <div class="badge">WEB INSTALLER</div>
-    <div class="badge rec" style="cursor:default">v2.0.11</div>
+    <div class="badge rec" id="fwver" style="cursor:default">v2.0.11</div>
   </div>
   <div class="tb-status">
     <div class="dot off" id="dot"></div>
@@ -158,10 +158,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
     <div class="pgtrack2"><div class="pgfill2" id="pgfill-total"></div><span class="pgtext2" id="pgtext-total">0%</span></div>
   </div>
   <div class="log" id="log" style="display:none"></div>
+  <div id="statsMount" style="margin-top:18px"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.4.0/dist/protobuf.min.js"></script>
+<script src="assets/js/fox-stats.js"></script>
 
 <script>
 'use strict';
@@ -416,9 +418,20 @@ function setConnectButtons(state) {
   dfu.disabled = state !== 'idle';
 }
 
+function reportStat(result, stage, target, fw) {
+  if (!window.FoxStats) return;
+  window.FoxStats.report({ app:'foxfw', target:target, fw:fw, result:result, stage:stage, link:'' });
+}
+function fwVersion() {
+  const m = ($('fwver').textContent || '').match(/\d+\.\d+\.\d+/);
+  return m ? m[0] : '';
+}
+
 async function doFlash() {
   log('Install clicked — busy='+busy+' connected='+connected,'in');
   if (busy || !connected) return;
+  const statMethod = method==='dfu' ? 'dfu' : 'tgz';
+  const statFw = customFile ? 'custom' : fwVersion();
   busy=true; flashing=true; $('bflash').disabled=true; $('bfile').disabled=true; setConnectButtons('connected'); setDisconnectVisible(false);
   clearNotices(); $('sbox').classList.remove('show');
   $('pgwrap2').classList.add('show'); pgTotal(0); pgFile(0,'Preparing…');
@@ -439,7 +452,9 @@ async function doFlash() {
       ? 'DFU flash complete. Unplug your Flipper, then hold power to boot.'
       : 'Firmware uploaded. Your Flipper is rebooting — the progress bar on its screen shows the install.';
     connUI('on','FoxFW Installed ✓','Flash complete');
+    reportStat('ok', '', statMethod, statFw);
   } catch (err) {
+    reportStat('fail', 'flash', statMethod, statFw);
     showErr(err.message); log('FAILED: '+err.message,'er');
     pgTotal(0); $('pgfill-total').classList.remove('pulse'); $('pgfill-file').classList.remove('pulse');
     connUI('off','Failed',err.message.slice(0,60));
@@ -603,6 +618,7 @@ async function doConnect(m) {
     }
     showErr(msg); log('Connect failed: ' + msg, 'er');
     connUI('off','Connection failed','See error above');
+    reportStat('fail', 'connect', method==='dfu' ? 'dfu' : 'tgz', customFile ? 'custom' : fwVersion());
   }
   busy = false;
   setConnectButtons(connected ? 'connected' : 'idle');
@@ -890,6 +906,7 @@ function fetchXHR(url,onProg){
   else setTimeout(()=>{if(typeof protobuf!=='undefined')initProto();},500);
   selMethod('tgz');
   updateFileButtonState();
+  if (window.FoxStats) window.FoxStats.init({ app:'foxfw', mount:'#statsMount' });
 })();
 </script>
 <button id="backTop" aria-label="Back to top">↑</button>
