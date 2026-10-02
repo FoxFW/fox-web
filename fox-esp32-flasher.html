@@ -208,6 +208,27 @@ html { zoom: 80%; }
   .console .ts{ color:#565a63; }
   .console .e{ color:var(--err); }
   .console .w{ color:var(--warn); }
+  .hint{
+    margin-top:14px; padding:10px 12px; border-radius:6px;
+    border:1px solid var(--line); border-left:3px solid var(--text-dim);
+    background:var(--panel-2); font-size:12.5px; line-height:1.55; color:var(--text);
+  }
+  .hint b{ color:var(--fox); font-weight:600; }
+  .hint.ok{ border-left-color:var(--ok); }
+  .hint.warn{ border-left-color:var(--warn); }
+  .hint.err{ border-left-color:var(--err); }
+  .help-list{
+    margin:10px 0 0; padding-left:18px; font-size:12px; line-height:1.6; color:var(--text-dim);
+  }
+  .help-list li + li{ margin-top:4px; }
+  .help-list b{ color:var(--text); font-weight:600; }
+  .file-empty{
+    border:1px dashed var(--line); border-radius:8px; padding:18px 14px; margin-top:8px;
+    text-align:center; font-size:12.5px; line-height:1.55; color:var(--text-dim);
+  }
+  .ready-pill.waiting{ color:var(--text-dim); }
+  .ready-pill.waiting .rdot{ background:var(--text-dim); }
+  .tab-btn:disabled{ opacity:.5; cursor:not-allowed; }
   .footnote{
     max-width:560px; margin-top:20px; text-align:center;
     font-size:11px; color:var(--text-dim); line-height:1.6;
@@ -249,13 +270,24 @@ html { zoom: 80%; }
       <button class="btn btn-primary btn-block" id="connectBtn">Connect</button>
       <button class="btn btn-block" id="disconnectBtn" disabled>Disconnect</button>
     </div>
+    <div class="hint" id="hintBox" role="status" aria-live="polite"></div>
+    <details>
+      <summary>Board not showing up or won't connect?</summary>
+      <ul class="help-list">
+        <li><b>Flipper Wi-Fi Dev Board (ESP32-S2):</b> hold <b>BOOT</b>, tap <b>RESET</b>, release <b>BOOT</b>, then click Connect.</li>
+        <li><b>Other ESP32 boards:</b> if Connect fails, hold the board's <b>BOOT</b> button while you click Connect.</li>
+        <li>Use a USB <b>data</b> cable plugged straight into the computer. Charge-only cables won't work.</li>
+        <li>Close anything else using the port: Arduino IDE, serial monitors, qFlipper, other flasher tabs.</li>
+        <li>You don't have to pick a model. The chip that answers decides which firmware is used, whatever is selected.</li>
+      </ul>
+    </details>
   </div>
 
   <div class="card">
     <h2 id="fwHeading">
       <span class="fw-title">Firmware files</span>
       <button class="btn btn-sm" id="fetchBtn" type="button" style="visibility:hidden;">↻ Re-fetch</button>
-      <span class="ready-pill" id="readyPill"><span class="rdot"></span><span id="readyText">Not Ready</span></span>
+      <span class="ready-pill waiting" id="readyPill"><span class="rdot"></span><span id="readyText">Waiting for board</span></span>
     </h2>
     <div class="tabs" id="fwTabs">
       <button class="tab-btn active" type="button" data-mode="fox" id="tabFoxBtn">Fox Firmware</button>
@@ -326,64 +358,33 @@ html { zoom: 80%; }
   </div>
 
 <script type="module">
-  import { ESPLoader, Transport } from "https://unpkg.com/esptool-js@0.5.7/bundle.js";
+  import { ESPLoader, Transport } from "https://unpkg.com/esptool-js@0.7.0/bundle.js";
 
   const FOX_FIRMWARE_VERSION = "1.4.0";
 
   const BOARD_MANIFEST = [
     {
-      id: "fox-esp32-classic",
-      name: "ESP32 (Classic / Dev Module)",
-      chipFamily: "ESP32",
-      files: [
-        { label: "Bootloader", filename: "firmware-classic.bootloader.bin", address: "0x1000" },
-        { label: "Partitions", filename: "firmware-classic.partitions.bin", address: "0x8000" },
-        { label: "Boot App0",  filename: "boot_app0.bin",                   address: "0xE000" },
-        { label: "Firmware",   filename: "firmware-classic.bin",            address: "0x10000" },
-      ],
-    },
-    {
-      id: "fox-esp32-wroom",
-      name: "ESP32-WROOM",
-      chipFamily: "ESP32",
-      files: [
-        { label: "Bootloader", filename: "firmware-classic.bootloader.bin", address: "0x1000" },
-        { label: "Partitions", filename: "firmware-classic.partitions.bin", address: "0x8000" },
-        { label: "Boot App0",  filename: "boot_app0.bin",                   address: "0xE000" },
-        { label: "Firmware",   filename: "firmware-classic.bin",            address: "0x10000" },
-      ],
-    },
-    {
-      id: "fox-esp32-wrover",
-      name: "ESP32-WROVER",
-      chipFamily: "ESP32",
-      files: [
-        { label: "Bootloader", filename: "firmware-classic.bootloader.bin", address: "0x1000" },
-        { label: "Partitions", filename: "firmware-classic.partitions.bin", address: "0x8000" },
-        { label: "Boot App0",  filename: "boot_app0.bin",                   address: "0xE000" },
-        { label: "Firmware",   filename: "firmware-classic.bin",            address: "0x10000" },
-      ],
-    },
-    {
-      id: "fox-esp32-cam",
-      name: "ESP32-CAM",
-      chipFamily: "ESP32",
-      files: [
-        { label: "Bootloader", filename: "firmware-classic.bootloader.bin", address: "0x1000" },
-        { label: "Partitions", filename: "firmware-classic.partitions.bin", address: "0x8000" },
-        { label: "Boot App0",  filename: "boot_app0.bin",                   address: "0xE000" },
-        { label: "Firmware",   filename: "firmware-classic.bin",            address: "0x10000" },
-      ],
-    },
-    {
       id: "fox-esp32-s2",
-      name: "ESP32-S2",
+      name: "ESP32-S2 — Flipper Wi-Fi Dev Board (official)",
+      shortName: "ESP32-S2 (Wi-Fi Dev Board)",
       chipFamily: "ESP32-S2",
       files: [
         { label: "Bootloader", filename: "firmware-s2.bootloader.bin", address: "0x1000" },
         { label: "Partitions", filename: "firmware-s2.partitions.bin", address: "0x8000" },
         { label: "Boot App0",  filename: "boot_app0.bin",              address: "0xE000" },
         { label: "Firmware",   filename: "firmware-s2.bin",            address: "0x10000" },
+      ],
+    },
+    {
+      id: "fox-esp32-classic",
+      name: "ESP32 (original) — WROOM / WROVER / ESP32-CAM",
+      shortName: "ESP32 (original)",
+      chipFamily: "ESP32",
+      files: [
+        { label: "Bootloader", filename: "firmware-classic.bootloader.bin", address: "0x1000" },
+        { label: "Partitions", filename: "firmware-classic.partitions.bin", address: "0x8000" },
+        { label: "Boot App0",  filename: "boot_app0.bin",                   address: "0xE000" },
+        { label: "Firmware",   filename: "firmware-classic.bin",            address: "0x10000" },
       ],
     },
     {
@@ -413,7 +414,7 @@ html { zoom: 80%; }
       name: "ESP32-C5",
       chipFamily: "ESP32-C5",
       files: [
-        { label: "Bootloader", filename: "firmware-c5.bootloader.bin", address: "0x0" },
+        { label: "Bootloader", filename: "firmware-c5.bootloader.bin", address: "0x2000" },
         { label: "Partitions", filename: "firmware-c5.partitions.bin", address: "0x8000" },
         { label: "Boot App0",  filename: "boot_app0.bin",              address: "0xE000" },
         { label: "Firmware",   filename: "firmware-c5.bin",            address: "0x10000" },
@@ -432,12 +433,42 @@ html { zoom: 80%; }
     },
   ];
 
+  const AUTO = "auto";
+  const AUTO_LABEL = "AUTO-DETECT ON CONNECT (recommended)";
+
+  const ESPRESSIF_VID = 0x303a;
+  const USB_JTAG_SERIAL_PID = 0x1001;
+  const USB_OTG_ROM_PIDS = { 0x0002: "ESP32-S2", 0x0009: "ESP32-S3" };
+  const FLIPPER_VID = 0x0483, FLIPPER_PID = 0x5740;
+
+  const IMAGE_CHIP_IDS = {
+    0: "ESP32", 2: "ESP32-S2", 5: "ESP32-C3", 9: "ESP32-S3", 12: "ESP32-C2",
+    13: "ESP32-C6", 16: "ESP32-H2", 18: "ESP32-P4", 20: "ESP32-C61", 23: "ESP32-C5",
+  };
+
+  const USB_OTG_RESET_REGS = {
+    "ESP32-S2": { strap: 0x3f404038, option1: 0x3f408128, wdtConfig0: 0x3f408094, wdtConfig1: 0x3f408098, wdtProtect: 0x3f4080ac },
+    "ESP32-S3": { strap: 0x60004038, option1: 0x6000812c, wdtConfig0: 0x60008098, wdtConfig1: 0x6000809c, wdtProtect: 0x600080b0 },
+  };
+  const GPIO_STRAP_SPI_BOOT_MASK = 1 << 3;
+  const RTC_CNTL_FORCE_DOWNLOAD_BOOT_MASK = 1;
+  const RTC_CNTL_WDT_WKEY = 0x50d83aa1;
+
   function assetUrl(filename) {
     return new URL('firmware_files/' + filename, document.baseURI).toString();
   }
 
-  function firstBoardIndexForFamily(family) {
+  function boardIndexForFamily(family) {
     return BOARD_MANIFEST.findIndex((b) => b.chipFamily === family);
+  }
+
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  function withTimeout(promise, ms) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), ms)),
+    ]);
   }
 
   const $ = (id) => document.getElementById(id);
@@ -453,50 +484,36 @@ html { zoom: 80%; }
   const progressPct = $("progressPct");
   const progressStage = $("progressStage");
   const boardSelect = $("boardSelect");
+  const baudSelect = $("baudRate");
   const fetchBtn = $("fetchBtn");
   const fileTable = $("fileTable");
   const tabFoxBtn = $("tabFoxBtn");
   const tabCustomBtn = $("tabCustomBtn");
   const readyPill = $("readyPill");
   const readyText = $("readyText");
+  const hintBox = $("hintBox");
 
   let transport = null;
   let esploader = null;
+  let activePort = null;
+  let portProfile = null;
   let slots = [];
-  let lastDetectedChip = null;
-  let chipMismatch = false;
+  let activeBoardIndex = null;
+  let detectedFamily = null;
+  let detectedChipText = null;
   let firmwareMode = "fox";
-
-  function detectChipFamily(chipString) {
-    if (!chipString) return null;
-    const s = chipString.toUpperCase();
-    const variants = ["S3", "S2", "C3", "C6", "C2", "C5", "H2"];
-    for (const v of variants) {
-      if (s.includes("ESP32-" + v) || s.includes("ESP32" + v)) return "ESP32-" + v;
-    }
-    if (s.includes("ESP32")) return "ESP32";
-    return null;
-  }
-
-  function checkChipMismatch() {
-    if (!esploader || !lastDetectedChip) { chipMismatch = false; return; }
-    const board = BOARD_MANIFEST[parseInt(boardSelect.value, 10)];
-    const detectedFamily = detectChipFamily(lastDetectedChip);
-    if (board.chipFamily && detectedFamily && board.chipFamily !== detectedFamily) {
-      chipMismatch = true;
-      setStatus("error", `Mismatch: board=${board.chipFamily}, chip=${detectedFamily}`);
-      log(`⚠ Selected board is "${board.name}" (${board.chipFamily}), but the connected device identifies as ${detectedFamily} (raw: "${lastDetectedChip}"). Programming is blocked — pick the matching board above, or Disconnect and reconnect once you have the right one.`, "e");
-    } else {
-      chipMismatch = false;
-      setStatus("connected", lastDetectedChip || "Connected");
-    }
-    updateProgramState();
-  }
+  let busy = false;
+  const lostPorts = new WeakSet();
 
   function log(msg, cls) {
     const line = document.createElement("div");
-    const ts = new Date().toLocaleTimeString();
-    line.innerHTML = `<span class="ts">[${ts}]</span> ` + (cls ? `<span class="${cls}">${msg}</span>` : msg);
+    const ts = document.createElement("span");
+    ts.className = "ts";
+    ts.textContent = `[${new Date().toLocaleTimeString()}]`;
+    const body = document.createElement("span");
+    if (cls) body.className = cls;
+    body.textContent = " " + msg;
+    line.append(ts, body);
     consoleEl.appendChild(line);
     consoleEl.scrollTop = consoleEl.scrollHeight;
   }
@@ -506,38 +523,100 @@ html { zoom: 80%; }
     statusText.textContent = text;
   }
 
+  function setHint(kind, html) {
+    hintBox.className = "hint" + (kind ? " " + kind : "");
+    hintBox.innerHTML = html;
+  }
+
+  const HINT_IDLE =
+    "Plug your board in with a USB <b>data</b> cable, click <b>Connect</b> and pick it from the list. " +
+    "The chip is identified automatically and the matching firmware is loaded for you.";
+  const BOOTLOADER_STEPS =
+    "<b>Put the board in bootloader mode:</b> hold <b>BOOT</b>, tap <b>RESET</b>, release <b>BOOT</b>. " +
+    "Then click <b>Connect</b> again and pick the board from the list.";
+
   const terminal = {
-    clean() { consoleEl.innerHTML = ""; },
+    clean() {},
     writeLine(data) { log(data); },
-    write(data) { log(data); },
+    write(data) { if (data && data.trim()) log(data.trim()); },
   };
 
   if (!("serial" in navigator)) {
     setStatus("error", "Web Serial unsupported");
     connectBtn.disabled = true;
+    setHint("err", "This browser can't talk to USB serial devices. Open this page in <b>Chrome</b> or <b>Edge</b> on a desktop computer.");
     log("This browser does not support Web Serial. Use Chrome or Edge on desktop.", "e");
+  } else {
+    setHint("", HINT_IDLE);
+    navigator.serial.addEventListener("disconnect", (e) => {
+      lostPorts.add(e.target);
+      if (e.target === activePort && !busy) {
+        log("The board was unplugged or restarted.", "w");
+        teardown().then(() => setHint("", HINT_IDLE));
+      }
+    });
+    navigator.serial.addEventListener("connect", (e) => { lostPorts.delete(e.target); });
   }
 
-  BOARD_MANIFEST.forEach((b, i) => {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = b.name;
-    boardSelect.appendChild(opt);
-  });
+  {
+    const auto = document.createElement("option");
+    auto.value = AUTO;
+    auto.textContent = AUTO_LABEL;
+    boardSelect.appendChild(auto);
+    BOARD_MANIFEST.forEach((b, i) => {
+      const opt = document.createElement("option");
+      opt.value = String(i);
+      opt.textContent = b.name;
+      boardSelect.appendChild(opt);
+    });
+    boardSelect.value = AUTO;
+  }
 
-  function arrayBufferToBinaryString(buffer) {
-    const bytes = new Uint8Array(buffer);
-    const chunkSize = 0x8000;
-    let result = "";
-    for (let i = 0; i < bytes.length; i += chunkSize) {
-      result += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  function selectedIndex() {
+    return boardSelect.value === AUTO ? null : parseInt(boardSelect.value, 10);
+  }
+
+  function updateAutoLabel() {
+    const idx = detectedFamily ? boardIndexForFamily(detectedFamily) : -1;
+    const b = idx >= 0 ? BOARD_MANIFEST[idx] : null;
+    boardSelect.options[0].textContent = b ? `AUTO-DETECTED: ${b.shortName || b.name}` : AUTO_LABEL;
+  }
+
+  function resolveBoardIndex() {
+    if (detectedFamily) {
+      const idx = boardIndexForFamily(detectedFamily);
+      if (idx >= 0) return idx;
+      return firmwareMode === "custom" ? selectedIndex() : null;
     }
-    return result;
+    return selectedIndex();
+  }
+
+  function imageChipFamily(bytes) {
+    if (!bytes || bytes.length < 24 || bytes[0] !== 0xe9) return null;
+    const id = bytes[12] | (bytes[13] << 8);
+    return Object.prototype.hasOwnProperty.call(IMAGE_CHIP_IDS, id) ? IMAGE_CHIP_IDS[id] : null;
   }
 
   function renderFileTable() {
     fileTable.innerHTML = "";
     const locked = firmwareMode === "fox";
+
+    if (slots.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "file-empty";
+      if (detectedFamily) {
+        empty.textContent = locked
+          ? `Fox ESP32 firmware isn't available for ${detectedFamily} boards.`
+          : `Pick a board layout in the Model list to load your own files for this ${detectedFamily}.`;
+      } else {
+        empty.textContent = locked
+          ? "Connect your board — the matching Fox firmware is picked and loaded automatically."
+          : "Connect your board (or pick it in the Model list) and the right flash addresses are filled in for you.";
+      }
+      fileTable.appendChild(empty);
+      return;
+    }
+
     slots.forEach((slot, idx) => {
       const item = document.createElement("div");
       item.className = "file-item";
@@ -564,16 +643,18 @@ html { zoom: 80%; }
     fileTable.querySelectorAll(".manual-input").forEach((el) => {
       el.addEventListener("change", (e) => {
         const idx = parseInt(e.target.dataset.idx, 10);
+        const target = slots;
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (ev) => {
-          slots[idx].data = arrayBufferToBinaryString(ev.target.result);
+          if (slots !== target) return;
+          slots[idx].data = new Uint8Array(ev.target.result);
           slots[idx].source = "manual";
           slots[idx].manualName = file.name;
           setSlotState(idx, "ok", "manual: " + file.name);
-          updateProgramState();
           log(`Loaded ${file.name} for "${slots[idx].label}" (manual).`);
+          updateProgramState();
         };
         reader.readAsArrayBuffer(file);
       });
@@ -593,22 +674,59 @@ html { zoom: 80%; }
     const s = slots[idx];
     const wrap = fileTable.querySelector(`.fi-state-wrap[data-state="${idx}"]`);
     if (!wrap) return;
+    wrap.innerHTML = "";
 
     if (s.data && s.source === "fetched" && s.downloadUrl) {
-      wrap.innerHTML = `
-        <a class="fi-state ok fi-file-link" href="${s.downloadUrl}" download="${s.filename}" target="_blank" rel="noopener" title="${s.filename}">${s.filename}</a>
-        <span class="fi-state ok fi-size">${(s.sizeBytes / 1024).toFixed(1)} KB</span>
-      `;
-    } else if (s.data && s.source === "manual") {
-      wrap.innerHTML = `<span class="fi-state ok fi-state-solo">manual: ${s.manualName || s.filename}</span>`;
+      const link = document.createElement("a");
+      link.className = "fi-state ok fi-file-link";
+      link.href = s.downloadUrl;
+      link.download = s.filename;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.title = s.filename;
+      link.textContent = s.filename;
+      const size = document.createElement("span");
+      size.className = "fi-state ok fi-size";
+      size.textContent = (s.sizeBytes / 1024).toFixed(1) + " KB";
+      wrap.append(link, size);
     } else {
-      wrap.innerHTML = `<span class="fi-state fi-state-solo${s.stateCls ? " " + s.stateCls : ""}">${s.stateText || "not loaded"}</span>`;
+      const span = document.createElement("span");
+      if (s.data && s.source === "manual") {
+        span.className = "fi-state ok fi-state-solo";
+        span.textContent = "manual: " + (s.manualName || s.filename);
+      } else {
+        span.className = "fi-state fi-state-solo" + (s.stateCls ? " " + s.stateCls : "");
+        span.textContent = s.stateText || "not loaded";
+      }
+      wrap.appendChild(span);
     }
   }
 
-  async function loadBoard(index) {
+  async function loadBoard(index, { keepManual = false } = {}) {
+    const previous = slots;
+    activeBoardIndex = index;
+
+    if (index === null || index < 0) {
+      activeBoardIndex = null;
+      slots = [];
+      fetchBtn.style.visibility = "hidden";
+      renderFileTable();
+      updateProgramState();
+      return;
+    }
+
     const board = BOARD_MANIFEST[index];
-    slots = board.files.map((f) => ({ label: f.label, address: f.address, data: null, source: null, filename: f.filename }));
+    const chipBoot = esploader && esploader.chip && detectedFamily === board.chipFamily
+      ? esploader.chip.BOOTLOADER_FLASH_OFFSET : undefined;
+    slots = board.files.map((f) => {
+      const address = f.label === "Bootloader" && typeof chipBoot === "number" ? "0x" + chipBoot.toString(16) : f.address;
+      const slot = { label: f.label, address, data: null, source: null, filename: f.filename };
+      if (keepManual && firmwareMode === "custom") {
+        const old = previous.find((p) => p.label === f.label && p.source === "manual" && p.data);
+        if (old) { slot.data = old.data; slot.source = "manual"; slot.manualName = old.manualName; }
+      }
+      return slot;
+    });
     renderFileTable();
     updateProgramState();
 
@@ -621,37 +739,58 @@ html { zoom: 80%; }
   }
 
   async function fetchBoardFiles(board) {
+    const target = slots;
     fetchBtn.disabled = true;
-    let okCount = 0;
     for (let i = 0; i < board.files.length; i++) {
       const f = board.files[i];
       const url = assetUrl(f.filename);
       setSlotState(i, "pending", "fetching…");
       try {
-        const res = await fetch(url);
+        const res = await fetch(url, { cache: "no-cache" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const buf = await res.arrayBuffer();
-        slots[i].data = arrayBufferToBinaryString(buf);
+        const data = new Uint8Array(await res.arrayBuffer());
+        if (slots !== target) return;
+        if (data.length === 0) throw new Error("file is empty");
+        const built = imageChipFamily(data);
+        if (built && built !== board.chipFamily) throw new Error(`file is built for ${built}, expected ${board.chipFamily}`);
+        slots[i].data = data;
         slots[i].source = "fetched";
         slots[i].downloadUrl = url;
-        slots[i].sizeBytes = buf.byteLength;
+        slots[i].sizeBytes = data.length;
         setSlotState(i, "ok", null);
-        okCount++;
         log(`Fetched ${f.filename} for "${board.name}".`);
       } catch (err) {
+        if (slots !== target) return;
         setSlotState(i, "err", "fetch failed — Re-fetch, or use Custom Firmware");
-        log(`Could not fetch ${f.filename}: ${err.message || err}. Click "Re-fetch firmware set" to retry, or switch to the Custom Firmware tab to load it by hand.`, "e");
+        log(`Could not fetch ${f.filename}: ${err.message || err}. Click "Re-fetch" to retry, or switch to the Custom Firmware tab to load it by hand.`, "e");
       }
     }
     fetchBtn.disabled = false;
     updateProgramState();
   }
 
-  boardSelect.addEventListener("change", async (e) => {
-    await loadBoard(parseInt(e.target.value, 10));
-    checkChipMismatch();
+  async function refreshBoard({ force = false } = {}) {
+    const idx = resolveBoardIndex();
+    updateAutoLabel();
+    if (force || idx !== activeBoardIndex) {
+      await loadBoard(idx, { keepManual: true });
+    } else {
+      updateProgramState();
+    }
+  }
+
+  boardSelect.addEventListener("change", async () => {
+    const want = selectedIndex();
+    if (detectedFamily && want !== null) {
+      const right = boardIndexForFamily(detectedFamily);
+      if (right >= 0 && BOARD_MANIFEST[want].chipFamily !== detectedFamily) {
+        log(`The connected board is an ${detectedFamily}; "${BOARD_MANIFEST[want].name}" firmware would not run on it. Keeping "${BOARD_MANIFEST[right].name}".`, "w");
+        boardSelect.value = String(right);
+      }
+    }
+    await refreshBoard();
   });
-  fetchBtn.addEventListener("click", () => loadBoard(parseInt(boardSelect.value, 10)));
+  fetchBtn.addEventListener("click", () => loadBoard(activeBoardIndex));
 
   function setActiveTab(mode) {
     firmwareMode = mode;
@@ -663,81 +802,313 @@ html { zoom: 80%; }
     if (firmwareMode === "fox") return;
     setActiveTab("fox");
     log("Fox Firmware selected — loading official release files.");
-    await loadBoard(parseInt(boardSelect.value, 10));
-    checkChipMismatch();
+    await refreshBoard({ force: true });
   });
   tabCustomBtn.addEventListener("click", async () => {
     if (firmwareMode === "custom") return;
     setActiveTab("custom");
     log("Custom Firmware selected — choose your own .bin files below.", "w");
-    await loadBoard(parseInt(boardSelect.value, 10));
-    checkChipMismatch();
+    await refreshBoard({ force: true });
   });
+
+  function flashBlocker() {
+    if (!esploader || !detectedFamily) return null;
+    const right = boardIndexForFamily(detectedFamily);
+    if (right < 0 && firmwareMode === "fox") {
+      return `Fox ESP32 firmware isn't available for ${detectedFamily} boards.`;
+    }
+    if (activeBoardIndex !== null && right >= 0 && BOARD_MANIFEST[activeBoardIndex].chipFamily !== detectedFamily) {
+      return `The loaded firmware is for ${BOARD_MANIFEST[activeBoardIndex].chipFamily}, but the connected board is an ${detectedFamily}.`;
+    }
+    for (const s of slots) {
+      const built = imageChipFamily(s.data);
+      if (built && built !== detectedFamily) {
+        return `The "${s.label}" file is built for ${built}, but the connected board is an ${detectedFamily}. Flashing it would leave the board unable to start.`;
+      }
+    }
+    return null;
+  }
 
   function updateProgramState() {
     const filesReady = slots.length > 0 && slots.every((s) => s.data);
-    const ready = esploader && !chipMismatch && filesReady;
-    programBtn.disabled = !ready;
+    const blocker = flashBlocker();
+    programBtn.disabled = !(esploader && filesReady && !blocker && !busy);
+    eraseBtn.disabled = !(esploader && !busy);
 
-    readyPill.className = "ready-pill " + (filesReady ? "ready" : "notready");
-    readyText.textContent = filesReady ? "Ready" : "Not Ready";
+    if (slots.length === 0 && !detectedFamily) {
+      readyPill.className = "ready-pill waiting";
+      readyText.textContent = "Waiting for board";
+    } else {
+      readyPill.className = "ready-pill " + (filesReady && !blocker ? "ready" : "notready");
+      readyText.textContent = filesReady && !blocker ? "Ready" : "Not Ready";
+    }
+
+    if (esploader && !busy) {
+      if (blocker) {
+        setStatus("error", `${detectedFamily} — can't flash`);
+        setHint("err", blocker);
+      } else {
+        setStatus("connected", detectedChipText || detectedFamily || "Connected");
+        const board = activeBoardIndex !== null ? BOARD_MANIFEST[activeBoardIndex] : null;
+        if (filesReady && board) {
+          setHint("ok", firmwareMode === "fox"
+            ? `<b>${detectedFamily}</b> detected — Fox ESP32 Firmware v${FOX_FIRMWARE_VERSION} for “${board.name}” is loaded. Click <b>Program</b> to install it.`
+            : `<b>${detectedFamily}</b> detected — your files are loaded. Click <b>Program</b> to install them.`);
+        } else if (firmwareMode === "fox") {
+          setHint("", `<b>${detectedFamily}</b> detected — loading the matching firmware…`);
+        } else {
+          setHint("", `<b>${detectedFamily}</b> detected — choose a .bin file for each slot below.`);
+        }
+      }
+    }
+  }
+
+  class FoxLoader extends ESPLoader {
+    async detectChip(mode = "default_reset", attempts = 7) {
+      return super.detectChip(mode, this.foxAttempts || attempts);
+    }
+  }
+
+  function classifyPort(port) {
+    let info = {};
+    try { info = port.getInfo() || {}; } catch (_) {}
+    const vid = info.usbVendorId, pid = info.usbProductId;
+    const hex = (n) => "0x" + n.toString(16).padStart(4, "0");
+    const ids = vid !== undefined ? `${hex(vid)}:${hex(pid ?? 0)}` : "no USB IDs";
+    if (vid === ESPRESSIF_VID && pid === USB_JTAG_SERIAL_PID) {
+      return { kind: "usb-jtag", native: true, ids, label: "ESP32 built-in USB (USB-Serial/JTAG)" };
+    }
+    if (vid === ESPRESSIF_VID) {
+      const rom = USB_OTG_ROM_PIDS[pid] || null;
+      return { kind: "usb-otg", native: true, romFamily: rom, ids, label: rom ? `${rom} built-in USB` : "ESP32 built-in USB" };
+    }
+    if (vid === FLIPPER_VID && pid === FLIPPER_PID) {
+      return { kind: "flipper", native: false, ids, label: "Flipper Zero" };
+    }
+    return { kind: "uart", native: false, ids, label: vid !== undefined ? "USB-to-serial adapter" : "serial port" };
+  }
+
+  function connectPlan(profile) {
+    if (profile.kind === "usb-otg") {
+      return [
+        { mode: "no_reset", attempts: 2, note: "Checking whether the board is already in bootloader mode…" },
+        { mode: "default_reset", attempts: 2, note: "No bootloader reply — asking the running firmware to restart into bootloader mode…" },
+      ];
+    }
+    if (profile.kind === "usb-jtag") {
+      return [
+        { mode: "default_reset", attempts: 5, note: "Resetting the board into bootloader mode over USB…" },
+        { mode: "no_reset", attempts: 2, note: "Retrying without a reset…" },
+      ];
+    }
+    return [{ mode: "default_reset", attempts: 7, note: "Resetting the board into bootloader mode…" }];
+  }
+
+  function errText(err) { return (err && (err.message || String(err))) || "unknown error"; }
+
+  function isPortBusy(err) {
+    const m = errText(err);
+    return /failed to open serial port|already open|access denied/i.test(m);
+  }
+
+  function isPortGone(err, port) {
+    if (lostPorts.has(port)) return true;
+    return /setSignals|control signals|device has been lost|port is closed|not open/i.test(errText(err));
+  }
+
+  async function safeClose(t, port) {
+    try { if (t) await withTimeout(t.disconnect(), 2500); } catch (_) {}
+    try { if (port && (port.readable || port.writable)) await withTimeout(port.close(), 1500); } catch (_) {}
+  }
+
+  async function openLoader(port, profile, mode, attempts) {
+    const baudrate = profile.native ? 115200 : parseInt(baudSelect.value, 10);
+    const t = new Transport(port, false);
+    const loader = new FoxLoader({ transport: t, baudrate, terminal });
+    loader.foxAttempts = attempts;
+    try {
+      const chipText = await loader.main(mode);
+      return { loader, transport: t, chipText };
+    } catch (err) {
+      await safeClose(t, port);
+      throw err;
+    }
+  }
+
+  async function waitForPortAfterReset(oldPort, timeoutMs) {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      await sleep(400);
+      let ports = [];
+      try { ports = await navigator.serial.getPorts(); } catch (_) {}
+      const candidates = ports.filter((p) => {
+        if (lostPorts.has(p) || p.connected === false) return false;
+        try { return p.getInfo().usbVendorId === ESPRESSIF_VID; } catch (_) { return false; }
+      });
+      const fresh = candidates.find((p) => p !== oldPort);
+      if (fresh) return fresh;
+      if (candidates.includes(oldPort)) return oldPort;
+    }
+    return null;
+  }
+
+  function lockUi(locked) {
+    busy = locked;
+    connectBtn.disabled = locked || !!esploader;
+    disconnectBtn.disabled = locked || !esploader;
+    boardSelect.disabled = locked;
+    baudSelect.disabled = locked;
+    tabFoxBtn.disabled = locked;
+    tabCustomBtn.disabled = locked;
+    fetchBtn.disabled = locked;
+    updateProgramState();
+  }
+
+  async function teardown() {
+    const t = transport, port = activePort;
+    transport = null; esploader = null; activePort = null; portProfile = null;
+    detectedFamily = null; detectedChipText = null;
+    await safeClose(t, port);
+    setStatus(null, "Not connected");
+    lockUi(false);
+    await refreshBoard();
+  }
+
+  async function onConnected(result, port, profile) {
+    transport = result.transport;
+    esploader = result.loader;
+    activePort = port;
+    portProfile = profile;
+    detectedChipText = result.chipText;
+    detectedFamily = (esploader.chip && esploader.chip.CHIP_NAME) || null;
+    log(`Connected. Detected chip: ${result.chipText}`);
+
+    const want = selectedIndex();
+    const right = detectedFamily ? boardIndexForFamily(detectedFamily) : -1;
+    if (right >= 0) {
+      if (want === null) {
+        log(`Auto-selected "${BOARD_MANIFEST[right].name}".`);
+      } else if (BOARD_MANIFEST[want].chipFamily !== detectedFamily) {
+        log(`You picked "${BOARD_MANIFEST[want].name}", but this board is an ${detectedFamily}. Switched to "${BOARD_MANIFEST[right].name}" automatically — the other firmware would not run on it.`, "w");
+        boardSelect.value = String(right);
+      }
+    } else {
+      log(`This board is an ${detectedFamily || "unknown chip"}. Fox ESP32 firmware is built for ESP32, ESP32-S2, ESP32-S3, ESP32-C3, ESP32-C5 and ESP32-C6.`, "e");
+    }
+    await refreshBoard();
+  }
+
+  function showConnectHelp(profile, err, lost) {
+    const reason = errText(err);
+    setStatus("error", "Connection failed");
+    if (isPortBusy(err)) {
+      log(`Connection failed: ${reason}`, "e");
+      setHint("err", "That port is being used by something else. Close the Arduino IDE, serial monitors, qFlipper and any other flasher tab, then click <b>Connect</b> again.");
+      return;
+    }
+    if (profile.native) {
+      log(lost
+        ? "The board restarted and came back as a new USB device, so the browser needs you to pick it again."
+        : `Connection failed: ${reason}`, lost ? "w" : "e");
+      setHint("warn", lost
+        ? "The board restarted into bootloader mode. Click <b>Connect</b> again and pick it from the list. If it isn't listed: " + BOOTLOADER_STEPS
+        : BOOTLOADER_STEPS + " (On the Flipper Wi-Fi Dev Board both buttons are next to the USB port.)");
+      return;
+    }
+    log(`Connection failed: ${reason}`, "e");
+    if (profile.kind === "flipper") {
+      setHint("warn", "That port is the <b>Flipper Zero itself</b>. Plug the ESP32 board straight into this computer's USB port and click <b>Connect</b> again — or flash from the Flipper with the Fox ESP32 Flasher app.");
+      return;
+    }
+    setHint("warn", "The board didn't answer. Hold its <b>BOOT</b> button, click <b>Connect</b>, and let go once it says Connected. Also check the cable is a USB <b>data</b> cable (charge-only cables won't work).");
+  }
+
+  async function connectToPort(port) {
+    const profile = classifyPort(port);
+    lostPorts.delete(port);
+    lockUi(true);
+    setStatus(null, "Connecting…");
+    setHint("", "Connecting — this takes a few seconds…");
+    log(`Port: ${profile.label} (${profile.ids}).`);
+    if (profile.kind === "flipper") {
+      log("This looks like a Flipper Zero, not an ESP32 board. Flashing through it only works with its USB-UART Bridge running and the ESP32 already in bootloader mode.", "w");
+    }
+
+    let result = null, usedPort = port, lastErr = null, lost = false;
+    for (const step of connectPlan(profile)) {
+      log(step.note);
+      try {
+        result = await openLoader(port, profile, step.mode, step.attempts);
+        break;
+      } catch (err) {
+        lastErr = err;
+        if (isPortBusy(err)) break;
+        if (isPortGone(err, port)) { lost = true; break; }
+      }
+    }
+
+    if (!result && profile.native && !isPortBusy(lastErr)) {
+      log(lost ? "The board restarted — waiting for it to come back on USB…" : "Still no reply — trying once more…");
+      const again = await waitForPortAfterReset(port, 6000);
+      if (again) {
+        try {
+          await sleep(300);
+          result = await openLoader(again, classifyPort(again), "no_reset", 3);
+          usedPort = again;
+        } catch (err) {
+          lastErr = err;
+        }
+      } else {
+        lost = true;
+      }
+    }
+
+    busy = false;
+    if (result) {
+      await onConnected(result, usedPort, classifyPort(usedPort));
+      lockUi(false);
+    } else {
+      lockUi(false);
+      showConnectHelp(profile, lastErr, lost);
+    }
   }
 
   connectBtn.addEventListener("click", async () => {
+    if (busy || esploader) return;
+    let port;
     try {
-      const device = await navigator.serial.requestPort();
-      transport = new Transport(device, true);
-      const baudrate = parseInt($("baudRate").value, 10);
-      esploader = new ESPLoader({ transport, baudrate, terminal });
-
-      setStatus(null, "Connecting…");
-      const chip = await esploader.main();
-      log(`Connected. Detected chip: ${chip}`);
-      lastDetectedChip = chip;
-
-      const detectedFamily = detectChipFamily(chip);
-      const currentBoard = BOARD_MANIFEST[parseInt(boardSelect.value, 10)];
-      if (detectedFamily && currentBoard.chipFamily !== detectedFamily) {
-        const guessIndex = firstBoardIndexForFamily(detectedFamily);
-        if (guessIndex >= 0) {
-          boardSelect.value = guessIndex;
-          log(`Auto-selected board "${BOARD_MANIFEST[guessIndex].name}" based on detected chip (${detectedFamily}).`);
-          await loadBoard(guessIndex);
-        }
-      }
-
-      connectBtn.disabled = true;
-      disconnectBtn.disabled = false;
-      eraseBtn.disabled = false;
-
-      checkChipMismatch();
+      port = await navigator.serial.requestPort();
     } catch (err) {
-      log(`Connection failed: ${err.message || err}`, "e");
+      if (err && err.name === "NotFoundError") {
+        log("No port was selected.", "w");
+        setHint("warn", "No board was picked. Click <b>Connect</b> and choose your board in the list. Nothing listed? Try another cable or USB port — and for boards without a USB chip (like the Flipper Wi-Fi Dev Board): " + BOOTLOADER_STEPS);
+      } else {
+        log(`Could not open the port chooser: ${errText(err)}`, "e");
+      }
+      return;
+    }
+    try {
+      await connectToPort(port);
+    } catch (err) {
+      log(`Connection failed: ${errText(err)}`, "e");
+      await teardown();
       setStatus("error", "Connection failed");
     }
   });
 
   disconnectBtn.addEventListener("click", async () => {
-    try {
-      if (transport) await transport.disconnect();
-    } catch (err) {
-      log(`Disconnect error: ${err.message || err}`, "w");
-    }
-    esploader = null; transport = null;
-    lastDetectedChip = null; chipMismatch = false;
-    setStatus(null, "Not connected");
-    connectBtn.disabled = false;
-    disconnectBtn.disabled = true;
-    eraseBtn.disabled = true;
-    programBtn.disabled = true;
+    if (busy) return;
+    await teardown();
+    setHint("", HINT_IDLE);
     log("Disconnected.");
   });
 
   eraseBtn.addEventListener("click", async () => {
-    if (!esploader) return;
+    if (!esploader || busy) return;
     if (!confirm("This will fully erase the flash. Continue?")) return;
+    let failed = null;
+    lockUi(true);
     try {
-      eraseBtn.disabled = true; programBtn.disabled = true; connectBtn.disabled = true; disconnectBtn.disabled = true;
       log("Erasing flash…");
       progressWrap.classList.add("active");
       progressStage.textContent = "Erasing…";
@@ -747,16 +1118,102 @@ html { zoom: 80%; }
       progressFill.style.width = "100%";
       log("Erase complete.");
     } catch (err) {
-      log(`Erase failed: ${err.message || err}`, "e");
+      failed = err;
+      log(`Erase failed: ${errText(err)}`, "e");
     } finally {
       setTimeout(() => progressWrap.classList.remove("active"), 800);
-      eraseBtn.disabled = false; connectBtn.disabled = true; disconnectBtn.disabled = false;
-      updateProgramState();
+      busy = false;
+      if (failed && isPortGone(failed, activePort)) {
+        await teardown();
+        setHint("warn", "The board disconnected during the erase. " + BOOTLOADER_STEPS);
+      } else {
+        lockUi(false);
+      }
     }
   });
 
+  function md5Hex(bytes) {
+    const K = new Int32Array(64);
+    for (let i = 0; i < 64; i++) K[i] = Math.floor(Math.abs(Math.sin(i + 1)) * 4294967296) | 0;
+    const S = [7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21];
+    const len = bytes.length;
+    const total = (((len + 8) >>> 6) + 1) * 64;
+    const buf = new Uint8Array(total);
+    buf.set(bytes);
+    buf[len] = 0x80;
+    const dv = new DataView(buf.buffer);
+    dv.setUint32(total - 8, (len << 3) >>> 0, true);
+    dv.setUint32(total - 4, Math.floor(len / 0x20000000), true);
+    let a0 = 0x67452301, b0 = 0xefcdab89 | 0, c0 = 0x98badcfe | 0, d0 = 0x10325476;
+    const M = new Int32Array(16);
+    for (let off = 0; off < total; off += 64) {
+      for (let i = 0; i < 16; i++) M[i] = dv.getInt32(off + i * 4, true);
+      let A = a0, B = b0, C = c0, D = d0;
+      for (let i = 0; i < 64; i++) {
+        let F, g;
+        if (i < 16)      { F = (B & C) | (~B & D); g = i; }
+        else if (i < 32) { F = (D & B) | (~D & C); g = (5 * i + 1) & 15; }
+        else if (i < 48) { F = B ^ C ^ D;          g = (3 * i + 5) & 15; }
+        else             { F = C ^ (B | ~D);       g = (7 * i) & 15; }
+        F = (F + A + K[i] + M[g]) | 0;
+        A = D; D = C; C = B;
+        const s = S[(i >> 4) * 4 + (i & 3)];
+        B = (B + ((F << s) | (F >>> (32 - s)))) | 0;
+      }
+      a0 = (a0 + A) | 0; b0 = (b0 + B) | 0; c0 = (c0 + C) | 0; d0 = (d0 + D) | 0;
+    }
+    const out = new Uint8Array(16);
+    const odv = new DataView(out.buffer);
+    odv.setInt32(0, a0, true); odv.setInt32(4, b0, true); odv.setInt32(8, c0, true); odv.setInt32(12, d0, true);
+    return Array.from(out, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  async function pulseReset(holdMs, settleMs) {
+    await transport.setDTR(false);
+    await transport.setRTS(true);
+    await sleep(holdMs);
+    await transport.setRTS(false);
+    if (settleMs) await sleep(settleMs);
+  }
+
+  async function restartIntoFirmware() {
+    if (detectedFamily === "ESP32-S3") {
+      try { await esploader.writeReg(USB_OTG_RESET_REGS["ESP32-S3"].option1, 0, RTC_CNTL_FORCE_DOWNLOAD_BOOT_MASK); } catch (_) {}
+    }
+    const regs = portProfile && portProfile.kind === "usb-otg" ? USB_OTG_RESET_REGS[detectedFamily] : null;
+    if (regs) {
+      try {
+        const strap = await esploader.readReg(regs.strap);
+        const forceDl = await esploader.readReg(regs.option1);
+        if ((strap & GPIO_STRAP_SPI_BOOT_MASK) === 0 && (forceDl & RTC_CNTL_FORCE_DOWNLOAD_BOOT_MASK) === 0) {
+          log("Restarting the board with its watchdog timer…");
+          await esploader.writeReg(regs.wdtProtect, RTC_CNTL_WDT_WKEY);
+          await esploader.writeReg(regs.wdtConfig1, 2000);
+          await esploader.writeReg(regs.wdtConfig0, ((1 << 31) | (5 << 28) | (1 << 8) | 2) >>> 0);
+          try { await esploader.writeReg(regs.wdtProtect, 0); } catch (_) {}
+          await sleep(500);
+          return true;
+        }
+      } catch (err) {
+        log(`Automatic restart was not possible (${errText(err)}).`, "w");
+        return false;
+      }
+      try { await pulseReset(200, 200); return true; } catch (_) { return false; }
+    }
+    try {
+      log("Restarting the board…");
+      await pulseReset(100, 0);
+      return true;
+    } catch (err) {
+      log(`Automatic restart was not possible (${errText(err)}).`, "w");
+      return false;
+    }
+  }
+
   programBtn.addEventListener("click", async () => {
-    if (!esploader || !slots.every((s) => s.data)) return;
+    if (!esploader || busy || !slots.length || !slots.every((s) => s.data)) return;
+    const blocker = flashBlocker();
+    if (blocker) { log(blocker, "e"); return; }
 
     const fileArray = [];
     for (const s of slots) {
@@ -768,13 +1225,12 @@ html { zoom: 80%; }
       fileArray.push({ data: s.data, address });
     }
 
-    const flashMode = $("flashMode").value;
-    const flashFreq = $("flashFreq").value;
-    const flashSize = $("flashSize").value;
-    const eraseAll = $("eraseAll").value === "true";
-
     const flashOptions = {
-      fileArray, flashMode, flashFreq, flashSize, eraseAll,
+      fileArray,
+      flashMode: $("flashMode").value,
+      flashFreq: $("flashFreq").value,
+      flashSize: $("flashSize").value,
+      eraseAll: $("eraseAll").value === "true",
       compress: true,
       reportProgress: (fileIndex, written, total) => {
         const pct = Math.min(100, Math.round((written / total) * 100));
@@ -783,40 +1239,57 @@ html { zoom: 80%; }
         progressStage.textContent = `Writing ${slots[fileIndex]?.label || "file " + (fileIndex + 1)}…`;
       },
     };
+    if (esploader.IS_STUB) flashOptions.calculateMD5Hash = (image) => md5Hex(image);
 
+    const fox = firmwareMode === "fox";
+    const boardName = activeBoardIndex !== null ? BOARD_MANIFEST[activeBoardIndex].name : detectedFamily;
+    let ok = false, restarted = false, failure = null;
+    lockUi(true);
+    setHint("", "Flashing — keep this window in focus and don't unplug the board.");
     try {
-      programBtn.disabled = true; eraseBtn.disabled = true; disconnectBtn.disabled = true;
       progressWrap.classList.add("active");
       progressFill.style.width = "0%";
       progressPct.textContent = "0%";
-      log(`Flashing ${fileArray.length} file(s)…`);
+      log(`Flashing ${fileArray.length} file(s) to ${detectedFamily}…`);
 
       await esploader.writeFlash(flashOptions);
+      ok = true;
       progressStage.textContent = "Done";
-      log("Firmware flashed successfully. Resetting device…");
-      await esploader.after("hard_reset");
-      log("Device reset. Flash complete.");
-
-      esploader = null;
-      lastDetectedChip = null;
-      chipMismatch = false;
-      setStatus(null, "Rebooted — reconnect to flash again");
-      log("Device has rebooted into the new firmware. Click Disconnect, then Connect again if you want to flash or erase it a second time.", "w");
+      log(flashOptions.calculateMD5Hash ? "Firmware flashed and verified." : "Firmware flashed.");
+      restarted = await restartIntoFirmware();
     } catch (err) {
-      log(`Flashing failed: ${err.message || err}`, "e");
+      failure = err;
+      log(`Flashing failed: ${errText(err)}`, "e");
       progressStage.textContent = "Failed";
-    } finally {
-      setTimeout(() => progressWrap.classList.remove("active"), 1200);
-      eraseBtn.disabled = !esploader;
-      disconnectBtn.disabled = false;
-      updateProgramState();
+    }
+
+    setTimeout(() => progressWrap.classList.remove("active"), 1200);
+    busy = false;
+    await teardown();
+    if (ok) {
+      setStatus(null, "Flash complete");
+      const what = fox ? `Fox ESP32 Firmware v${FOX_FIRMWARE_VERSION}` : "Your firmware";
+      setHint("ok", restarted
+        ? `<b>Done!</b> ${what} is installed on your ${detectedLabelFor(boardName)}. The board is restarting — if it doesn't come up, press <b>RESET</b> once or unplug it and plug it back in.`
+        : `<b>Done!</b> ${what} is installed on your ${detectedLabelFor(boardName)}. Press <b>RESET</b> on the board (or unplug it and plug it back in) to start it.`);
+      log(restarted
+        ? "Flash complete. The board is restarting into the new firmware."
+        : "Flash complete. Press RESET on the board, or unplug and replug it, to start the new firmware.", restarted ? undefined : "w");
+    } else {
+      setStatus("error", "Flashing failed");
+      setHint("err", `Flashing didn't finish: ${escapeHtml(errText(failure))}. The board isn't damaged — click <b>Connect</b> and try again. If it won't connect: ` + BOOTLOADER_STEPS);
     }
   });
 
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  }
+  function detectedLabelFor(name) { return escapeHtml(name || "board"); }
+
   tabFoxBtn.textContent = "Fox ESP32 Firmware v" + FOX_FIRMWARE_VERSION;
   setActiveTab("fox");
-  log("Ready. Select a board, connect your ESP32, and load firmware files.");
-  loadBoard(0);
+  log("Ready. Plug in your ESP32 and click Connect — the board is detected automatically.");
+  loadBoard(null);
 </script>
 <button id="backTop" aria-label="Back to top">↑</button>
 
