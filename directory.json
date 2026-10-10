@@ -8,73 +8,73 @@
         {
           "version": "2.0.13",
           "changelog": "",
-          "timestamp": 1791621870,
+          "timestamp": 1791623371,
           "files": [
             {
               "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-firmware-foxfw-v2.0.13.elf",
               "target": "f7",
               "type": "firmware_elf",
-              "sha256": "6794f30c301948e46ac5cd273dcfaad71e504f9ea60a08aa47eefac6680e1cfe"
+              "sha256": "3072165f4de66828b3e2e8c226793dad4a3c84e9fdbffd155fdfc0cffa3f1c71"
             },
             {
               "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-full-foxfw-v2.0.13.bin",
               "target": "f7",
               "type": "full_bin",
-              "sha256": "d4651c0a7f1d517db2d5c013fe08537ea28d907eb79aee7f7dcf4e4f411bf87a"
+              "sha256": "f0c760dce7c675d67b21c339e309997f5fbd1d97c8289bdc842b6772326d4631"
             },
             {
               "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-full-foxfw-v2.0.13.dfu",
               "target": "f7",
               "type": "full_dfu",
-              "sha256": "a2fd51bfba7da964769231cb2372751fc52f4483a98f030fce24cd1bb1d52b3e"
+              "sha256": "9d1f6ac64b765666d973f2049bf5103cfe7c51fb140328f94b109d2fa9ef28c0"
             },
             {
               "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-full-foxfw-v2.0.13.json",
               "target": "f7",
               "type": "full_json",
-              "sha256": "655a583c5c6625348c795783a16e85ad0974e77dbddde8cb3a1d967e954b8db3"
+              "sha256": "884817f9a09b705cb46045886f7a784c0fcf75415958daa8c3eb2a0a6d11938a"
             },
             {
               "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-sdk-foxfw-v2.0.13.zip",
               "target": "f7",
               "type": "sdk_zip",
-              "sha256": "d3cf749d29f19172d7d28b88c09f1c7bd2519e56d67e7cb437f34b7d2f592a3f"
+              "sha256": "66cd5190933d0096d9c0711a5e14cc3dc8efd4a7993d46e9dcc2922fcc30e1e0"
             },
             {
               "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-update-foxfw-v2.0.13.tar",
               "target": "f7",
               "type": "update_tar",
-              "sha256": "39c7498999d7598cd9d9fcc64f2132d9c5e36aa14054ebc2f74aff8e7c90df4b"
+              "sha256": "160b75e4edfd78dfd508429169b3a50d3e865b327b827108b09e2577aff55078"
             },
             {
               "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-update-foxfw-v2.0.13.tgz",
               "target": "f7",
               "type": "update_tgz",
-              "sha256": "2fb9dc7f9387441ca0831684130a24e4b8eb0b26bd7fd198e0f6b2947027967e"
+              "sha256": "955ae6b43dbc4970f5e406e5d15dc956d614d7d43100ecf1b315e1bada6aec34"
             },
             {
               "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-updater-foxfw-v2.0.13.bin",
               "target": "f7",
               "type": "updater_bin",
-              "sha256": "08712553cb8e39b1470d0ab3d4c7abf922c74d86de5576ca38e37968655f1c8a"
+              "sha256": "1c43abbb55cfc084378c9b8c98df2c3441df80916d865ff833b4dfaa628562ff"
             },
             {
               "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-updater-foxfw-v2.0.13.dfu",
               "target": "f7",
               "type": "updater_dfu",
-              "sha256": "0b7998a9abd9d17e2068e4d9152520698efa2ba6162ac476210860fc0e6d6509"
+              "sha256": "b4fdc81592209050ff60aef486c1a0ba6b96636bbcbfa3ae0fd70330e3f38752"
             },
             {
               "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-updater-foxfw-v2.0.13.elf",
               "target": "f7",
               "type": "updater_elf",
-              "sha256": "b8f94cf565e72964ee934b8ad449759424471699cfd8e078279be2caf16a317a"
+              "sha256": "73cda3a0ce496e52c008f6c95b58e638ab88c9dd92db859c22693abd442a643f"
             },
             {
               "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-updater-foxfw-v2.0.13.json",
               "target": "f7",
               "type": "updater_json",
-              "sha256": "655a583c5c6625348c795783a16e85ad0974e77dbddde8cb3a1d967e954b8db3"
+              "sha256": "884817f9a09b705cb46045886f7a784c0fcf75415958daa8c3eb2a0a6d11938a"
             }
           ]
         },
