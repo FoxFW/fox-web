@@ -277,25 +277,52 @@ class FlipperRPC {
     const id = this.nextCommandId++;
     const total = Math.ceil(bytes.length / FLIPPER_WRITE_CHUNK_SIZE) || 1;
     let sent = 0;
+    const STALL_MS = 20000;
+    const entry = { resolve: null, reject: null, timer: null };
     const promise = new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
-        this.pending.delete(id);
-        reject(new Error("Timed out waiting for the Flipper to confirm the write."));
-      }, 20000);
-      this.pending.set(id, { resolve, reject, timer });
+      entry.resolve = resolve;
+      entry.reject = reject;
     });
-    for (let offset = 0; offset < bytes.length || sent === 0; offset += FLIPPER_WRITE_CHUNK_SIZE) {
-      const chunk = bytes.slice(offset, offset + FLIPPER_WRITE_CHUNK_SIZE);
-      const hasNext = offset + FLIPPER_WRITE_CHUNK_SIZE < bytes.length;
-      const message = this.MainType.create({
-        command_id: id,
-        has_next: hasNext,
-        storage_write_request: { path: path, file: { data: chunk } },
-      });
-      await this.writeRaw(this.MainType.encodeDelimited(message).finish());
-      sent++;
-      if (onProgress) onProgress(sent, total);
-      if (!hasNext) break;
+    const armStall = () => {
+      clearTimeout(entry.timer);
+      entry.timer = setTimeout(() => {
+        this.pending.delete(id);
+        entry.reject(
+          new Error(
+            "The Flipper stopped responding during the write (no progress for " +
+              STALL_MS / 1000 +
+              "s) \u2014 it may have rebooted or disconnected. Reconnect and try again."
+          )
+        );
+      }, STALL_MS);
+    };
+    armStall();
+    this.pending.set(id, entry);
+    try {
+      for (let offset = 0; offset < bytes.length || sent === 0; offset += FLIPPER_WRITE_CHUNK_SIZE) {
+        const chunk = bytes.slice(offset, offset + FLIPPER_WRITE_CHUNK_SIZE);
+        const hasNext = offset + FLIPPER_WRITE_CHUNK_SIZE < bytes.length;
+        const message = this.MainType.create({
+          command_id: id,
+          has_next: hasNext,
+          storage_write_request: { path: path, file: { data: chunk } },
+        });
+        await this.writeRaw(this.MainType.encodeDelimited(message).finish());
+        sent++;
+        armStall();
+        if (onProgress) onProgress(sent, total);
+        if (!hasNext) break;
+      }
+    } catch (e) {
+      clearTimeout(entry.timer);
+      this.pending.delete(id);
+      throw new Error(
+        "Lost the connection to the Flipper while writing " +
+          path +
+          " \u2014 it likely rebooted mid-transfer. Reconnect and run the install again. [" +
+          (e && e.message ? e.message : e) +
+          "]"
+      );
     }
     const response = await promise;
     if (response.command_status !== 0) {

@@ -102,7 +102,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
   <div class="tb-left">
     <div class="logo">🦊 <span>FoxFW</span> v2.0</div>
     <div class="badge">WEB INSTALLER</div>
-    <div class="badge rec" id="fwver" style="cursor:default">v2.0.12</div>
+    <div class="badge rec" id="fwver" style="cursor:default">v2.0.13</div>
   </div>
   <div class="tb-status">
     <div class="dot off" id="dot"></div>
@@ -120,6 +120,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
 <div class="wrap">
   <div class="notice warn" id="n-compat"></div>
   <div class="notice warn" id="n-qflipper" style="display:none"><strong>⚠ Close qFlipper first!</strong> qFlipper locks the Flipper's COM port.</div>
+  <div class="notice warn" id="n-linux" style="display:none"><strong>⚠ Linux: USB serial permission</strong><br>Your browser can't open the Flipper's port until your user is allowed to. In a terminal run <code>sudo usermod -aG dialout $USER</code>, then <strong>log out and back in</strong> (or reboot). If it still won't connect, add a udev rule: <code>echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="0483", MODE="0666"' | sudo tee /etc/udev/rules.d/42-flipper.rules</code> then <code>sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger</code>, unplug/replug the Flipper, and try again.</div>
+  <div class="notice tip" id="n-cable" style="display:none"><strong>Connection checklist:</strong> use a <strong>data</strong> USB cable (not charge-only), pick <strong>your Flipper</strong> in the browser's device dialog, make sure it's powered on at the desktop, and close any other app using it (qFlipper, serial monitors).</div>
   <div class="notice warn" id="n-error" style="display:none"></div>
   <div class="mrow">
     <div class="mc sel" id="mc-tgz" onclick="selMethod('tgz')">
@@ -374,7 +376,7 @@ function showErr(msg) {
   n.classList.add('show'); n.style.display = '';
 }
 function clearNotices() {
-  ['n-error','n-qflipper'].forEach(id => { $(id).classList.remove('show'); $(id).style.display='none'; });
+  ['n-error','n-qflipper','n-linux','n-cable'].forEach(id => { $(id).classList.remove('show'); $(id).style.display='none'; });
 }
 function selMethod(m) {
   method = m;
@@ -592,6 +594,16 @@ async function doFlashTGZ() {
   try { await doDisconnect(); } catch {}
 }
 
+function getOS() {
+  const p = ((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || '').toLowerCase();
+  if (p.includes('android')) return 'android';
+  if (p.includes('win')) return 'windows';
+  if (p.includes('mac') || p.includes('iphone') || p.includes('ipad')) return 'mac';
+  if (p.includes('cros')) return 'cros';
+  if (p.includes('linux')) return 'linux';
+  return 'other';
+}
+
 async function doConnect(m) {
   if (busy) return;
   if (m) selMethod(m);
@@ -613,9 +625,16 @@ async function doConnect(m) {
     $('fwcard').scrollIntoView({ behavior:'smooth', block:'start' });
   } catch (err) {
     let msg = err.message || String(err);
-    if (msg.includes('Failed to open') || msg.includes('already open') || msg.includes('Access is denied')) {
+    const os = getOS();
+    const portBusy = msg.includes('Failed to open') || msg.includes('already open') ||
+                     msg.includes('Access is denied') || msg.includes('access denied') ||
+                     msg.includes('NetworkError') || msg.includes('busy');
+    if (os === 'linux') {
+      $('n-linux').style.display = '';
+    } else if (portBusy) {
       $('n-qflipper').style.display = '';
     }
+    $('n-cable').style.display = '';
     showErr(msg); log('Connect failed: ' + msg, 'er');
     connUI('off','Connection failed','See error above');
     reportStat('fail', 'connect', method==='dfu' ? 'dfu' : 'tgz', customFile ? 'custom' : fwVersion());
