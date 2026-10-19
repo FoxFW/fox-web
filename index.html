@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -243,9 +243,189 @@ html { zoom: 80%; }
 
   .fixed { color: #88ccff; font-style: italic; }
   .cfg   { color: var(--accent); }
+
+  /* ---------- top scroll progress bar ---------- */
+  #foxProgress {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+    background: linear-gradient(90deg, var(--orange), #ff9a3c, var(--purple));
+    box-shadow: 0 0 14px rgba(157, 75, 255, 0.7), 0 0 10px rgba(232, 117, 10, 0.5);
+    z-index: 2000;
+    transition: width 0.08s linear;
+  }
+
+  /* ---------- sticky section bar ---------- */
+  .foxbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1500;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 10px 22px;
+    background: rgba(16, 16, 18, 0.86);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 16px 36px -24px rgba(0, 0, 0, 0.95);
+    transform: translateY(-115%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .foxbar::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+    background: linear-gradient(90deg, var(--orange), var(--purple));
+  }
+  .foxbar.show { transform: translateY(0); }
+  .foxbar .sec {
+    display: flex; align-items: center; gap: 12px; min-width: 0;
+    font-size: 0.86rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  }
+  .foxbar .sec b {
+    font-weight: 800; letter-spacing: 0.5px;
+    background: linear-gradient(90deg, var(--orange), var(--accent-alt));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+  }
+  .foxbar .sec i {
+    font-style: normal; color: #cfcfcf; padding-left: 14px;
+    border-left: 1px solid rgba(157, 75, 255, 0.45);
+    overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* ---------- hamburger ---------- */
+  .fox-burger {
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 5px; width: 42px; height: 34px; padding: 0; flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 9px;
+    background: linear-gradient(135deg, rgba(232, 117, 10, 0.32), rgba(157, 75, 255, 0.32));
+    cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .fox-burger span { display: block; width: 18px; height: 2px; border-radius: 2px; background: #fff; transition: transform 0.3s ease, opacity 0.25s ease; }
+  .fox-burger:hover { transform: translateY(-1px); box-shadow: 0 8px 20px -10px rgba(157, 75, 255, 0.55); }
+  .fox-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .fox-burger.open span:nth-child(2) { opacity: 0; }
+  .fox-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ---------- heading drawer ---------- */
+  .fox-overlay {
+    position: fixed; inset: 0; z-index: 1600;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .fox-overlay.show { opacity: 1; visibility: visible; }
+
+  .fox-drawer {
+    position: fixed; top: 0; left: 0; bottom: 0; z-index: 1700;
+    width: 348px; max-width: 88vw;
+    display: flex; flex-direction: column; overflow: hidden;
+    background: linear-gradient(160deg, rgba(45, 45, 45, 0.97) 0%, rgba(24, 24, 24, 0.98) 100%);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    box-shadow: 26px 0 60px -30px rgba(0, 0, 0, 0.95), 0 0 70px -24px rgba(157, 75, 255, 0.35);
+    transform: translateX(-103%);
+    transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .fox-drawer.show { transform: translateX(0); }
+  .fox-drawer::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--orange), var(--purple)); }
+
+  .fox-drawer-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 20px 14px; flex-shrink: 0;
+    border-bottom: 1px solid rgba(157, 75, 255, 0.3);
+  }
+  .fox-drawer-head b {
+    font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase;
+    background: linear-gradient(90deg, var(--accent), var(--accent-alt));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .fox-drawer-close {
+    width: 30px; height: 30px; border-radius: 8px; cursor: pointer;
+    background: none; border: 1px solid rgba(255, 255, 255, 0.18); color: #ddd;
+    font-size: 0.95rem; line-height: 1; transition: background 0.2s ease, color 0.2s ease;
+  }
+  .fox-drawer-close:hover { background: rgba(157, 75, 255, 0.3); color: #fff; }
+
+  .fox-drawer-nav { flex: 1 1 auto; overflow-y: auto; padding: 12px 12px 32px; scrollbar-width: thin; }
+  .fox-drawer-nav ol { list-style: none; padding: 0; margin: 0; }
+  .fox-drawer-nav li { list-style: none; margin: 2px 0; }
+  .fox-drawer-nav a {
+    display: block; padding: 8px 12px; border-radius: 9px;
+    color: #cfcfcf; text-decoration: none; font-size: 0.9rem;
+    border-left: 2px solid transparent;
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, padding-left 0.18s ease;
+  }
+  .fox-drawer-nav a:hover {
+    background: linear-gradient(90deg, rgba(232, 117, 10, 0.2) 0%, rgba(157, 75, 255, 0.16) 100%);
+    color: #fff; border-left-color: var(--orange); padding-left: 16px;
+  }
+  .fox-drawer-nav a.current {
+    background: linear-gradient(90deg, rgba(232, 117, 10, 0.3) 0%, rgba(157, 75, 255, 0.26) 100%);
+    color: #fff; font-weight: 700; border-left-color: var(--purple);
+    text-shadow: 0 0 16px rgba(157, 75, 255, 0.6);
+  }
+  .fox-drawer-nav .sub { padding-left: 14px; margin: 2px 0 6px; }
+  .fox-drawer-nav .sub li { margin: 0; }
+  .fox-drawer-nav .sub a { font-size: 0.82rem; padding: 5px 12px; color: #a9a9a9; }
+
+  body.lock { overflow: hidden; }
+
+  /* ---------- floating hero image ---------- */
+  .hero-art {
+    margin: 26px auto 12px;
+    max-width: 400px;
+    border-radius: 20px;
+    padding: 5px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.08) 45%, rgba(255, 255, 255, 0.45) 100%);
+    box-shadow: 0 26px 55px -18px rgba(0, 0, 0, 0.55), 0 0 70px -12px rgba(157, 75, 255, 0.55), 0 0 70px -20px rgba(232, 117, 10, 0.45);
+    animation: heroFloat 7s ease-in-out infinite;
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+  }
+  .hero-art:hover {
+    transform: translateY(-6px) scale(1.015);
+    box-shadow: 0 34px 70px -18px rgba(0, 0, 0, 0.6), 0 0 90px -10px rgba(157, 75, 255, 0.7), 0 0 90px -18px rgba(232, 117, 10, 0.6);
+  }
+  .hero-art img { display: block; width: 100%; height: auto; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.22); }
+  @keyframes heroFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+
+  .index li a.current {
+    color: #fff; font-weight: 700;
+    text-shadow: 0 0 14px var(--accent-alt), 0 0 26px rgba(232, 117, 10, 0.55);
+  }
+  .section h2 { transition: text-shadow 0.25s ease, letter-spacing 0.25s ease; }
+  .section h2:hover { text-shadow: 0 0 26px rgba(157, 75, 255, 0.55), 0 0 40px rgba(232, 117, 10, 0.35); letter-spacing: 0.5px; }
+  .chapter-label { background: linear-gradient(90deg, var(--accent), var(--accent-alt)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+  .reveal.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.2, 0.7, 0.3, 1); }
+  .reveal.reveal.in { opacity: 1; transform: none; }
+
+  ::selection { background: rgba(157, 75, 255, 0.45); color: #fff; }
+  ::-moz-selection { background: rgba(157, 75, 255, 0.45); color: #fff; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-art { animation: none; }
+    .reveal.reveal { opacity: 1; transform: none; transition: none; }
+    .foxbar { transition: none; }
+  }
 </style>
+<link rel="stylesheet" href="assets/css/fox-theme-v2.css">
 </head>
 <body>
+
+<div id="foxProgress"></div>
+
+<div class="foxbar" id="foxbar">
+  <button class="fox-burger" id="foxBurger" aria-label="Open headings menu" aria-expanded="false" aria-controls="foxDrawer">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="sec">
+    <b>FOXFW GUIDE</b>
+    <i id="foxbarSec">Complete User Guide</i>
+  </div>
+</div>
+
+<div class="fox-overlay" id="foxOverlay"></div>
+
+<aside class="fox-drawer" id="foxDrawer" aria-hidden="true" aria-label="All headings">
+  <div class="fox-drawer-head">
+    <b>All Headings</b>
+    <button class="fox-drawer-close" id="foxDrawerClose" aria-label="Close menu">✕</button>
+  </div>
+  <div class="fox-drawer-nav" id="foxDrawerNav"></div>
+</aside>
 
 <header class="hero">
   <div class="hero-inner" style="text-align:center;">
@@ -256,6 +436,9 @@ html { zoom: 80%; }
       💬 Join our Discord
     </a>
     <h1>Complete User Guide</h1>
+    <div class="hero-art">
+      <img src="assets/img/hero-banner.jpg" alt="FoxFW red and purple banner">
+    </div>
     <p style="margin:0 auto;">
       FoxFW is a custom Flipper Zero firmware built from the ground up for
       power users who want enhanced security, a smarter file browser,
@@ -2537,6 +2720,103 @@ html { zoom: 80%; }
   document.getElementById('backTop').addEventListener('click', function () {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+
+  var progress = document.getElementById('foxProgress');
+  var foxbar = document.getElementById('foxbar');
+  var foxbarSec = document.getElementById('foxbarSec');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.section[id]'));
+  var currentId = null;
+
+  function updateScroll() {
+    var h = document.documentElement;
+    var y = window.scrollY || h.scrollTop;
+    var max = h.scrollHeight - h.clientHeight;
+    progress.style.width = (max > 0 ? (y / max) * 100 : 0) + '%';
+
+    if (y > 320) foxbar.classList.add('show');
+    else foxbar.classList.remove('show');
+
+    var best = null;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i].offsetTop - 140 <= y) best = sections[i];
+    }
+    if (!best) best = sections[0];
+
+    if (best && best.id !== currentId) {
+      currentId = best.id;
+      var head = best.querySelector('h2');
+      foxbarSec.textContent = head ? head.textContent : 'Complete User Guide';
+      markCurrent(best.id);
+    }
+  }
+  window.addEventListener('scroll', updateScroll, { passive: true });
+  window.addEventListener('resize', updateScroll);
+
+  /* ---- headings drawer ---- */
+  var drawer = document.getElementById('foxDrawer');
+  var overlay = document.getElementById('foxOverlay');
+  var burger = document.getElementById('foxBurger');
+  var drawerNav = document.getElementById('foxDrawerNav');
+  var tocCols = document.querySelector('.index .cols');
+
+  if (tocCols) {
+    var tocClone = tocCols.cloneNode(true);
+    var subs = tocClone.querySelectorAll('.sub');
+    for (var s = 0; s < subs.length; s++) subs[s].parentNode.removeChild(subs[s]);
+    drawerNav.appendChild(tocClone);
+  }
+
+  function openDrawer() {
+    drawer.classList.add('show');
+    overlay.classList.add('show');
+    burger.classList.add('open');
+    document.body.classList.add('lock');
+    burger.setAttribute('aria-expanded', 'true');
+    drawer.setAttribute('aria-hidden', 'false');
+  }
+  function closeDrawer() {
+    drawer.classList.remove('show');
+    overlay.classList.remove('show');
+    burger.classList.remove('open');
+    document.body.classList.remove('lock');
+    burger.setAttribute('aria-expanded', 'false');
+    drawer.setAttribute('aria-hidden', 'true');
+  }
+  burger.addEventListener('click', function () {
+    if (drawer.classList.contains('show')) closeDrawer();
+    else openDrawer();
+  });
+  overlay.addEventListener('click', closeDrawer);
+  document.getElementById('foxDrawerClose').addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDrawer(); });
+  drawerNav.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('a[href^="#"]')) closeDrawer();
+  });
+
+  /* ---- highlight current heading in TOC + drawer ---- */
+  var tocLinks = Array.prototype.slice.call(
+    document.querySelectorAll('.index a[href^="#"], #foxDrawerNav a[href^="#"]')
+  );
+  function markCurrent(id) {
+    for (var j = 0; j < tocLinks.length; j++) {
+      if (tocLinks[j].getAttribute('href') === '#' + id) tocLinks[j].classList.add('current');
+      else tocLinks[j].classList.remove('current');
+    }
+  }
+
+  /* ---- scroll-reveal ---- */
+  if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var targets = document.querySelectorAll('.section, .index, .box, .mod-card, .flow-step, .key-row, table, .setting');
+    for (var r = 0; r < targets.length; r++) targets[r].classList.add('reveal');
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { entry.target.classList.add('in'); io.unobserve(entry.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    for (var k = 0; k < targets.length; k++) io.observe(targets[k]);
+  }
+
+  updateScroll();
 </script>
 
 </body>
