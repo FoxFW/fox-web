@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fox ESP32 Firmware — Complete User Guide</title>
 <style>
+html { zoom: 80%; }
+*{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
+*::-webkit-scrollbar{width:9px;height:9px}
+*::-webkit-scrollbar-track{background-color:transparent}
+*::-webkit-scrollbar-thumb{background-color:#3a3a3a;border-radius:20px;border:2px solid transparent;background-clip:padding-box}
+*::-webkit-scrollbar-thumb:hover{background-color:var(--orange,var(--fox))}
+*::-webkit-scrollbar-corner{background-color:transparent}
+
+#backTop{position:fixed;bottom:24px;right:24px;width:52px;height:52px;background:var(--orange,var(--fox));color:#fff;font-size:1.5rem;line-height:1;border:none;border-radius:50%;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;transition:transform .15s ease,filter .15s ease}
+#backTop.show{display:flex}
+#backTop:hover{filter:brightness(1.12);transform:translateY(-2px)}
+
   :root {
     --orange: #e8750a;
     --dark:   #1a1a1a;
@@ -25,7 +37,6 @@
     padding: 0 0 80px;
   }
 
-  /* ── Hero header ─────────────────────────────────────────────────────── */
   .hero {
     background: linear-gradient(135deg, #b85500 0%, var(--orange) 60%, #ff9a3c 100%);
     color: #fff;
@@ -54,10 +65,8 @@
   }
   .hero .support-note a { color: #ffe0b0; }
 
-  /* ── Layout ──────────────────────────────────────────────────────────── */
   .content { max-width: 860px; margin: 0 auto; padding: 48px 24px 0; }
 
-  /* ── Index / TOC ─────────────────────────────────────────────────────── */
   .index {
     background: var(--mid);
     border: 1px solid var(--border);
@@ -85,7 +94,6 @@
   .index .sub { list-style: disc; padding-left: 18px; margin: 4px 0 6px; }
   .index .sub li { font-size: 0.88rem; margin: 3px 0; }
 
-  /* ── Chapter labels ──────────────────────────────────────────────────── */
   .chapter-label {
     font-size: 0.78rem;
     text-transform: uppercase;
@@ -94,7 +102,6 @@
     margin-bottom: 4px;
   }
 
-  /* ── Section ─────────────────────────────────────────────────────────── */
   .section { margin-bottom: 64px; }
   .section h2 {
     font-size: 1.5rem;
@@ -121,7 +128,6 @@
   .section ol { padding-left: 22px; color: #ccc; margin-bottom: 13px; }
   .section ol li { margin: 6px 0; }
 
-  /* ── Setting rows ────────────────────────────────────────────────────── */
   .setting {
     background: var(--mid);
     border-left: 3px solid var(--orange);
@@ -134,7 +140,6 @@
   .setting .values { font-size: 0.88rem; color: #999; margin-top: 6px; }
   .setting .values span { color: #d0d0d0; }
 
-  /* ── Key shortcut chips ──────────────────────────────────────────────── */
   .keys { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
   .key-row {
     background: var(--mid);
@@ -158,7 +163,6 @@
   }
   .key-desc { color: #bbb; font-size: 0.9rem; }
 
-  /* ── Boxes ───────────────────────────────────────────────────────────── */
   .box {
     border-radius: 6px;
     padding: 14px 18px;
@@ -173,7 +177,6 @@
   .box.alert { background: #2d0f0f; border: 1px solid #7a2020; color: #f0a0a0; }
   .box strong { font-weight: 700; }
 
-  /* ── Badge ───────────────────────────────────────────────────────────── */
   .badge {
     display: inline-block;
     background: var(--new);
@@ -189,13 +192,11 @@
   .badge.gated { background: #a05000; }
   .badge.s2 { background: #7a2020; }
 
-  /* ── Tables ──────────────────────────────────────────────────────────── */
   table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.9rem; }
   th { background: #333; color: var(--accent); padding: 9px 12px; text-align: left; }
   td { padding: 8px 12px; border-bottom: 1px solid #333; color: #ccc; }
   tr:last-child td { border-bottom: none; }
 
-  /* ── App/module cards ────────────────────────────────────────────────── */
   .mod-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
@@ -207,7 +208,6 @@
   .mod-card .mtype { font-size: 0.82rem; color: #888; margin-top: 2px; }
   .mod-card .muse  { font-size: 0.85rem; color: #bbb; margin-top: 5px; }
 
-  /* ── Menu tree ───────────────────────────────────────────────────────── */
   .menu-tree {
     background: #111;
     border: 1px solid #444;
@@ -223,7 +223,6 @@
   }
   .menu-tree .hl { color: var(--accent); }
 
-  /* ── Flow steps ──────────────────────────────────────────────────────── */
   .flow { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
   .flow-step {
     background: var(--mid);
@@ -238,7 +237,6 @@
   .flow-step .n { color: var(--accent); font-weight: 700; display: block; font-size: 0.82rem; margin-bottom: 2px; }
   .arrow { align-self: center; color: #555; font-size: 1.2rem; }
 
-  /* ── Code ────────────────────────────────────────────────────────────── */
   code {
     background: #111;
     border: 1px solid #444;
@@ -261,10 +259,8 @@
   pre.cmd-block .c { color: #6a6a6a; }
   pre.cmd-block .r { color: #80c890; }
 
-  /* ── Divider ─────────────────────────────────────────────────────────── */
   .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
 
-  /* ── Back to top ─────────────────────────────────────────────────────── */
   .back-top { text-align: right; margin-top: 32px; }
   .back-top a {
     color: var(--orange);
@@ -279,7 +275,6 @@
 </head>
 <body>
 
-<!-- ══════════════════ HERO ══════════════════ -->
 <header class="hero">
   <div class="hero-inner" style="text-align:center;">
     <div class="version" style="display:inline-block;">🦊 Fox ESP32 Firmware</div>
@@ -301,7 +296,6 @@
 
 <div class="content">
 
-<!-- ══════════════════ TABLE OF CONTENTS ══════════════════ -->
 <nav class="index" id="top">
   <h2>Contents</h2>
   <div class="cols">
@@ -310,7 +304,7 @@
       <li><a href="#web-flasher">Web Installer</a>
         <ul class="sub">
           <li><a href="#board-select">Choosing your board</a></li>
-          <li><a href="#chip-mismatch">Chip-mismatch protection</a></li>
+          <li><a href="#chip-mismatch">Wrong-board protection</a></li>
         </ul>
       </li>
       <li><a href="#hardware">Hardware Setup</a>
@@ -320,7 +314,7 @@
         </ul>
       </li>
       <li><a href="#detector">Fox ESP32 Detector</a></li>
-      <li><a href="#commander">Fox ESP32 Commander</a>
+      <li><a href="#commander">FoxHub</a>
         <ul class="sub">
           <li><a href="#cmd-firstrun">First run &amp; detection</a></li>
           <li><a href="#cmd-wifi">WiFi menu</a></li>
@@ -333,6 +327,7 @@
     </ol>
     <ol start="6">
       <li><a href="#chat">Fox Chat</a></li>
+      <li><a href="#ai-chat">Fox AI Chat</a></li>
       <li><a href="#portal">Fox Portal</a></li>
       <li><a href="#update-downloader">Fox Update Downloader</a>
         <ul class="sub">
@@ -350,7 +345,8 @@
           <li><a href="#file-downloader-wifi">WiFi, Recon &amp; Attacks</a></li>
         </ul>
       </li>
-      <li><a href="#wifi-icon">Status Bar WiFi Icon</a></li>
+      <li><a href="#deflock">FoxDeFlock</a></li>
+      <li><a href="#wifi-icon">Status Bar WiFi / CC1101 Icon</a></li>
       <li><a href="#commands">Full Command Reference</a>
         <ul class="sub">
           <li><a href="#cmd-wifi-recon">WiFi recon &amp; attacks</a></li>
@@ -358,6 +354,7 @@
           <li><a href="#cmd-http-ref">HTTP / internet bridge</a></li>
           <li><a href="#cmd-script-ref">FoxScript</a></li>
           <li><a href="#cmd-discord-ref">FoxChat / Discord</a></li>
+          <li><a href="#cmd-ai-ref">Fox AI Chat / Gemini</a></li>
           <li><a href="#cmd-portal-ref">FoxPortal</a></li>
           <li><a href="#cmd-hw-ref">RFID / Sub-GHz / IR / GPS</a></li>
         </ul>
@@ -369,8 +366,6 @@
   </div>
 </nav>
 
-
-<!-- ══════════════════ 1 · ABOUT ══════════════════ -->
 <section class="section" id="about">
   <div class="chapter-label">Chapter 1</div>
   <h2>About Fox ESP32 Firmware</h2>
@@ -406,7 +401,7 @@
       <div class="muse">Diagnostic tool — tells you which GPIO pins and baud rate your ESP32 is actually wired/talking on.</div>
     </div>
     <div class="mod-card">
-      <div class="mname">Fox ESP32 Commander</div>
+      <div class="mname">FoxHub</div>
       <div class="mtype">Flipper app</div>
       <div class="muse">The main control app — WiFi, Bluetooth, Tag Detection, Scripts, Settings, Terminal.</div>
     </div>
@@ -433,7 +428,7 @@
     <div class="mod-card">
       <div class="mname">Fox Update Downloader</div>
       <div class="mtype">Flipper app</div>
-      <div class="muse">Checks GitHub for newer FoxFW2.0 and Fox ESP32 Firmware releases, downloads them over the ESP32 bridge, and hands off to install — see <a href="#update-downloader" style="color:inherit;">Chapter 8</a>.</div>
+      <div class="muse">Checks GitHub for newer FoxFW2.0 and Fox ESP32 Firmware releases, downloads them over the ESP32 bridge, and hands off to install — see <a href="#update-downloader" style="color:inherit;">Chapter 9</a>.</div>
     </div>
   </div>
 
@@ -452,8 +447,6 @@
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 2 · WEB FLASHER ══════════════════ -->
 <section class="section" id="web-flasher">
   <div class="chapter-label">Chapter 2</div>
   <h2>Web Installer</h2>
@@ -485,60 +478,60 @@
 
   <h3 id="board-select">Choosing your board</h3>
   <p>
-    The flasher's <strong>Model</strong> dropdown currently lists two board
-    targets. Pick the one that matches your actual ESP32 hardware — flashing
-    the wrong image for your chip family will not work (see the
-    chip-mismatch protection below, which exists specifically to catch this
-    before it happens).
+    You don't have to. The <strong>Model</strong> dropdown starts on
+    <strong>Auto-detect on connect</strong>: when you click Connect, the
+    flasher asks the chip what it is and loads the matching Fox firmware for
+    you. Leave it on auto unless you have a reason not to.
   </p>
   <table>
-    <tr><th>Board entry</th><th>Chip family</th><th>Bootloader address</th></tr>
-    <tr><td><strong>Fox ESP32 (Classic)</strong></td><td>ESP32</td><td><code>0x1000</code></td></tr>
-    <tr><td><strong>Fox ESP32-S3</strong></td><td>ESP32-S3</td><td><code>0x0</code></td></tr>
+    <tr><th>Model entry</th><th>Chip</th><th>Bootloader address</th></tr>
+    <tr><td><strong>ESP32-S2 — Flipper Wi-Fi Dev Board (official)</strong></td><td>ESP32-S2</td><td><code>0x1000</code></td></tr>
+    <tr><td><strong>ESP32 (original) — WROOM / WROVER / ESP32-CAM</strong></td><td>ESP32</td><td><code>0x1000</code></td></tr>
+    <tr><td><strong>ESP32-S3</strong></td><td>ESP32-S3</td><td><code>0x0</code></td></tr>
+    <tr><td><strong>ESP32-C3</strong></td><td>ESP32-C3</td><td><code>0x0</code></td></tr>
+    <tr><td><strong>ESP32-C5</strong></td><td>ESP32-C5</td><td><code>0x2000</code></td></tr>
+    <tr><td><strong>ESP32-C6</strong></td><td>ESP32-C6</td><td><code>0x0</code></td></tr>
   </table>
   <p>
-    Both boards flash the same four files — <strong>Bootloader</strong>,
+    Every board flashes the same four files — <strong>Bootloader</strong>,
     <strong>Partitions</strong>, <strong>Boot App0</strong>, and
     <strong>Firmware</strong> — at the same addresses except for the
-    bootloader itself, whose address differs by chip family (classic ESP32
-    boots its bootloader from a different flash offset than S-series/C-series
-    chips do). If the board's firmware set isn't hosted online yet, the
-    flasher tells you so in the console and lets you pick each of the four
-    <code>.bin</code> files manually from your computer instead.
+    bootloader itself, whose address differs by chip family. The flasher
+    fills these in for you.
   </p>
   <div class="box info">
-    <strong>ESP32-C3/C6/C2/C5/H2 and other variants</strong> aren't listed as
-    ready-made board entries yet, but the underlying firmware is expected to
-    work on them (same Arduino APIs via arduino-esp32's RISC-V toolchain
-    support) — see <a href="#hardware" style="color:inherit;">Hardware Setup</a>
-    for what changes per chip. If you compile for one of these yourself, you
-    can still flash it with this tool using the manual file picker; just pick
-    the correct bootloader address for your chip.
+    <strong>The official Flipper Wi-Fi Dev Board is an ESP32-S2</strong>, not
+    an "ESP32 Dev Module". It has no USB-to-serial chip, so it has to be put
+    in bootloader mode by hand before the browser can see it: hold
+    <strong>BOOT</strong>, tap <strong>RESET</strong>, release
+    <strong>BOOT</strong>, then click Connect.
   </div>
 
   <h3>Step by step</h3>
   <ol>
     <li>Open the Web Flasher link above in Chrome or Edge on desktop.</li>
-    <li>Pick your board in the <strong>Model</strong> dropdown.</li>
-    <li>If prompted, choose each of the four firmware files manually (Bootloader / Partitions / Boot App0 / Firmware) — these are the files you built with Arduino IDE's <strong>Sketch → Export Compiled Binary</strong>, see <a href="#hardware" style="color:inherit;">Hardware Setup</a>.</li>
-    <li>Plug your ESP32 into your computer via USB and set the <strong>Baud rate</strong> dropdown (defaults to 115200 — leave this as-is unless you know you need otherwise).</li>
+    <li>Plug your ESP32 into your computer with a USB <strong>data</strong> cable. Flipper Wi-Fi Dev Board: hold <strong>BOOT</strong>, tap <strong>RESET</strong>, release <strong>BOOT</strong>.</li>
     <li>Click <strong>Connect</strong> and pick your device from the browser's own serial port picker.</li>
-    <li>Once connected, confirm the detected chip matches your selected board (the flasher checks this automatically).</li>
-    <li>Click <strong>Program</strong>. A progress bar tracks each of the four files as they're written.</li>
-    <li>When it finishes, the ESP32 resets automatically. The flasher then locks Program/Erase again until you disconnect and reconnect — this is expected, not an error.</li>
+    <li>The flasher identifies the chip, selects the matching board and downloads the Fox firmware for it. The hint under the Connect button tells you when it's ready.</li>
+    <li>Click <strong>Program</strong>. A progress bar tracks each of the four files as they're written, and each one is read back and verified.</li>
+    <li>When it finishes, the board restarts into the new firmware and the flasher disconnects. If the board doesn't come up, press <strong>RESET</strong> once or unplug and replug it.</li>
   </ol>
-
-  <h3 id="chip-mismatch">Chip-mismatch protection</h3>
   <p>
-    When you click Connect, the flasher reads back the ESP32's own
-    self-reported chip identity and compares it against the board you
-    selected. If they don't match, the status pill turns red, the console
-    explains exactly what was selected versus what was detected, and the
-    <strong>Program</strong> button is disabled so you can't accidentally
-    write a classic-ESP32 image to an S3 board (or vice versa) — mismatched
-    firmware for the wrong chip family simply won't boot. <strong>Erase</strong>
-    stays available even on a mismatch, since erasing doesn't write anything
-    board-specific and can help you start clean if you picked wrong.
+    To flash your own build instead, switch to the <strong>Select Custom
+    Firmware Files</strong> tab and choose each of the four files
+    (the ones Arduino IDE's <strong>Sketch → Export Compiled Binary</strong>
+    produces, see <a href="#hardware" style="color:inherit;">Hardware Setup</a>).
+  </p>
+
+  <h3 id="chip-mismatch">Wrong-board protection</h3>
+  <p>
+    The chip that answers on the port always decides which firmware is used.
+    If you picked a model by hand and it doesn't match the connected chip,
+    the flasher switches to the right one and says so in the console; while
+    a board is connected it won't let you switch to another chip's firmware.
+    Custom files are checked too: an image built for a different chip is
+    refused before anything is written, because it would leave the board
+    unable to start.
   </p>
 
   <h3>Erasing the flash</h3>
@@ -547,6 +540,21 @@
     a confirmation prompt first. This is useful if a previous flash left the
     board in a bad state, or before switching a board between firmware
     projects.
+  </p>
+
+  <h3 id="web-statistics">Statistics</h3>
+  <p>
+    At the bottom of the Web Flasher there is a <strong>Statistics</strong>
+    bar. Click it to see how many installs have finished, by month, day,
+    country, chip, firmware version, connection type, operating system and
+    browser, and where failed attempts stopped. Use <strong>&lt;</strong> and
+    <strong>&gt;</strong> to move between months. The same panel is on the
+    FoxFW Web Installer and the FAP Compiler, where it also lists the most
+    compiled and most recently compiled apps.
+  </p>
+  <p>
+    The numbers are public and anonymous: each install adds one to a counter.
+    No IP addresses, cookies, device IDs or personal details are stored.
   </p>
 
   <h3 id="fox-esp32-flasher">Flashing via Flipper Zero (no PC required)</h3>
@@ -590,8 +598,6 @@
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 3 · HARDWARE SETUP ══════════════════ -->
 <section class="section" id="hardware">
   <div class="chapter-label">Chapter 3</div>
   <h2>Hardware Setup</h2>
@@ -601,7 +607,7 @@
     The Flipper and the ESP32 talk over a plain 4-wire UART connection — no
     special adapter needed, just jumper wires from the Flipper's GPIO header
     to the ESP32's RX/TX/GND/5V (or 3V3) pins. Every Flipper-side app in this
-    project (Detector, Commander, Fox Chat, Fox Portal) probes the
+    project (Detector, FoxHub, Fox Chat, Fox Portal) probes the
     <strong>same two standard pin pairs</strong> automatically at boot, so as
     long as you wire into one of these two pairs, every app will find your
     ESP32 without any manual configuration:
@@ -645,7 +651,7 @@
       Tag Detection) replies with a plain error instead of failing silently,
       so it's always obvious when you're on an S2 board.
     </div>
-    <div class="values">Applies to: <span>the Bluetooth menu and Tag Detection menu in Fox ESP32 Commander</span></div>
+    <div class="values">Applies to: <span>the Bluetooth menu and Tag Detection menu in FoxHub</span></div>
   </div>
 
   <h3 id="peripherals">Optional add-on hardware</h3>
@@ -697,8 +703,6 @@
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 4 · DETECTOR ══════════════════ -->
 <section class="section" id="detector">
   <div class="chapter-label">Chapter 4</div>
   <h2>Fox ESP32 Detector</h2>
@@ -708,7 +712,7 @@
     which baud rate, and — where it can tell — which firmware. There's no
     menu, no configuration, and nothing is saved. Point it at a freshly
     wired board when you're not sure the wiring is right, or when Fox ESP32
-    Commander reports "not detected" and you want to know why.
+    FoxHub reports "not detected" and you want to know why.
   </p>
 
   <h3>How it works</h3>
@@ -755,11 +759,9 @@
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 5 · COMMANDER ══════════════════ -->
 <section class="section" id="commander">
   <div class="chapter-label">Chapter 5</div>
-  <h2>Fox ESP32 Commander</h2>
+  <h2>FoxHub</h2>
   <p>
     The main control app for the firmware — WiFi, Bluetooth, item-tracker
     detection, automation scripts, the safety toggle, and a raw Terminal, all
@@ -803,8 +805,8 @@
   </div>
   <div class="box info">
     <strong>Global default <span class="badge">New</span>:</strong> Fox
-    Settings now has its own <strong>ESP32 UART Pins</strong> toggle (13/14
-    or 15/16) that's shared across Commander, Terminal, Flasher, and the
+    Settings now has its own <strong>ESP32 UART</strong> toggle (13/14
+    or 15/16) that's shared across FoxHub, Terminal, Flasher, and the
     built-in UART Terminal. Changing the pin pair from any one of those
     apps' own Connect Settings updates this same shared default — so once
     you've told one app which pins you wired, the others start from that
@@ -812,7 +814,7 @@
   </div>
 
   <p><strong>Main menu:</strong></p>
-  <div class="menu-tree">Fox ESP32 Commander
+  <div class="menu-tree">FoxHub
 ├── <span class="hl">WiFi</span>
 ├── <span class="hl">Bluetooth</span>
 ├── <span class="hl">Tag Detection</span>
@@ -820,7 +822,6 @@
 ├── <span class="hl">Settings</span>
 └── <span class="hl">Terminal</span></div>
 
-  <!-- WIFI MENU -->
   <h3 id="cmd-wifi">WiFi menu</h3>
   <div class="menu-tree">WiFi
 ├── Connect / Connection   <span style="color:#888">(label changes based on live connection state)</span>
@@ -867,7 +868,7 @@
     <strong>This is the menu that drives your Flipper's own status bar WiFi
     icon.</strong> Every Connect/Disconnect/Forget/Status action here updates
     a small status file on your SD card that the Flipper's desktop polls —
-    see <a href="#wifi-icon" style="color:inherit;">Status Bar WiFi Icon</a>.
+    see <a href="#wifi-icon" style="color:inherit;">Status Bar WiFi / CC1101 Icon</a>.
     Fox Chat and Fox Portal don't touch this file — they just use whatever
     WiFi connection is already active.
   </div>
@@ -934,7 +935,6 @@
     so rather than doing nothing silently.
   </div>
 
-  <!-- BLUETOOTH MENU -->
   <h3 id="cmd-bluetooth">Bluetooth menu</h3>
   <p>
     This menu is BLE spam only — five gated items, each cycling a
@@ -955,7 +955,6 @@
     from Terminal but don't have a dedicated menu screen in this app.
   </div>
 
-  <!-- TAG DETECTION -->
   <h3 id="cmd-tags">Tag Detection menu</h3>
   <div class="menu-tree">Tag Detection
 ├── AirTag / Find My
@@ -978,7 +977,6 @@
     itself can't distinguish which exact product sent it.
   </div>
 
-  <!-- SCRIPTS -->
   <h3 id="cmd-scripts">Scripts menu</h3>
   <p>
     Lists every script currently saved on the ESP32, plus a trailing
@@ -995,7 +993,6 @@
     full language reference.
   </div>
 
-  <!-- SETTINGS + TERMINAL -->
   <h3 id="cmd-settings">Settings &amp; Terminal</h3>
   <div class="setting">
     <div class="name">Settings — Attacks: ON/OFF, Expert Mode: ON/OFF</div>
@@ -1026,15 +1023,13 @@
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 6 · FOX CHAT ══════════════════ -->
 <section class="section" id="chat">
   <div class="chapter-label">Chapter 6</div>
   <h2>Fox Chat</h2>
   <p>
     Post to and read from a Discord text channel, straight from your
     Flipper's screen, using your ESP32's internet connection. You'll need an
-    active WiFi connection (set up via Fox ESP32 Commander's WiFi menu) —
+    active WiFi connection (set up via FoxHub's WiFi menu) —
     nothing else to configure.
   </p>
 
@@ -1080,7 +1075,7 @@
 
   <h3>Content moderation — what's protected and what isn't</h3>
   <ul>
-    <li>Every outgoing message is checked against a built-in word/phrase filter before sending (toggle in Fox ESP32 Commander's Settings — on by default). It's plain word-matching, not spacing- or leetspeak-aware, so it can occasionally false-positive on an innocent word that contains a blocked substring.</li>
+    <li>Every outgoing message is checked against a built-in word/phrase filter before sending (toggle in FoxHub's Settings — on by default). It's plain word-matching, not spacing- or leetspeak-aware, so it can occasionally false-positive on an innocent word that contains a blocked substring.</li>
     <li>Mentions are always sent inert — <code>@everyone</code>, <code>@here</code>, and role pings render as plain text and can't actually ping anyone, regardless of what you type.</li>
     <li>A short minimum gap is enforced between posts to prevent accidental flooding.</li>
     <li><strong>Discord's own AutoMod does not see bot-posted messages</strong> — AutoMod only scans human-account messages, so whatever protections your server has configured there won't apply here. The built-in filter above is the only thing standing between what you type and the channel.</li>
@@ -1090,10 +1085,67 @@
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 7 · FOX PORTAL ══════════════════ -->
-<section class="section" id="portal">
+<section class="section" id="ai-chat">
   <div class="chapter-label">Chapter 7</div>
+  <h2>Fox AI Chat</h2>
+  <p>
+    Chat with Google Gemini directly from your Flipper's screen, using your
+    ESP32's WiFi connection. You'll need an active WiFi connection (set up
+    via FoxHub's WiFi menu) — nothing else to configure, no API
+    key to enter.
+  </p>
+
+  <div class="menu-tree">Fox AI Chat
+├── Post Message to AI
+├── Read AI Chat
+└── Clear Chat</div>
+
+  <div class="setting">
+    <div class="name">Post Message to AI</div>
+    <div class="desc">
+      Opens the keyboard for your message. If you've messaged within the
+      last 60 seconds, you'll see a <strong>Message Limit</strong> screen
+      instead — a progress bar counting up to the 60-second mark, with a
+      Back button below it. It jumps straight to the keyboard the instant
+      the cooldown clears. Once sent, a progress screen walks through
+      <em>Sending Message...</em> then <em>Receiving Reply...</em> before
+      dropping you into the chat log with your exchange at the bottom.
+    </div>
+  </div>
+  <div class="setting">
+    <div class="name">Read AI Chat</div>
+    <div class="desc">
+      Shows the full conversation in a scrolling terminal view, titled
+      "AI CHAT", scrolled to the most recent messages. Everything you've
+      ever sent and every reply is saved permanently to
+      <code>chat.ai</code> on the SD card — your messages appear as
+      <code>&lt;YourFlipperName&gt;: &lt;message&gt;</code>, replies as
+      <code>FOX-AI: &lt;reply&gt;</code>.
+    </div>
+  </div>
+  <div class="setting">
+    <div class="name">Clear Chat</div>
+    <div class="desc">
+      Deletes <code>chat.ai</code> and starts a fresh one, stamped with the
+      date and time it was created. This is the third menu item — since
+      only two show on screen at once, scroll down to reach it.
+    </div>
+  </div>
+
+  <div class="box info">
+    <strong>No API key, no setup.</strong> Every FoxFW device talks to the
+    same shared Gemini relay FoxFW runs, the same pattern Fox Chat uses for
+    Discord — the real Gemini API key lives only on that relay server, never
+    on your ESP32 or Flipper. A 60-second cooldown between messages is
+    enforced both on the ESP32 and, as a backstop, on the relay itself, to
+    keep the shared quota available for everyone.
+  </div>
+
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+<section class="section" id="portal">
+  <div class="chapter-label">Chapter 8</div>
   <h2>Fox Portal</h2>
   <p>
     Stands up an open WiFi network with a small enquiry-form landing page —
@@ -1248,17 +1300,15 @@
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 8 · UPDATE DOWNLOADER ══════════════════ -->
 <section class="section" id="update-downloader">
-  <div class="chapter-label">Chapter 8</div>
+  <div class="chapter-label">Chapter 9</div>
   <h2>Fox Update Downloader</h2>
   <p>
     Checks GitHub for newer releases of both FoxFW and Fox ESP32 Firmware,
     downloads whichever one you pick, and hands off straight to install —
     no PC, no browser, no manual file copying. Because the Flipper itself has
     no internet connection of its own, this app reaches GitHub over your
-    already-wired ESP32 the same way Fox ESP32 Commander does — it needs the
+    already-wired ESP32 the same way FoxHub does — it needs the
     same UART wiring and a WiFi network for the ESP32 to join.
   </p>
 
@@ -1341,16 +1391,14 @@
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 9 · FOX FILE DOWNLOADER ══════════════════ -->
 <section class="section" id="file-downloader">
-  <div class="chapter-label">Chapter 9</div>
+  <div class="chapter-label">Chapter 10</div>
   <h2>Fox File Downloader</h2>
   <p>
     Downloads files onto your SD card over the ESP32's internet connection —
     a direct URL, a browsable App Catalog, or a <code>.fap</code> straight off
     a GitHub repo — plus its own WiFi menu for connecting, scanning, and (if
-    Attacks is on) the same recon/attack tools as Fox ESP32 Commander.
+    Attacks is on) the same recon/attack tools as FoxHub.
   </p>
 
   <div class="menu-tree">Fox File Downloader
@@ -1484,7 +1532,7 @@
   <p>
     The main menu's <strong>Settings</strong> item goes straight here — this
     app doesn't have a separate Connect Settings screen reachable from the
-    menu the way Commander does. Four rows, Left/Right to cycle, saved
+    menu the way FoxHub does. Four rows, Left/Right to cycle, saved
     automatically on every change:
   </p>
   <div class="setting">
@@ -1510,16 +1558,15 @@
 
   <h3 id="file-downloader-wifi">WiFi, Recon &amp; Attacks</h3>
   <p>
-    Same shared WiFi module as <a href="#commander" style="color:#80c890;">Fox
-    ESP32 Commander</a> — full network connect/manage plus Recon and (if
+    Same shared WiFi module as <a href="#commander" style="color:#80c890;">FoxHub</a> — full network connect/manage plus Recon and (if
     enabled) Attacks, not a trimmed-down "just connect" menu. The main menu's
     WiFi item disappears once you're connected, replaced by nothing (there's
-    no menu-level shortcut to the Connection submenu here the way Commander
+    no menu-level shortcut to the Connection submenu here the way FoxHub
     has one) — reopen WiFi from Terminal/Settings context if you need to
     check status without disconnecting.
   </p>
   <div class="menu-tree">WiFi
-├── Connect / Connection   <span style="color:#888">(same as Commander — see Chapter 5)</span>
+├── Connect / Connection   <span style="color:#888">(same as FoxHub — see Chapter 5)</span>
 ├── My IP
 ├── Recon
 │     ├── Scan APs
@@ -1539,61 +1586,134 @@
       └── Probe Flood</div>
   <div class="box info">
     Every screen, file format, and gated-behind-Attacks rule here is
-    identical to Commander's WiFi menu — see <a href="#cmd-wifi" style="color:inherit;">Chapter
+    identical to FoxHub's WiFi menu — see <a href="#cmd-wifi" style="color:inherit;">Chapter
     5's WiFi menu</a> for the full breakdown (Wardrive's CSV columns, Packet
     Capture's <code>.pcap</code> format, saved-network handling, and so on).
-    Attacks is turned on and off from Fox ESP32 Commander's Settings screen —
+    Attacks is turned on and off from FoxHub's Settings screen —
     it's one shared toggle stored on the ESP32 itself, not per-app.
   </div>
 
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 10 · WIFI ICON ══════════════════ -->
-<section class="section" id="wifi-icon">
-  <div class="chapter-label">Chapter 10</div>
-  <h2>Status Bar WiFi Icon</h2>
+<section class="section" id="deflock">
+  <div class="chapter-label">Chapter 11</div>
+  <h2>FoxDeFlock</h2>
   <p>
-    Your Flipper's own desktop status bar shows a small WiFi icon,
-    immediately to the left of the battery indicator, reflecting your
-    ESP32's connection state as last reported by Fox ESP32 Commander's WiFi
-    menu.
+    A Flock Safety / ALPR (automatic license plate reader) camera detector,
+    using your ESP32 as the WiFi/BLE radio. Based on
+    <a href="https://github.com/ReconGrunt/FlipDeFlock" target="_blank" rel="noopener">FlipDeFlock</a>
+    by ReconGrunt (GPL-3.0-or-later) — this port reuses FlipDeFlock's
+    OUI/SSID confidence-scoring and BLE-advert decoding logic verbatim,
+    rebuilt against Fox ESP32 Firmware's own command set instead of
+    FlipDeFlock's Marauder-based backend.
+  </p>
+
+  <h3>Setup</h3>
+  <p>
+    Requires Fox ESP32 Firmware wired via UART at 115200 baud (standard Fox
+    pinout). On launch the app checks for an ESP32; if it isn't found, you
+    get an <strong>ESP32 not found</strong> screen with <strong>Settings</strong>
+    (pick which UART pin pair to use — 13/14 or 15/16) and
+    <strong>Retry</strong> buttons. Nothing destructive happens if no ESP32
+    is present — the app just never sees any hits.
+  </p>
+
+  <h3>Scanning</h3>
+  <p>
+    Once connected, FoxDeFlock rotates through three scan modes every
+    ~8.5 seconds, shown in the top-right corner of the hit list:
+  </p>
+  <table>
+    <tr><th>Mode</th><th>What it scans</th></tr>
+    <tr><td><strong>WiFi:Probe</strong></td><td>WiFi probe requests</td></tr>
+    <tr><td><strong>WiFi:Beacon</strong></td><td>WiFi beacon frames</td></tr>
+    <tr><td><strong>BLE:Flock</strong></td><td>Flock external-battery BLE adverts (<code>BLETAGSCAN:FLOCK</code>)</td></tr>
+  </table>
+  <p>
+    Each hit is shown as a single row: source (WiFi/BLE), the last two MAC
+    bytes, an SSID or BLE name if one was broadcast, and a confidence code
+    (<code>CONF</code>/<code>FP?</code>/<code>LIKE</code>/<code>POSS</code>).
+    Up and Down move the selection; <strong>OK</strong> on a hit opens its
+    detail screen (full MAC, confidence, device class, source, SSID/BLE
+    name, channel/RSSI for WiFi or RSSI for BLE, and a sightings count);
+    <strong>hold OK</strong> from the hit list opens an About screen with
+    attribution. Back returns to the previous screen from either.
+  </p>
+
+  <div class="box info">
+    <strong>Precision rule.</strong> FlipDeFlock's core rule carries over
+    unchanged: a bare OUI-prefix match is never shown as a detection on its
+    own, since those address ranges are shared silicon-vendor blocks and
+    would false-positive on ordinary hardware. A hit only counts once
+    corroborated by a Flock-shaped SSID, or when the SSID alone is enough.
+  </div>
+
+  <div class="box warn">
+    <strong>Known v1 limitations:</strong> no Raven-vs-Falcon GATT
+    disambiguation (Fox ESP32 FW's <code>BLETAGSCAN:FLOCK</code> doesn't yet
+    surface BLE service UUIDs, so BLE hits report as a generic Flock battery
+    unit rather than either model by name); no GPS/mapping, no "guardian"
+    continuous-monitoring mode, no deflock.me QR handoff, no
+    signature-database sync, and no Marauder-flashing UI — FoxDeFlock only
+    ever talks to Fox ESP32 Firmware.
+  </div>
+
+  <div class="back-top"><a href="#top">↑ Back to top</a></div>
+</section>
+
+<section class="section" id="wifi-icon">
+  <div class="chapter-label">Chapter 12</div>
+  <h2>Status Bar WiFi / CC1101 Icon</h2>
+  <p>
+    Your Flipper's own desktop status bar shows a small icon, immediately to
+    the left of the battery indicator, that does double duty: it reflects
+    your ESP32's WiFi connection state as last reported by Fox ESP32
+    FoxHub's WiFi menu, and — only when WiFi isn't connected — whether
+    Sub-GHz Garage/Gate/Other has found an external CC1101 module attached.
+    See the
+    <a href="FoxFW_Help.html#mode-picker" style="color:#80c890;">FoxFW2.0
+    guide</a> for what the CC1101 module itself does.
   </p>
   <table>
     <tr><th>State</th><th>Appearance</th></tr>
-    <tr><td><strong>Connected</strong></td><td>Three bold, solid ascending bars</td></tr>
-    <tr><td><strong>Disconnected / idle</strong></td><td>The same three bars, drawn as thin lines instead of solid — still visible, not an error indicator</td></tr>
+    <tr><td><strong>WiFi connected</strong></td><td>Three bold, solid ascending bars — always shown first, regardless of the CC1101 module</td></tr>
+    <tr><td><strong>WiFi not connected, CC1101 module connected</strong></td><td>A small antenna glyph</td></tr>
+    <tr><td><strong>Neither connected</strong></td><td>The same three bars, drawn as thin lines instead of solid — still visible, not an error indicator</td></tr>
   </table>
   <div class="box info">
     <strong>How this actually works.</strong> The Flipper's desktop can't
     talk to the ESP32 directly while a Fox app has the serial connection
     open, so instead it polls a small status file on your SD card every two
-    seconds. Only Fox ESP32 Commander's WiFi menu writes that file — Fox
-    Chat and Fox Portal just use whatever WiFi connection already exists and
-    never change it, so the icon only ever reflects actions taken through
-    Commander's WiFi menu, updated within a couple of seconds of you taking
-    them.
+    seconds for the WiFi half. Only FoxHub's WiFi menu writes
+    that file — Fox Chat and Fox Portal just use whatever WiFi connection
+    already exists and never change it, so that half only ever reflects
+    actions taken through FoxHub's WiFi menu, updated within a couple of
+    seconds of you taking them. The CC1101 half polls a second, separate
+    status file the same way, kept fresh by a small background probe app —
+    see the CC1101 paragraph under
+    <a href="FoxFW_Help.html#mode-picker" style="color:#80c890;">Sub-Ghz
+    Mode</a> in the FoxFW2.0 guide for exactly when that probe runs.
   </div>
   <p>
     The icon stays visible even when disconnected on purpose — if it vanished
     entirely, someone who hasn't discovered the Fox ESP32 apps yet would have
-    no hint that this feature exists at all.
+    no hint that this feature exists at all. You can hide it entirely from
+    Settings → Desktop → <strong>WiFi/CC1101 Icon</strong> — that one toggle
+    hides both halves together, not just WiFi.
   </p>
 
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 11 · FULL COMMAND REFERENCE ══════════════════ -->
 <section class="section" id="commands">
-  <div class="chapter-label">Chapter 11</div>
+  <div class="chapter-label">Chapter 13</div>
   <h2>Full Command Reference</h2>
   <p>
     Every command the firmware understands, sent over serial at
     <strong>115200 baud</strong>. You'll rarely need to type these by hand —
-    Fox ESP32 Commander, Fox Chat, and Fox Portal send them for you — but
-    they're all reachable from Commander's <strong>Terminal</strong> screen
+    FoxHub, Fox Chat, and Fox Portal send them for you — but
+    they're all reachable from FoxHub's <strong>Terminal</strong> screen
     if you want raw access, and knowing them helps make sense of what each
     menu action is actually doing.
   </p>
@@ -1643,8 +1763,8 @@
 
   <h4>Wardriving &amp; packet capture</h4>
   <table>
-    <tr><td><code>WIFIWARDRIVE</code></td><td>AP scan tagged with your current GPS fix (needs the optional GPS module). Commander logs results to <code>/ext/apps_data/fox_esp32/wardrive/wardrive_&lt;YYYY-MM-DD&gt;.csv</code> — columns <code>bssid,ssid,latitude,longitude,rssi,channel,encryption_type,timestamp</code>.</td></tr>
-    <tr><td><code>WIFIPCAP</code></td><td>15-second raw capture, hopping channels 1–11 every 400ms. Commander saves a standard <code>.pcap</code> to <code>/ext/apps_data/fox_esp32/captures/capture_&lt;timestamp&gt;.pcap</code> — opens directly in Wireshark. Frames truncated to 256 bytes, capped at 150 frames per capture.</td></tr>
+    <tr><td><code>WIFIWARDRIVE</code></td><td>AP scan tagged with your current GPS fix (needs the optional GPS module). FoxHub logs results to <code>/ext/apps_data/fox_esp32/wardrive/wardrive_&lt;YYYY-MM-DD&gt;.csv</code> — columns <code>bssid,ssid,latitude,longitude,rssi,channel,encryption_type,timestamp</code>.</td></tr>
+    <tr><td><code>WIFIPCAP</code></td><td>15-second raw capture, hopping channels 1–11 every 400ms. FoxHub saves a standard <code>.pcap</code> to <code>/ext/apps_data/fox_esp32/captures/capture_&lt;timestamp&gt;.pcap</code> — opens directly in Wireshark. Frames truncated to 256 bytes, capped at 150 frames per capture.</td></tr>
   </table>
 
   <h4>WiFi attacks <span class="badge gated">gated</span></h4>
@@ -1696,6 +1816,7 @@
     <tr><td><code>BLETAGSCAN:FINDMY</code></td><td>8s scan for Apple Find My broadcasts (AirTag and any other Find My accessory — the protocol can't tell them apart) → <code>TAG:FINDMY:&lt;mac&gt; rssi:&lt;n&gt; batt:&lt;full|medium|low|verylow|unknown&gt;</code></td></tr>
     <tr><td><code>BLETAGSCAN:SMARTTAG</code></td><td>8s scan for Samsung SmartTag broadcasts → <code>TAG:SMARTTAG:&lt;mac&gt; rssi:&lt;n&gt;</code></td></tr>
     <tr><td><code>BLETAGSCAN:TILE</code></td><td>8s scan for Tile broadcasts → <code>TAG:TILE:&lt;mac&gt; rssi:&lt;n&gt;</code></td></tr>
+    <tr><td><code>BLETAGSCAN:FLOCK</code></td><td>8s scan for Flock Safety external-battery BLE adverts (used by FoxDeFlock) → <code>TAG:FLOCK:&lt;mac&gt; rssi:&lt;n&gt; name:"&lt;name&gt;" mfg:&lt;hex&gt;</code></td></tr>
   </table>
   <p>Each ends with <code>TAGSCANDONE:&lt;count&gt;</code>. A match means a tag is broadcasting nearby right now — it is not a history of whether something has been following you.</p>
 
@@ -1767,7 +1888,7 @@
     HTTPS requests do not validate the server's certificate (<code>setInsecure()</code> — no root CA store). Fine for casual API calls; don't route sensitive credentials through it.
   </div>
   <div class="box warn">
-    Known gaps against real FlipperHTTP, kept deliberately rather than missed: <code>[WIFI/LIST]</code> doesn't leak saved passwords (see above), <code>[WIFI/AP]</code> doesn't implement the blocking AP-bridge loop some apps expect, and <code>[GET/BYTES]</code>/<code>[POST/BYTES]</code> are still base64 rather than raw-byte streaming. Deauth-style commands some third-party apps ship their own buttons for (e.g. FlipWiFi's <code>[DEAUTH]</code>) aren't part of the real FlipperHTTP protocol either — use Fox ESP32 Commander's own WiFi Attacks menu for that instead.
+    Known gaps against real FlipperHTTP, kept deliberately rather than missed: <code>[WIFI/LIST]</code> doesn't leak saved passwords (see above), <code>[WIFI/AP]</code> doesn't implement the blocking AP-bridge loop some apps expect, and <code>[GET/BYTES]</code>/<code>[POST/BYTES]</code> are still base64 rather than raw-byte streaming. Deauth-style commands some third-party apps ship their own buttons for (e.g. FlipWiFi's <code>[DEAUTH]</code>) aren't part of the real FlipperHTTP protocol either — use FoxHub's own WiFi Attacks menu for that instead.
   </div>
 
   <h3 id="cmd-script-ref">FoxScript</h3>
@@ -1829,12 +1950,32 @@ repeat (3) {
   </table>
   <p>Reads reply with one <code>DISCORDMSG:&lt;HH:MM&gt;|&lt;full date and time&gt;|&lt;content&gt;</code> line per message (oldest first), ending with <code>DISCORDREADDONE</code>.</p>
 
+  <h3 id="cmd-ai-ref">Fox AI Chat (Gemini relay)</h3>
+  <table>
+    <tr><th>Command</th><th>What it does</th></tr>
+    <tr><td><code>AIASK:&lt;message&gt;</code></td><td>Sends your message to the Gemini relay and waits for a reply → <code>AIREPLY:&lt;text&gt;</code> (newlines escaped as <code>\n</code>), or one of the errors below</td></tr>
+    <tr><td><code>AICOOLDOWN</code></td><td>Reports remaining cooldown seconds without making any network call → <code>COOLDOWN:&lt;n&gt;</code> (0 if clear to send)</td></tr>
+  </table>
+  <p>
+    <code>AIASK</code> errors: <code>ERROR:NOWIFI</code>, <code>ERROR:EMPTY</code>,
+    <code>ERROR:RATELIMIT:&lt;seconds&gt;</code> (still cooling down — the ESP32
+    enforces this itself before ever reaching the relay), <code>ERROR:BLOCKED</code>
+    (Gemini's own safety filter), <code>ERROR:NOREPLY</code>, or
+    <code>ERROR:HTTP:&lt;code&gt;</code>.
+  </p>
+  <div class="box info">
+    Same shared-relay pattern as Fox Chat's Discord bridge — the real Gemini
+    API key lives only in a small relay server FoxFW runs, never on your
+    ESP32 or Flipper. A 60-second cooldown between messages is enforced both
+    by the ESP32 itself and, as a backstop, by the relay server.
+  </div>
+
   <h3 id="cmd-portal-ref">Fox Portal</h3>
   <table>
     <tr><td><code>WIFIFOXPORTAL:START:&lt;ssid&gt;:&lt;date&gt;</code></td><td>Starts the portal (both arguments can be left blank)</td></tr>
     <tr><td><code>WIFIFOXPORTAL:STOP</code></td><td>Stops the access point, DNS redirect, and web server</td></tr>
     <tr><td><code>WIFIFOXPORTAL:EXPORTLOG</code></td><td>Streams every queued submission back as sequence-numbered <code>LOGFILE:&lt;name&gt;:&lt;count&gt;</code> / <code>LOGLINE:&lt;seq&gt;:&lt;content&gt;</code> / <code>LOGFILEEND:&lt;name&gt;:&lt;count&gt;</code> lines ending in <code>LOGDONE:&lt;files&gt;:&lt;lines&gt;</code> (or just <code>LOGEMPTY</code> if nothing's queued). Deletes nothing by itself. Fox Portal's own menu calls this for you - see "Submission logging" in Chapter 7.</td></tr>
-    <tr><td><code>WIFIFOXPORTAL:EXPORTCONFIRM</code></td><td>Deletes exactly the files most recently sent by <code>EXPORTLOG</code>, replies <code>OK</code>. The Flipper app only sends this after verifying every count/sequence number above and safely writing the data to its own SD card - see the verification note in Chapter 7.</td></tr>
+    <tr><td><code>WIFIFOXPORTAL:EXPORTCONFIRM</code></td><td>Deletes exactly the files most recently sent by <code>EXPORTLOG</code>, replies <code>OK</code>. The Flipper app only sends this after verifying every count/sequence number above and safely writing the data to its own SD card - see the verification note in Chapter 8.</td></tr>
     <tr><td><code>WIFIFOXPORTAL:SETTITLE:&lt;text&gt;</code></td><td>Sets the page heading (built-in default page only)</td></tr>
     <tr><td><code>WIFIFOXPORTAL:SETINTRO:&lt;text&gt;</code></td><td>Sets the intro paragraph (built-in default page only)</td></tr>
     <tr><td><code>WIFIFOXPORTAL:SETNOTE:&lt;text&gt;</code></td><td>Sets the closing note on the confirmation page (built-in default only)</td></tr>
@@ -1842,7 +1983,7 @@ repeat (3) {
     <tr><td><code>WIFIFOXPORTAL:SETPAGE:THANKS:&lt;html&gt;</code></td><td>Full override of the confirmation page (supports <code>{{FIELD:&lt;name&gt;}}</code> placeholders)</td></tr>
     <tr><td><code>WIFIFOXPORTAL:QR</code></td><td>Returns WiFi-join text for the currently active SSID</td></tr>
   </table>
-  <p>These commands are gated behind <code>SETTINGS:ATTACKS:ON</code>. See Chapter 7 for the full behavior of each — the Fox Portal app is the intended way to drive all of this.</p>
+  <p>These commands are gated behind <code>SETTINGS:ATTACKS:ON</code>. See Chapter 8 for the full behavior of each — the Fox Portal app is the intended way to drive all of this.</p>
 
   <h3 id="cmd-hw-ref">Optional hardware — RFID, Sub-GHz, IR, GPS</h3>
   <p>
@@ -1890,10 +2031,8 @@ repeat (3) {
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 12 · SAFETY, LEGAL, ATTACKS TOGGLE ══════════════════ -->
 <section class="section" id="safety">
-  <div class="chapter-label">Chapter 12</div>
+  <div class="chapter-label">Chapter 14</div>
   <h2>Safety, Legal &amp; the Attacks Toggle</h2>
 
   <div class="box warn">
@@ -1911,7 +2050,7 @@ repeat (3) {
     All WiFi attacks, BLE spam, the TCP port scanner, and Fox Portal are
     gated behind one setting, checked with <code>SETTINGS</code> and changed
     with <code>SETTINGS:ATTACKS:ON</code> / <code>SETTINGS:ATTACKS:OFF</code>
-    — reachable from Fox ESP32 Commander's <strong>Settings</strong> screen
+    — reachable from FoxHub's <strong>Settings</strong> screen
     as a single "Attacks: ON/OFF" row that applies immediately.
   </p>
   <div class="box info">
@@ -1960,10 +2099,8 @@ repeat (3) {
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 13 · KNOWN LIMITATIONS ══════════════════ -->
 <section class="section" id="limitations">
-  <div class="chapter-label">Chapter 13</div>
+  <div class="chapter-label">Chapter 15</div>
   <h2>Known Limitations</h2>
   <p>
     An honest list of rough edges, so nothing here catches you by surprise.
@@ -1982,7 +2119,7 @@ repeat (3) {
     <li>The BLE spam payloads match each vendor's proximity-pairing packet framing (AD structure, company ID, UUID) correctly, but the exact inner payload bytes beyond that framing are a best-effort approximation.</li>
   </ul>
 
-  <h3>Fox ESP32 Commander</h3>
+  <h3>FoxHub</h3>
   <ul>
     <li>The AP/station scan-result list re-scans every time you open it — there's no caching between visits.</li>
     <li>SSIDs, passwords, URLs, and script text sent to the firmware aren't JSON-escaped — a literal quote or backslash in one of these can break the request.</li>
@@ -2006,16 +2143,14 @@ repeat (3) {
   <h3>General</h3>
   <ul>
     <li>ESP32-S2 boards have no Bluetooth radio at all — Bluetooth menu, Tag Detection, and every BLE command are unavailable on that chip.</li>
-    <li>The status bar WiFi icon reflects only the last action taken through Fox ESP32 Commander's WiFi menu — it does not live-poll the ESP32 and doesn't reflect WiFi state from Fox Chat or Fox Portal, since those apps never change the connection themselves.</li>
+    <li>The status bar WiFi icon reflects only the last action taken through FoxHub's WiFi menu — it does not live-poll the ESP32 and doesn't reflect WiFi state from Fox Chat or Fox Portal, since those apps never change the connection themselves.</li>
   </ul>
 
   <div class="back-top"><a href="#top">↑ Back to top</a></div>
 </section>
 
-
-<!-- ══════════════════ 14 · SUPPORT & TROUBLESHOOTING ══════════════════ -->
 <section class="section" id="support">
-  <div class="chapter-label">Chapter 14</div>
+  <div class="chapter-label">Chapter 16</div>
   <h2>Support &amp; Troubleshooting</h2>
 
   <div class="box tip">
@@ -2055,15 +2190,17 @@ repeat (3) {
   <table>
     <tr><th>Symptom</th><th>Likely cause / fix</th></tr>
     <tr><td>Connect button does nothing</td><td>Web Serial requires Chrome or Edge on desktop — Firefox and Safari don't support it, and it's not available on mobile.</td></tr>
-    <tr><td>"Mismatch: board=..., chip=..."</td><td>You selected the wrong board for your chip. Disconnect, pick the matching board, reconnect. Erase still works regardless of a mismatch if you need to start over.</td></tr>
+    <tr><td>Board isn't in the port list, or "Failed to set control signals"</td><td>Boards without a USB-to-serial chip (the Flipper Wi-Fi Dev Board and other ESP32-S2 boards) must be in bootloader mode: hold BOOT, tap RESET, release BOOT, then click Connect and pick the port. Also check the cable is a data cable.</td></tr>
+    <tr><td>"The board didn't answer"</td><td>Hold the board's BOOT button while you click Connect, and let go once it says Connected.</td></tr>
+    <tr><td>"That port is being used by something else"</td><td>Close the Arduino IDE, serial monitors, qFlipper and any other flasher tab, then Connect again.</td></tr>
+    <tr><td>"Fox ESP32 firmware isn't available for …"</td><td>The connected chip isn't one Fox ESP32 firmware is built for (ESP32, S2, S3, C3, C5, C6).</td></tr>
     <tr><td>Flashing fails partway through</td><td>Keep the browser tab in focus the entire time — backgrounding it can interrupt the serial transfer. Try a lower baud rate if it keeps failing.</td></tr>
-    <tr><td>Device unresponsive after flashing</td><td>Disconnect and reconnect in the Web Installer, then verify with <code>AT</code>/<code>info</code> from Commander or Detector.</td></tr>
+    <tr><td>Device unresponsive after flashing</td><td>Press RESET on the board once, or unplug and replug it — a board flashed from bootloader mode sometimes stays there until it is reset. Then verify with <code>AT</code>/<code>info</code> from FoxHub or Detector.</td></tr>
   </table>
 
   <h3>Attacks say "ERROR:DISABLED"</h3>
   <p>
-    This is the Attacks safety toggle, not a fault — turn it on from Fox
-    ESP32 Commander's Settings screen (see Chapter 10).
+    This is the Attacks safety toggle, not a fault — turn it on from FoxHub's Settings screen (see Chapter 13).
   </p>
 
   <h3>Fox Chat issues</h3>
@@ -2100,6 +2237,25 @@ repeat (3) {
   🦊 FoxFW &nbsp;·&nbsp; <a href="https://discord.gg/gZDqCwSGrQ" target="_blank" rel="noopener" style="color:var(--text-dim);">Discord</a>
 </footer>
 
-</div><!-- /content -->
+</div>
+<button id="backTop" aria-label="Back to top">↑</button>
+
+<script>
+(function(){
+  var btn = document.getElementById('backTop');
+  if (!btn) return;
+  var raf = null;
+  function check(){
+    raf = null;
+    btn.classList.toggle('show', document.documentElement.scrollHeight > document.documentElement.clientHeight + 4);
+  }
+  function scheduleCheck(){ if (!raf) raf = requestAnimationFrame(check); }
+  scheduleCheck();
+  window.addEventListener('resize', scheduleCheck);
+  window.addEventListener('scroll', scheduleCheck, {passive:true});
+  new MutationObserver(scheduleCheck).observe(document.body, {childList:true, subtree:true});
+  btn.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+})();
+</script>
 </body>
 </html>

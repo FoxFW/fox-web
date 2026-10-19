@@ -30,7 +30,6 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 WALLPAPERS_DIR = REPO_ROOT / "wallpapers"
 INDEX_PATH = WALLPAPERS_DIR / "index.json"
 
-
 def collect_added_dates() -> dict[str, str]:
     """Map of repo-relative path -> ISO 8601 date it was first added,
     for every path ever added under wallpapers/, in one git invocation."""
@@ -51,13 +50,9 @@ def collect_added_dates() -> dict[str, str]:
         path = line.strip()
         if not path or current_date is None:
             continue
-        # --reverse walks oldest-first, so the first time we see a path is
-        # genuinely its earliest "added" date even if it was later touched
-        # again in a subsequent commit.
         if path.startswith("wallpapers/") and path not in dates:
             dates[path] = current_date
     return dates
-
 
 def main() -> int:
     if not WALLPAPERS_DIR.is_dir():
@@ -101,7 +96,6 @@ def main() -> int:
         for s in skipped:
             print(f"  - {s}")
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())
