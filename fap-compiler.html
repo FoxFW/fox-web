@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <script>if (window.self !== window.top) document.documentElement.classList.add("embedded-frame");</script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>FoxFW v2.0 — FAP Compiler</title>
+<title>FoxFW v2.1 — FAP Compiler</title>
 <style>
 html { zoom: 80%; }
 *{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
@@ -85,11 +85,44 @@ input[type=text]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 
 .sbox .runlink a{color:#80c890}
 code{background:#111;border:1px solid #444;border-radius:3px;padding:1px 6px;font-size:.85rem;color:#ffa040}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style id="neon-skin">
+:root{--orange:#ff7a18;--dark:#0a0710;--mid:#140d1e;--card:#160f22;--border:#3a2b56;--light:#e9e2f2;--accent:#ff9a3c;--green:#49d17f;--red:#ff6b6b;--glow:rgba(255,122,24,.3);--purple:#b06bff;--fox:#ff7a18}
+html{background:var(--dark)}
+body{color:var(--light);background:var(--dark);background-image:radial-gradient(60vw 50vh at 12% -6%,rgba(255,122,24,.16),transparent 60%),radial-gradient(55vw 55vh at 100% 0%,rgba(176,107,255,.2),transparent 60%),radial-gradient(70vw 60vh at 50% 125%,rgba(176,107,255,.1),transparent 60%);background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.45;background-image:linear-gradient(rgba(176,107,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(176,107,255,.06) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(circle at 50% 12%,#000,transparent 82%);mask-image:radial-gradient(circle at 50% 12%,#000,transparent 82%)}
+.topbar,.subbar,.wrap,main,header,section{position:relative;z-index:1}
+.topbar{background:rgba(8,5,14,.92)!important;backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.topbar::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--orange),var(--purple),transparent);opacity:.9}
+.logo{font-family:'Orbitron',sans-serif;font-weight:900;letter-spacing:.4px;color:#fff;text-shadow:0 0 14px rgba(255,122,24,.35)}
+.logo span{background:linear-gradient(135deg,var(--orange),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent}
+#fwver{display:none!important}
+.badge{background:rgba(255,122,24,.14);border-color:var(--orange);color:var(--accent)}
+.topbar a{color:#b2a6c3}.topbar a:hover{color:var(--accent)}
+.subbar{border-bottom:1px solid var(--border)}
+.mc,.fwcard{background:linear-gradient(180deg,rgba(26,16,40,.74),rgba(14,9,20,.6))!important;border:1px solid var(--border)!important;position:relative;overflow:visible;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.mc::before,.fwcard::before{content:"";position:absolute;top:-1px;left:-1px;width:20px;height:20px;border-top:2px solid var(--orange);border-left:2px solid var(--orange);border-radius:7px 0 0 0}
+.mc::after,.fwcard::after{content:"";position:absolute;bottom:-1px;right:-1px;width:20px;height:20px;border-bottom:2px solid var(--purple);border-right:2px solid var(--purple);border-radius:0 0 7px 0}
+.mc:hover{border-color:#5a4a82!important}
+.mc.sel,.fwcard.sel{border-color:var(--orange)!important;box-shadow:0 0 22px var(--glow)}
+.mc .mt{font-family:'Orbitron',sans-serif;color:#fff;font-weight:700}
+.mc .mi{filter:drop-shadow(0 0 8px rgba(255,122,24,.4))}
+.tag{border:1px solid var(--orange);background:rgba(255,122,24,.12);color:var(--accent)}
+.tag-r{border-color:var(--green);background:rgba(73,209,127,.12);color:var(--green)}
+.fwf .k{color:var(--purple)!important}
+.fwf .v{color:var(--accent)}
+.bsm.pri,button.pri,.btn-primary{background:linear-gradient(135deg,var(--orange),#ff9a3c)!important;border-color:transparent!important;color:#180d00!important;box-shadow:0 0 18px rgba(255,122,24,.45);font-weight:700}
+.bsm.pri:hover,button.pri:hover,.btn-primary:hover{filter:brightness(1.08);box-shadow:0 0 30px rgba(255,122,24,.7)}
+#log,.console,.log,pre{background:#0b0712!important;border-color:var(--border)!important}
+h1,h2,h3{font-family:'Orbitron',sans-serif}
+#backTop{background:linear-gradient(135deg,var(--orange),var(--purple))!important}
+</style>
 </head>
 <body>
 <header class="topbar">
   <div class="tb-left">
-    <div class="logo">🦊 <span>FoxFW</span> v2.0</div>
+    <div class="logo">🦊 <span>FoxFW</span> v2.1</div>
     <div class="badge">FAP COMPILER</div>
   </div>
   <div class="tb-status">
@@ -105,7 +138,7 @@ code{background:#111;border:1px solid #444;border-radius:3px;padding:1px 6px;fon
 <div class="wrap">
 
   <div class="fwcard">
-    <div class="fwf"><div class="k">Firmware</div><div class="v">FoxFW v2.0</div></div>
+    <div class="fwf"><div class="k">Firmware</div><div class="v">FoxFW v2.1</div></div>
     <div class="fwf"><div class="k">Builder</div><div class="v d">GitHub Actions · fbt</div></div>
     <div class="fwf"><div class="k">Output</div><div class="v d">.fap for Flipper Zero</div></div>
   </div>
@@ -286,7 +319,7 @@ async function startCompile() {
     pgStep(100, 'Done'); pgTotal(100);
     $('pgfill-step').classList.remove('pulse'); $('pgfill-total').classList.remove('pulse');
     $('sbox').classList.add('show');
-    $('smsg').textContent = fapName + ' is ready — built against FoxFW v2.0.';
+    $('smsg').textContent = fapName + ' is ready — built against FoxFW v2.1.';
     $('runlink').innerHTML = '<a href="' + run.html_url + '" target="_blank" rel="noopener">View build log on GitHub →</a>';
     connUI('on', 'Compiled ✓', fapName);
     reportStat('ok', '', repoUrl);

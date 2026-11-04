@@ -84,67 +84,67 @@
           "timestamp": 1791623371,
           "files": [
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-firmware-foxfw-v2.0.13.elf",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.13/flipper-z-f7-firmware-foxfw-v2.0.13.elf",
               "target": "f7",
               "type": "firmware_elf",
               "sha256": "3072165f4de66828b3e2e8c226793dad4a3c84e9fdbffd155fdfc0cffa3f1c71"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-full-foxfw-v2.0.13.bin",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.13/flipper-z-f7-full-foxfw-v2.0.13.bin",
               "target": "f7",
               "type": "full_bin",
               "sha256": "f0c760dce7c675d67b21c339e309997f5fbd1d97c8289bdc842b6772326d4631"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-full-foxfw-v2.0.13.dfu",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.13/flipper-z-f7-full-foxfw-v2.0.13.dfu",
               "target": "f7",
               "type": "full_dfu",
               "sha256": "9d1f6ac64b765666d973f2049bf5103cfe7c51fb140328f94b109d2fa9ef28c0"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-full-foxfw-v2.0.13.json",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.13/flipper-z-f7-full-foxfw-v2.0.13.json",
               "target": "f7",
               "type": "full_json",
               "sha256": "884817f9a09b705cb46045886f7a784c0fcf75415958daa8c3eb2a0a6d11938a"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-sdk-foxfw-v2.0.13.zip",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.13/flipper-z-f7-sdk-foxfw-v2.0.13.zip",
               "target": "f7",
               "type": "sdk_zip",
               "sha256": "66cd5190933d0096d9c0711a5e14cc3dc8efd4a7993d46e9dcc2922fcc30e1e0"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-update-foxfw-v2.0.13.tar",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.13/flipper-z-f7-update-foxfw-v2.0.13.tar",
               "target": "f7",
               "type": "update_tar",
               "sha256": "160b75e4edfd78dfd508429169b3a50d3e865b327b827108b09e2577aff55078"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-update-foxfw-v2.0.13.tgz",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.13/flipper-z-f7-update-foxfw-v2.0.13.tgz",
               "target": "f7",
               "type": "update_tgz",
               "sha256": "955ae6b43dbc4970f5e406e5d15dc956d614d7d43100ecf1b315e1bada6aec34"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-updater-foxfw-v2.0.13.bin",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.13/flipper-z-f7-updater-foxfw-v2.0.13.bin",
               "target": "f7",
               "type": "updater_bin",
               "sha256": "1c43abbb55cfc084378c9b8c98df2c3441df80916d865ff833b4dfaa628562ff"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-updater-foxfw-v2.0.13.dfu",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.13/flipper-z-f7-updater-foxfw-v2.0.13.dfu",
               "target": "f7",
               "type": "updater_dfu",
               "sha256": "b4fdc81592209050ff60aef486c1a0ba6b96636bbcbfa3ae0fd70330e3f38752"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-updater-foxfw-v2.0.13.elf",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.13/flipper-z-f7-updater-foxfw-v2.0.13.elf",
               "target": "f7",
               "type": "updater_elf",
               "sha256": "73cda3a0ce496e52c008f6c95b58e638ab88c9dd92db859c22693abd442a643f"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.13/flipper-z-f7-updater-foxfw-v2.0.13.json",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.13/flipper-z-f7-updater-foxfw-v2.0.13.json",
               "target": "f7",
               "type": "updater_json",
               "sha256": "884817f9a09b705cb46045886f7a784c0fcf75415958daa8c3eb2a0a6d11938a"
@@ -157,67 +157,67 @@
           "timestamp": 1791196240,
           "files": [
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.12/flipper-z-f7-firmware-foxfw-v2.0.12.elf",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.12/flipper-z-f7-firmware-foxfw-v2.0.12.elf",
               "target": "f7",
               "type": "firmware_elf",
               "sha256": "8775cf2a1b4cdc925516ed7c6cd5cba2a40b04d4fe2f114be698e872867a1114"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.12/flipper-z-f7-full-foxfw-v2.0.12.bin",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.12/flipper-z-f7-full-foxfw-v2.0.12.bin",
               "target": "f7",
               "type": "full_bin",
               "sha256": "b6f04d03dfad7358120a372530e91fcb07d60f460316f0471b0a5b265a7ea859"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.12/flipper-z-f7-full-foxfw-v2.0.12.dfu",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.12/flipper-z-f7-full-foxfw-v2.0.12.dfu",
               "target": "f7",
               "type": "full_dfu",
               "sha256": "44adceda3ee2f82f8c1f08c0489f3ae6700917e08426fa0b79b650fa7c115818"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.12/flipper-z-f7-full-foxfw-v2.0.12.json",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.12/flipper-z-f7-full-foxfw-v2.0.12.json",
               "target": "f7",
               "type": "full_json",
               "sha256": "0ba9c1d990af6152a936622f0d2ecf026ae8cf6fbea8806d090afd9760b8ffaa"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.12/flipper-z-f7-sdk-foxfw-v2.0.12.zip",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.12/flipper-z-f7-sdk-foxfw-v2.0.12.zip",
               "target": "f7",
               "type": "sdk_zip",
               "sha256": "2e32d64319e3edfa42fc28c8c07c0015f19be20824945b4a7877349e031e68f4"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.12/flipper-z-f7-update-foxfw-v2.0.12.tar",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.12/flipper-z-f7-update-foxfw-v2.0.12.tar",
               "target": "f7",
               "type": "update_tar",
               "sha256": "691c736b90dc2d93765168a54c598ee7f0e8a2f5cb3d7e50b3bd1a22586ff076"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.12/flipper-z-f7-update-foxfw-v2.0.12.tgz",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.12/flipper-z-f7-update-foxfw-v2.0.12.tgz",
               "target": "f7",
               "type": "update_tgz",
               "sha256": "e30cd0a30193edb00330660f7252a90fafef092f1a150d933c578320bc6fb900"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.12/flipper-z-f7-updater-foxfw-v2.0.12.bin",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.12/flipper-z-f7-updater-foxfw-v2.0.12.bin",
               "target": "f7",
               "type": "updater_bin",
               "sha256": "1929e936703fb0b46568916088704d6c26283740f6df467a907d3d4db8dd72d8"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.12/flipper-z-f7-updater-foxfw-v2.0.12.dfu",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.12/flipper-z-f7-updater-foxfw-v2.0.12.dfu",
               "target": "f7",
               "type": "updater_dfu",
               "sha256": "572865301660faff14435f011318482dd55d77754d855891a5c1ed18f1ac424c"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.12/flipper-z-f7-updater-foxfw-v2.0.12.elf",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.12/flipper-z-f7-updater-foxfw-v2.0.12.elf",
               "target": "f7",
               "type": "updater_elf",
               "sha256": "f4066db4dd1491a15261a31847bbf0871c68a558e91ae52754c9386684686481"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.12/flipper-z-f7-updater-foxfw-v2.0.12.json",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.12/flipper-z-f7-updater-foxfw-v2.0.12.json",
               "target": "f7",
               "type": "updater_json",
               "sha256": "0ba9c1d990af6152a936622f0d2ecf026ae8cf6fbea8806d090afd9760b8ffaa"
@@ -230,67 +230,67 @@
           "timestamp": 1790857979,
           "files": [
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.11/flipper-z-f7-firmware-foxfw-v2.0.11.elf",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.11/flipper-z-f7-firmware-foxfw-v2.0.11.elf",
               "target": "f7",
               "type": "firmware_elf",
               "sha256": "4df5c0fd365489a830636128a1f00a789f180b86f0299a1f024ea9957919c0da"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.11/flipper-z-f7-full-foxfw-v2.0.11.bin",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.11/flipper-z-f7-full-foxfw-v2.0.11.bin",
               "target": "f7",
               "type": "full_bin",
               "sha256": "729649e24f8c6e84e11fdebd9018ea8c0ae24eb8f4b1c5641bd402a5a22878f0"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.11/flipper-z-f7-full-foxfw-v2.0.11.dfu",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.11/flipper-z-f7-full-foxfw-v2.0.11.dfu",
               "target": "f7",
               "type": "full_dfu",
               "sha256": "5a1ba5ca2dcc1e551943230555970f15b2d3253a5af1a4ca597569cf8cdd7b0d"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.11/flipper-z-f7-full-foxfw-v2.0.11.json",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.11/flipper-z-f7-full-foxfw-v2.0.11.json",
               "target": "f7",
               "type": "full_json",
               "sha256": "b27c09a52a37eecf3939b833fb99c8c454a3696560c0e1cb61a8890b35976082"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.11/flipper-z-f7-sdk-foxfw-v2.0.11.zip",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.11/flipper-z-f7-sdk-foxfw-v2.0.11.zip",
               "target": "f7",
               "type": "sdk_zip",
               "sha256": "910f2a69a3057e75d468a505907972141982cd052abb18a068c9d8ee7703464a"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.11/flipper-z-f7-update-foxfw-v2.0.11.tar",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.11/flipper-z-f7-update-foxfw-v2.0.11.tar",
               "target": "f7",
               "type": "update_tar",
               "sha256": "72b86c45fc0534fbc43e37398189302af1de22e0fa37216c5b48c6606b408242"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.11/flipper-z-f7-update-foxfw-v2.0.11.tgz",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.11/flipper-z-f7-update-foxfw-v2.0.11.tgz",
               "target": "f7",
               "type": "update_tgz",
               "sha256": "fd25ab0cc1ce53dce5ef6193850325575640085d950a412f23b4740342014555"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.11/flipper-z-f7-updater-foxfw-v2.0.11.bin",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.11/flipper-z-f7-updater-foxfw-v2.0.11.bin",
               "target": "f7",
               "type": "updater_bin",
               "sha256": "3a65ba003a5ca48fe1fbad646d81ac7858f1fc8ad534a261603236edd85afb1e"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.11/flipper-z-f7-updater-foxfw-v2.0.11.dfu",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.11/flipper-z-f7-updater-foxfw-v2.0.11.dfu",
               "target": "f7",
               "type": "updater_dfu",
               "sha256": "ba3f5bc2009dba7595e16970e02604f905f53156cda0cd925437fe4076e9009e"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.11/flipper-z-f7-updater-foxfw-v2.0.11.elf",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.11/flipper-z-f7-updater-foxfw-v2.0.11.elf",
               "target": "f7",
               "type": "updater_elf",
               "sha256": "977754f8e1268f344a5d2865add1c5b6256eee902db329a916b87527a5548e63"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.11/flipper-z-f7-updater-foxfw-v2.0.11.json",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.11/flipper-z-f7-updater-foxfw-v2.0.11.json",
               "target": "f7",
               "type": "updater_json",
               "sha256": "b27c09a52a37eecf3939b833fb99c8c454a3696560c0e1cb61a8890b35976082"
@@ -303,67 +303,67 @@
           "timestamp": 1790766433,
           "files": [
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.10/flipper-z-f7-firmware-foxfw-v2.0.10.elf",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.10/flipper-z-f7-firmware-foxfw-v2.0.10.elf",
               "target": "f7",
               "type": "firmware_elf",
               "sha256": "97cf48957a48fe54dd7102b99d00be3d710521ec55f53a3baa3d9008d71dc586"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.10/flipper-z-f7-full-foxfw-v2.0.10.bin",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.10/flipper-z-f7-full-foxfw-v2.0.10.bin",
               "target": "f7",
               "type": "full_bin",
               "sha256": "bfb9ad9d6edd2060a66d03b230a7d9ce75923484ec6ff35fbbc791af9c700626"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.10/flipper-z-f7-full-foxfw-v2.0.10.dfu",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.10/flipper-z-f7-full-foxfw-v2.0.10.dfu",
               "target": "f7",
               "type": "full_dfu",
               "sha256": "4357cd505b0dd0dc395f5c3ce7a002e6d9bef4da8c7a30d93237938ad5adc8d9"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.10/flipper-z-f7-full-foxfw-v2.0.10.json",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.10/flipper-z-f7-full-foxfw-v2.0.10.json",
               "target": "f7",
               "type": "full_json",
               "sha256": "a6d8b473b084eba30dbf0b66c0b0888d3388a09c42e6298950ea2d216c1c8ccd"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.10/flipper-z-f7-sdk-foxfw-v2.0.10.zip",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.10/flipper-z-f7-sdk-foxfw-v2.0.10.zip",
               "target": "f7",
               "type": "sdk_zip",
               "sha256": "1a4eb89e6f5363b1c228ec30b7e8619a3eb003d067210ac1c667a871fdf2b8a9"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.10/flipper-z-f7-update-foxfw-v2.0.10.tar",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.10/flipper-z-f7-update-foxfw-v2.0.10.tar",
               "target": "f7",
               "type": "update_tar",
               "sha256": "f3f20d44ff811720a47d79269457b4cde69a71135a6108c004f7b1227c6d9d39"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.10/flipper-z-f7-update-foxfw-v2.0.10.tgz",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.10/flipper-z-f7-update-foxfw-v2.0.10.tgz",
               "target": "f7",
               "type": "update_tgz",
               "sha256": "9aff87beea3ee1c561e5d8d4426a6e37f56251e8e9e73f9364d43d78aa128702"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.10/flipper-z-f7-updater-foxfw-v2.0.10.bin",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.10/flipper-z-f7-updater-foxfw-v2.0.10.bin",
               "target": "f7",
               "type": "updater_bin",
               "sha256": "c24e409f7153644fdb0bb265d2582b850ec254225ebccc860b4b969f4d2e763d"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.10/flipper-z-f7-updater-foxfw-v2.0.10.dfu",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.10/flipper-z-f7-updater-foxfw-v2.0.10.dfu",
               "target": "f7",
               "type": "updater_dfu",
               "sha256": "7d418d609d6ef63f934a07efbc7afdc11076a2d117b19cd9451f078d9ab27bed"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.10/flipper-z-f7-updater-foxfw-v2.0.10.elf",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.10/flipper-z-f7-updater-foxfw-v2.0.10.elf",
               "target": "f7",
               "type": "updater_elf",
               "sha256": "416b83a78b407f5399f62a18f5e5746d9b4aabd4235ecf6d977c7eae543441f9"
             },
             {
-              "url": "https://github.com/FoxFW/2.0/releases/download/v2.0.10/flipper-z-f7-updater-foxfw-v2.0.10.json",
+              "url": "https://github.com/FoxFW/flipperzero-firmware/releases/download/v2.0.10/flipper-z-f7-updater-foxfw-v2.0.10.json",
               "target": "f7",
               "type": "updater_json",
               "sha256": "a6d8b473b084eba30dbf0b66c0b0888d3388a09c42e6298950ea2d216c1c8ccd"
