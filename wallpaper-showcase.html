@@ -467,8 +467,8 @@ pre,.log,.console,textarea,.terminal{background:#0b0712!important}
 
   const MIN_WALLPAPERS_FIRMWARE = { major: 2, minor: 0, patch: 4 };
   function parseFoxfwVersion(str) {
-    const m = /^foxfw-v(\d+)\.(\d+)\.(\d+)/.exec(str || "");
-    return m ? { major: +m[1], minor: +m[2], patch: +m[3] } : null;
+    const m = /^foxfw-v(\d+)\.(\d+)(?:\.(\d+))?/.exec(str || "");
+    return m ? { major: +m[1], minor: +m[2], patch: +(m[3] || 0) } : null;
   }
   function isVersionAtLeast(v, min) {
     if (v.major !== min.major) return v.major > min.major;

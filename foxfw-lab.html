@@ -37,7 +37,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:va
 
 .shell{flex:1;display:flex;min-height:0}
 
-.sidebar{width:64px;background:#0a0a0a;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px 0 20px;flex-shrink:0;overflow-y:auto;transition:width .18s ease}
+.sidebar{width:64px;background:#0a0a0a;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px 0 52px;flex-shrink:0;overflow-y:auto;transition:width .18s ease}
 .sidebar.expanded{width:196px;align-items:stretch}
 .dev-tabs{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);width:100%;align-items:center}
 .dev-tab{width:44px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:.04em;color:#666;cursor:pointer;border:1px solid transparent;background:transparent}
@@ -849,10 +849,15 @@ pre,.terminal,.console,textarea,.cli,.screen-mirror,canvas.mirror{background:#0b
   }
 
   function parseFoxfwVersion(str) {
-    const m = /^foxfw-v(\d+)\.(\d+)\.(\d+)/.exec(str || "");
-    return m ? { major: +m[1], minor: +m[2], patch: +m[3] } : null;
+    const m = /^foxfw-v(\d+)\.(\d+)(?:\.(\d+))?/.exec(str || "");
+    return m ? { major: +m[1], minor: +m[2], patch: +(m[3] || 0) } : null;
   }
-  function versionString(v) { return v ? `${v.major}.${v.minor}.${v.patch}` : "unknown"; }
+  function parseVersionStr(str) {
+    const p = (str || "").trim().split(".");
+    if (p.length < 2 || isNaN(+p[0]) || isNaN(+p[1])) return null;
+    return { major: +p[0], minor: +p[1], patch: +(p[2] || 0) };
+  }
+  function versionString(v) { return v ? (v.patch ? `${v.major}.${v.minor}.${v.patch}` : `${v.major}.${v.minor}`) : "unknown"; }
   function isVersionAtLeast(v, min) {
     if (v.major !== min.major) return v.major > min.major;
     if (v.minor !== min.minor) return v.minor > min.minor;
@@ -944,7 +949,7 @@ pre,.terminal,.console,textarea,.cli,.screen-mirror,canvas.mirror{background:#0b
       const dir = await resp.json();
       const releaseChannel = (dir.channels || []).find(c => c.id === "release") || (dir.channels || [])[0];
       const latestStr = releaseChannel && releaseChannel.versions && releaseChannel.versions[0] && releaseChannel.versions[0].version;
-      const latest = latestStr ? { major: +latestStr.split(".")[0], minor: +latestStr.split(".")[1], patch: +latestStr.split(".")[2] } : null;
+      const latest = parseVersionStr(latestStr);
       if (!latest) {
         body.innerHTML = '<div class="empty">Couldn\'t read the SDK index.</div>';
         return;
