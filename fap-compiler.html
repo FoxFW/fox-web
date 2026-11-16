@@ -263,9 +263,9 @@ function repoSlug(url) {
   return m ? m[1] + '/' + m[2].replace(/\.git$/i, '') : '';
 }
 
-function reportStat(result, stage, repoUrl) {
+function reportStat(result, stage, repoUrl, runUrl) {
   if (!window.FoxStats) return;
-  window.FoxStats.report({ app: 'fap', target: 'fap', fw: '', result: result, stage: stage, link: '', repo: repoSlug(repoUrl) });
+  window.FoxStats.report({ app: 'fap', target: 'fap', fw: '', result: result, stage: stage, link: '', repo: repoSlug(repoUrl), runUrl: runUrl || '' });
 }
 
 async function startCompile() {
@@ -289,6 +289,7 @@ async function startCompile() {
   const refVal = $('refInput').value.trim();
   const subdirVal = $('subdirInput').value.trim();
   let statStage = 'dispatch';
+  let runUrlForStat = '';
 
   try {
     log('Requesting a build for ' + repoUrl + '…', 'in');
@@ -301,6 +302,7 @@ async function startCompile() {
     statStage = 'build';
 
     const run = await findRun(dispatchedAt);
+    runUrlForStat = run.html_url;
     log('Build started: ' + run.html_url, 'ok');
 
     const finished = await pollRun(run);
@@ -324,7 +326,7 @@ async function startCompile() {
     connUI('on', 'Compiled ✓', fapName);
     reportStat('ok', '', repoUrl);
   } catch (err) {
-    reportStat('fail', statStage, repoUrl);
+    reportStat('fail', statStage, repoUrl, runUrlForStat);
     showErr(err.message);
     log('FAILED: ' + err.message, 'er');
     pgTotal(0); $('pgfill-step').classList.remove('pulse'); $('pgfill-total').classList.remove('pulse');

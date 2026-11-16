@@ -204,7 +204,8 @@
         result: result,
         stage: result === 'ok' ? '' : String(fields.stage || ''),
         link: String(fields.link || ''),
-        repo: fields.repo ? String(fields.repo) : undefined
+        repo: fields.repo ? String(fields.repo) : undefined,
+        runUrl: fields.runUrl ? String(fields.runUrl) : undefined
       });
       fetch(ENDPOINT + '/hit', {
         method: 'POST',
